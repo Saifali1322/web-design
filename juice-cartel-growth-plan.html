@@ -1,0 +1,752 @@
+<title>Juice Cartel — Road to £1k Profit</title>
+<style>
+  :root {
+    --ground: #FBF7F6;
+    --surface: #FFFFFF;
+    --surface-alt: #F3EDEF;
+    --ink: #241722;
+    --ink-soft: #574350;
+    --muted: #7A6870;
+    --rule: #E3D8DC;
+    --beet: #A8194B;
+    --beet-soft: #F7E7EC;
+    --pulp: #C4551D;
+    --leaf: #2F6B47;
+    --leaf-soft: #E6F0E9;
+
+    --display: "Arial Black", "Arial Bold", "Helvetica Neue", Helvetica, sans-serif;
+    --body: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+    --measure: 68ch;
+    --gutter: clamp(1.25rem, 4vw, 3rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #171016;
+      --surface: #201822;
+      --surface-alt: #2A2029;
+      --ink: #F4EAEF;
+      --ink-soft: #D2C1CB;
+      --muted: #9C8894;
+      --rule: #3A2E38;
+      --beet: #FF6E9C;
+      --beet-soft: #33192A;
+      --pulp: #F0954F;
+      --leaf: #6FC994;
+      --leaf-soft: #1C3327;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #171016;
+    --surface: #201822;
+    --surface-alt: #2A2029;
+    --ink: #F4EAEF;
+    --ink-soft: #D2C1CB;
+    --muted: #9C8894;
+    --rule: #3A2E38;
+    --beet: #FF6E9C;
+    --beet-soft: #33192A;
+    --pulp: #F0954F;
+    --leaf: #6FC994;
+    --leaf-soft: #1C3327;
+  }
+  :root[data-theme="light"] {
+    --ground: #FBF7F6;
+    --surface: #FFFFFF;
+    --surface-alt: #F3EDEF;
+    --ink: #241722;
+    --ink-soft: #574350;
+    --muted: #7A6870;
+    --rule: #E3D8DC;
+    --beet: #A8194B;
+    --beet-soft: #F7E7EC;
+    --pulp: #C4551D;
+    --leaf: #2F6B47;
+    --leaf-soft: #E6F0E9;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 var(--gutter) 6rem;
+  }
+  .col {
+    max-width: var(--measure);
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    padding: clamp(3rem, 8vw, 6rem) 0 clamp(2rem, 5vw, 3.5rem);
+    border-bottom: 3px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--beet);
+    margin-bottom: 1.5rem;
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(2.6rem, 9vw, 6.5rem);
+    line-height: 0.88;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+    text-wrap: balance;
+    margin-bottom: 1.75rem;
+  }
+  h1 .thin {
+    display: block;
+    color: var(--beet);
+  }
+  .standfirst {
+    max-width: 52ch;
+    font-size: clamp(1.05rem, 1rem + 0.4vw, 1.3rem);
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- scoreboard ---------- */
+  .scoreboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: clamp(3rem, 7vw, 5rem);
+  }
+  .score {
+    background: var(--ground);
+    padding: 1.5rem 1.25rem 1.75rem;
+  }
+  .score dt {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  .score dd {
+    font-family: var(--display);
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .score dd small {
+    display: block;
+    font-family: var(--body);
+    font-weight: normal;
+    font-size: 0.8rem;
+    letter-spacing: 0;
+    color: var(--muted);
+    margin-top: 0.55rem;
+    line-height: 1.35;
+  }
+  .score.target dd { color: var(--beet); }
+
+  /* ---------- sections ---------- */
+  section {
+    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--beet);
+    margin-bottom: 0.9rem;
+  }
+  h2 {
+    font-family: var(--display);
+    font-size: clamp(1.6rem, 4vw, 2.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    text-wrap: balance;
+    margin-bottom: 1.5rem;
+  }
+  h3 {
+    font-family: var(--display);
+    font-size: clamp(1.02rem, 1.6vw, 1.16rem);
+    letter-spacing: -0.012em;
+    line-height: 1.25;
+    margin-bottom: 0.6rem;
+  }
+  p { margin-bottom: 1.1rem; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--ink); }
+  em.lede {
+    font-style: normal;
+    background: var(--beet-soft);
+    box-shadow: 0 0 0 0.22em var(--beet-soft);
+    color: var(--ink);
+  }
+
+  ul.notes {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
+  ul.notes li {
+    padding-left: 1.5rem;
+    position: relative;
+  }
+  ul.notes li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 0.6rem;
+    height: 2px;
+    background: var(--beet);
+  }
+
+  /* ---------- full-bleed math bands ---------- */
+  .band {
+    background: var(--ink);
+    color: var(--ground);
+    margin: clamp(2.5rem, 6vw, 4rem) calc(var(--gutter) * -1) 0;
+    padding: clamp(2.25rem, 6vw, 3.75rem) var(--gutter);
+  }
+  .band .kicker { color: var(--beet); }
+  .band-inner { max-width: 78rem; margin: 0 auto; }
+
+  .equation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 0.5rem 0.75rem;
+    margin: 1.75rem 0 0;
+  }
+  .term {
+    flex: 1 1 8rem;
+    background: rgba(255,255,255,0.06);
+    border-top: 2px solid var(--beet);
+    padding: 1rem 1rem 1.15rem;
+  }
+  .term .t-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 0.6rem;
+  }
+  .term .t-from {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    opacity: 0.55;
+    text-decoration: line-through;
+    font-variant-numeric: tabular-nums;
+  }
+  .term .t-to {
+    font-family: var(--display);
+    font-size: clamp(1.35rem, 3.4vw, 1.9rem);
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    margin-top: 0.15rem;
+  }
+  .op {
+    align-self: center;
+    font-family: var(--display);
+    font-size: 1.4rem;
+    opacity: 0.4;
+    padding: 0 0.15rem;
+  }
+  .term.result {
+    background: var(--beet);
+    border-top-color: var(--ground);
+    color: #fff;
+    flex-basis: 11rem;
+  }
+  .term.result .t-from { opacity: 0.7; }
+  .band-note {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    line-height: 1.6;
+    opacity: 0.62;
+    margin-top: 1.5rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-top: 2px solid var(--ink);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    min-width: 34rem;
+  }
+  th, td {
+    text-align: right;
+    padding: 0.72rem 0.7rem;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  th:first-child, td:first-child {
+    text-align: left;
+    white-space: normal;
+    min-width: 11rem;
+  }
+  thead th {
+    font-size: 0.63rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 0.85rem;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tfoot td {
+    border-top: 2px solid var(--ink);
+    border-bottom: none;
+    font-weight: bold;
+    color: var(--ink);
+    padding-top: 0.85rem;
+  }
+  .num-good { color: var(--leaf); }
+  .plan-name { font-family: var(--body); font-size: 0.94rem; }
+  .plan-name b { display: block; font-family: var(--display); font-size: 0.86rem; letter-spacing: -0.01em; }
+  .plan-name span { color: var(--muted); font-size: 0.84rem; }
+
+  /* ---------- cards ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin: 1.5rem 0;
+  }
+  .card {
+    background: var(--surface);
+    padding: 1.4rem 1.35rem 1.5rem;
+  }
+  .card p { font-size: 0.93rem; margin-bottom: 0.7rem; }
+  .card .tag {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+  .gain {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: var(--leaf);
+    background: var(--leaf-soft);
+    display: inline-block;
+    padding: 0.24rem 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- roadmap (a real sequence) ---------- */
+  .phase {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 9rem) 1fr;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    padding: 1.75rem 0;
+    border-top: 1px solid var(--rule);
+    align-items: start;
+  }
+  .phase:first-of-type { border-top: 2px solid var(--ink); }
+  .phase-when {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    position: sticky;
+    top: 1rem;
+  }
+  .phase-when b {
+    display: block;
+    font-family: var(--display);
+    font-size: 1.6rem;
+    letter-spacing: -0.03em;
+    color: var(--beet);
+    margin-bottom: 0.3rem;
+  }
+  .phase ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .phase li { padding-left: 1.5rem; position: relative; font-size: 0.95rem; }
+  .phase li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0.55em;
+    width: 0.5rem; height: 0.5rem;
+    border: 1.5px solid var(--beet);
+  }
+  .milestone {
+    margin-top: 1rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    background: var(--surface-alt);
+    padding: 0.7rem 0.85rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .milestone b { color: var(--beet); }
+
+  /* ---------- risk ---------- */
+  .risk {
+    border-left: 3px solid var(--pulp);
+    padding: 0.25rem 0 0.25rem 1.15rem;
+    margin: 1.25rem 0;
+  }
+  .risk h3 { color: var(--pulp); }
+  .risk p { font-size: 0.95rem; }
+
+  a { color: var(--beet); text-underline-offset: 0.18em; }
+  a:focus-visible, :focus-visible {
+    outline: 2px solid var(--beet);
+    outline-offset: 2px;
+  }
+  footer {
+    margin-top: clamp(3rem, 7vw, 5rem);
+    padding-top: 1.5rem;
+    border-top: 3px solid var(--ink);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">Juice Cartel · Growth Plan · 90 Days</div>
+    <h1>You don't need<br>250 orders.<span class="thin">You need 23 subscribers.</span></h1>
+    <p class="standfirst">The gap between where the business is and where it's going is £700 of monthly profit. Chased as one-off orders that's a grind. Sold as a weekly subscription, it's about two dozen people on one delivery run.</p>
+  </header>
+
+  <dl class="scoreboard">
+    <div class="score">
+      <dt>Now / month</dt>
+      <dd>£600<small>Revenue, ~50% net → £300 profit</small></dd>
+    </div>
+    <div class="score">
+      <dt>Best month</dt>
+      <dd>£1,000<small>Ramadan, crunch cake trend → £500</small></dd>
+    </div>
+    <div class="score target">
+      <dt>Target</dt>
+      <dd>£1,000<small>Profit, recurring, every month</small></dd>
+    </div>
+    <div class="score">
+      <dt>Gap to close</dt>
+      <dd>£700<small>Monthly profit, from a standing start</small></dd>
+    </div>
+  </dl>
+
+  <section class="col">
+    <div class="kicker">The read</div>
+    <h2>The product works. The machine around it doesn't exist.</h2>
+    <p>Three things in the current numbers are genuinely strong, and they're worth naming because they're the things most food businesses never get:</p>
+    <ul class="notes">
+      <li><strong>100% of customers are non-friends.</strong> Nobody is buying out of loyalty. That's real demand, and it means the thing scales past the personal network — which is where most hustles die.</li>
+      <li><strong>75% gross margin on both products.</strong> £1 → £4 on juice, £2 → £8 on cake. Those are excellent unit economics. Most food businesses fight for 60%.</li>
+      <li><strong>Ramadan proved trend-jacking works.</strong> £1,000 in a month wasn't luck. It was the right product on the right occasion with the right content. That's repeatable.</li>
+    </ul>
+    <p>What's missing is everything <em class="lede">between the customer wanting it and the money landing</em>: no website, no funnel, no card payments, no repeat mechanism. Every single month starts from zero and gets rebuilt by hand through DMs.</p>
+  </section>
+
+  <section class="col">
+    <div class="kicker">The core problem</div>
+    <h2>The goal is MRR. There is currently no R.</h2>
+    <p>"£1k profit MRR" is the right target, but nothing in the business today recurs. Every order is a fresh negotiation in a Snapchat DM, settled by bank transfer. That caps the business at however many conversations one person can have in a day — and it means the £600 has to be re-earned from scratch on the first of every month.</p>
+    <p>The fix isn't more orders. It's <strong>changing what's being sold</strong>: from a juice, to a weekly habit that's paid for in advance and delivered on a fixed day.</p>
+    <p>This does four things at once — and the ops win is as big as the revenue win:</p>
+    <ul class="notes">
+      <li><strong>Revenue becomes predictable.</strong> Month starts with money already committed.</li>
+      <li><strong>COGS become predictable.</strong> Known quantities means near-zero waste, which is where a chunk of the missing margin is going.</li>
+      <li><strong>One press, one route.</strong> Batch everything into a single delivery day instead of scattered drops all week.</li>
+      <li><strong>Cash arrives before the cost.</strong> Prepaid subscriptions fund the ingredients.</li>
+    </ul>
+  </section>
+
+  <div class="band">
+    <div class="band-inner">
+      <div class="kicker">The math, three ways</div>
+      <h2 style="color:var(--ground); margin-bottom:0.5rem;">Profit = Orders × Basket × Margin</h2>
+      <p style="opacity:0.72; max-width:56ch; margin-bottom:0;">Chasing volume alone means tripling the order count. Moving all three levers a modest amount gets there far more easily — because they multiply.</p>
+      <div class="equation">
+        <div class="term">
+          <div class="t-label">Orders / month</div>
+          <div class="t-from">75</div>
+          <div class="t-to">130</div>
+        </div>
+        <div class="op">×</div>
+        <div class="term">
+          <div class="t-label">Avg basket</div>
+          <div class="t-from">£8</div>
+          <div class="t-to">£16</div>
+        </div>
+        <div class="op">×</div>
+        <div class="term">
+          <div class="t-label">Net margin</div>
+          <div class="t-from">50%</div>
+          <div class="t-to">58%</div>
+        </div>
+        <div class="op">=</div>
+        <div class="term result">
+          <div class="t-label">Monthly profit</div>
+          <div class="t-from">£300</div>
+          <div class="t-to">£1,206</div>
+        </div>
+      </div>
+      <p class="band-note">Order count needs to rise ~1.7×, not 3.3×. The heavy lifting is done by basket size (bundles instead of single juices) and by plugging the margin leak. Basket and order-count figures are estimates from £600 revenue at a typical two-juice order — worth checking against actual order history.</p>
+    </div>
+  </div>
+
+  <section class="col">
+    <div class="kicker">Lever one</div>
+    <h2>Cartel Club: the weekly drop</h2>
+    <p>One delivery day a week. Pressed that morning, paid in advance, same customers every week. Three tiers, priced slightly below buying the same items à la carte so the subscription is obviously the better deal.</p>
+    <p><strong>The shelf-life constraint shapes the product.</strong> Raw cold-pressed juice with no HPP treatment keeps roughly 3 days refrigerated — often quoted as a 72-hour maximum. That rules out a "week's worth in one drop." Build the tiers around 3-day packs and be straight about it on the label: <em>keep refrigerated, drink within 3 days</em>. Honesty here is also brand — it's the proof it's genuinely raw.</p>
+  </section>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Tier</th>
+          <th>Price / wk</th>
+          <th>Ingredients</th>
+          <th>Packaging</th>
+          <th>Delivery</th>
+          <th>Profit / wk</th>
+          <th>Profit / mo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="plan-name"><b>Reset</b><span>3 juices</span></td>
+          <td>£11.00</td><td>£3.00</td><td>£1.20</td><td>£1.00</td>
+          <td>£5.80</td><td class="num-good">£25.11</td>
+        </tr>
+        <tr>
+          <td class="plan-name"><b>The Weekly</b><span>3 juices + 1 dessert</span></td>
+          <td>£18.00</td><td>£5.00</td><td>£1.70</td><td>£1.00</td>
+          <td>£10.30</td><td class="num-good">£44.60</td>
+        </tr>
+        <tr>
+          <td class="plan-name"><b>Household</b><span>6 juices + 2 desserts</span></td>
+          <td>£34.00</td><td>£10.00</td><td>£3.00</td><td>£1.00</td>
+          <td>£20.00</td><td class="num-good">£86.60</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="col">
+    <p>Which gives a very concrete target. A realistic mix — weighted toward the middle tier, because that's where the dessert attaches and the dessert is where the money is:</p>
+  </section>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>Mix to goal</th><th>Subscribers</th><th>Profit / mo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="plan-name">Reset</td><td>8</td><td>£200.88</td></tr>
+        <tr><td class="plan-name">The Weekly</td><td>12</td><td>£535.20</td></tr>
+        <tr><td class="plan-name">Household</td><td>3</td><td>£259.80</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>Recurring base</td><td>23</td><td class="num-good">£995.88</td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <section class="col">
+    <p><strong>23 subscribers is the whole goal.</strong> Any one-off orders, event trays and trend spikes on top of that are upside, not the plan. And 23 drops on a single tight postcode route is roughly a three-hour Sunday — a business that fits around a job.</p>
+    <p>Packaging and delivery costs above are estimates. They should be replaced with real figures in week one, because the whole model is sensitive to them.</p>
+  </section>
+
+  <section class="col">
+    <div class="kicker">Lever two</div>
+    <h2>Find the missing 25 points of margin</h2>
+    <p>Unit economics say 75% gross margin. Reality is delivering 50%. That 25-point gap is roughly <strong>£150 a month disappearing</strong> into packaging, fuel, waste and sub-scale ingredient buying — and closing even half of it is the cheapest money available, because it needs no new customers at all.</p>
+  </section>
+
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Pricing</span>
+      <h3>£4 is under market</h3>
+      <p>UK cold-press retails at £5–7. Move to £4.50 and launch it with the new ordering page so new customers never see the old price.</p>
+      <span class="gain">+£37/mo at current volume</span>
+    </div>
+    <div class="card">
+      <span class="tag">Order rules</span>
+      <h3>£12 minimum, free over £20</h3>
+      <p>Driving across town for a single £4 juice loses money. A minimum kills the unprofitable trips; the free-delivery threshold pushes basket size upward on its own.</p>
+      <span class="gain">Direct basket lift</span>
+    </div>
+    <div class="card">
+      <span class="tag">Supply</span>
+      <h3>Buy packaging in bulk</h3>
+      <p>Bottles, labels and cool bags bought 50 at a time can cost nearly double the 500-unit price. This is a one-off cash outlay that permanently raises margin on every order.</p>
+      <span class="gain">Recurring, compounding</span>
+    </div>
+    <div class="card">
+      <span class="tag">Waste</span>
+      <h3>Press to order, not to stock</h3>
+      <p>With a 72-hour shelf life, anything pressed speculatively is a coin flip. Subscriptions make the quantity known before the fruit is bought.</p>
+      <span class="gain">Waste → near zero</span>
+    </div>
+  </div>
+
+  <section class="col">
+    <div class="kicker">Lever three</div>
+    <h2>Plug the holes between wanting it and paying</h2>
+    <p>Bank transfer and cash only, with no website, is the single biggest conversion leak in the business. Every stranger who sees a TikTok has to DM, wait for a reply, agree a price, get sort code and account number, and manually push money to a person they've never met. A meaningful share of interested people fall out at each of those steps — and unlike content, none of this needs an audience to fix.</p>
+    <ul class="notes">
+      <li><strong>Card payments, this week.</strong> Stripe, SumUp or Square gets card and Apple Pay live in a day. Card fees of ~1.5% are trivial next to the orders currently lost to transfer friction.</li>
+      <li><strong>A one-page ordering site.</strong> Menu, prices, postcodes served, delivery day, checkout. One link in every bio, every Snap, every video. It replaces the entire DM negotiation.</li>
+      <li><strong>Subscriptions on Direct Debit.</strong> Start on Stripe for speed. At scale, GoCardless charges roughly 1% and fails far less often than cards, which matters when the same charge repeats weekly.</li>
+      <li><strong>A link in every single post.</strong> Content currently sends people to a dead end. Every view should have somewhere to go.</li>
+    </ul>
+  </section>
+
+  <section class="col">
+    <div class="kicker">Demand</div>
+    <h2>Two posts a week is the biggest under-investment in the business</h2>
+    <p>Local food content on TikTok needs 5–7 posts a week to hold algorithmic momentum — two is roughly a quarter of the required volume, which is why growth feels flat. The good news is that filming is nearly free and he's already the actor, which is the hard part most people can't solve.</p>
+    <ul class="notes">
+      <li><strong>Batch-film on press day.</strong> The weekly press run is the content. Twenty minutes with a phone on a tripod during a session he's doing anyway yields a week of posts.</li>
+      <li><strong>Stop posting the same video to both platforms.</strong> Both platforms suppress content that's obviously recycled. Re-record the hook and change the cover — same shoot, two edits.</li>
+      <li><strong>Write hooks, not scripts.</strong> The first 1.5 seconds decides everything. ChatGPT is fine for this, but it should be generating twenty competing hooks to test, not one full script to read aloud.</li>
+      <li><strong>Lean into Snapchat.</strong> It's already the top channel and it's the least contested. Public Stories, Spotlight and Snap Map put content in front of the local area specifically.</li>
+      <li><strong>Build a trend calendar.</strong> Ramadan wasn't a fluke, it was an occasion with a matching product. January detox, exam season, heatwaves, Eid, Valentine's, Mother's Day — plan the SKU before the date, not during it.</li>
+    </ul>
+
+    <h3 style="margin-top:2rem;">Two channels that outperform content per hour spent</h3>
+    <p><strong>Referral, printed on card.</strong> Every delivery goes out with "£3 off your next order, and £3 for whoever you send." With a 75% margin, £6 to acquire a customer who might subscribe for months is cheap. Unique codes make it measurable.</p>
+    <p><strong>Local partnerships.</strong> One gym with 200 members allowing a Saturday sampling table is worth more than a hundred videos. The same applies to PT studios, barbers, salons, offices wanting a Friday drop, and community centres during Ramadan. These convert into subscribers far faster than cold social traffic because there's trust and physical proof of the product.</p>
+  </section>
+
+  <div class="band">
+    <div class="band-inner">
+      <div class="kicker">Sequence</div>
+      <h2 style="color:var(--ground);">90 days, in the order that matters</h2>
+      <p style="opacity:0.72; max-width:58ch;">Infrastructure first. There's no point driving traffic to a business that can't take a card payment — every new viewer would leak out through the same hole the existing ones do.</p>
+    </div>
+  </div>
+
+  <section>
+    <div class="phase">
+      <div class="phase-when"><b>01</b>Days 1–14<br>Foundation</div>
+      <div>
+        <ul>
+          <li>Register the food business with the local council — free, legally required, and it's already overdue if trading has started</li>
+          <li>Level 2 Food Hygiene certificate (~£20 online) and a Safer Food Better Business pack</li>
+          <li>Stripe or SumUp live; card and Apple Pay accepted</li>
+          <li>One-page ordering site published, link into every bio</li>
+          <li>Bulk packaging order placed; real per-unit costs recorded</li>
+          <li>Juice to £4.50; £12 minimum order; free delivery over £20</li>
+          <li>Referral cards printed with unique codes</li>
+        </ul>
+        <div class="milestone">Milestone — infrastructure done. Revenue flat, margin up. <b>~£350 profit</b></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-when"><b>02</b>Days 15–45<br>Launch the Club</div>
+      <div>
+        <ul>
+          <li>Cartel Club tiers finalised against real packaging and fuel costs</li>
+          <li>Sell it to existing customers first — they already buy, they're the easiest 8 subscriptions in the business</li>
+          <li>Fix the delivery day and defend it; one press, one route</li>
+          <li>Content to 5 posts a week, batch-filmed on press day</li>
+          <li>Platform-native edits — stop cross-posting identical videos</li>
+          <li>First gym or studio partnership; sampling table booked</li>
+          <li>Allergen labelling live on every item, especially anything containing nuts</li>
+        </ul>
+        <div class="milestone">Milestone — <b>8 subscribers</b>, ~£350 recurring plus ad-hoc. <b>~£550 profit</b></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-when"><b>03</b>Days 46–90<br>Scale the base</div>
+      <div>
+        <ul>
+          <li>Grow to 23+ subscribers; watch cancellations as closely as sign-ups</li>
+          <li>Second postcode zone added only once the first route runs full</li>
+          <li>Referral loop measured — cost per acquired subscriber, not vanity reach</li>
+          <li>Corporate Friday drops pitched to local offices (highest basket, zero marketing cost)</li>
+          <li>Next occasion planned in advance with its own SKU</li>
+          <li>First small paid test (£5/day local TikTok or Snap) — only now, once the funnel converts</li>
+        </ul>
+        <div class="milestone">Milestone — <b>23 subscribers</b>, ~£1,000 recurring profit, one-offs on top. <b>Goal hit</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="kicker">Before scaling</div>
+    <h2>Four things that can end this business</h2>
+    <p>Growing a food business without these handled doesn't just risk a fine — it risks the whole thing being shut down at exactly the moment it starts working.</p>
+
+    <div class="risk">
+      <h3>Not registered with the council</h3>
+      <p>Registration is free, cannot be refused, and is legally required at least 28 days before trading. Trading without it is an offence. Home kitchens carry the same obligations as commercial premises. This is a one-evening fix and it's the highest-priority item on the entire plan.</p>
+    </div>
+    <div class="risk">
+      <h3>Allergen labelling on the desserts</h3>
+      <p>A mini egg crunch cake almost certainly contains milk, wheat, soya and possibly nuts. For food sold at distance, allergen information must be available both at the point of order and again at delivery. This is the one where getting it wrong can seriously hurt somebody.</p>
+    </div>
+    <div class="risk">
+      <h3>Overstating shelf life</h3>
+      <p>Raw juice is 3 days refrigerated, not a week. Label it honestly, deliver chilled in cool bags with ice packs, and design the tiers around 72 hours. One person getting ill from a four-day-old bottle is worse than any growth this plan produces.</p>
+    </div>
+    <div class="risk">
+      <h3>One person is every role</h3>
+      <p>He presses, films, acts, sells and drives. At 23 subscribers that's sustainable. Somewhere around 50–60 it breaks, and it breaks first as missed deliveries — the fastest way to lose a subscription base. Decide the handoff point in advance: delivery is the first thing to give away, content is the last.</p>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="kicker">Where the leverage is</div>
+    <h2>If only three things get done</h2>
+    <ul class="notes">
+      <li><strong>Take card payments and put up an ordering page.</strong> Costs almost nothing, converts traffic that's already arriving, and unblocks everything else in this plan.</li>
+      <li><strong>Launch the weekly subscription and sell it to existing customers.</strong> They've already bought once. Eight of them signing up is a third of the entire goal.</li>
+      <li><strong>Go from 2 posts a week to 5, batch-filmed in one session.</strong> The content already works — there just isn't enough of it to compound.</li>
+    </ul>
+    <p>The business doesn't need reinventing. The product sells to strangers at a 75% margin already, which is the part most people never reach. What it needs is a way to take money, a reason for customers to come back on a schedule, and enough content volume for the algorithm to notice.</p>
+  </section>
+
+  <footer>
+    Figures marked as estimates — order count, average basket, packaging and delivery costs — are modelled from the stated £600 revenue and 50% net margin, and should be replaced with actuals in week one. Ingredient costs, sale prices and the Ramadan peak are as reported.<br><br>
+    Compliance guidance: <a href="https://www.gov.uk/guidance/food-business-registration">GOV.UK — Food business registration</a> · <a href="https://www.food.gov.uk/business-guidance/getting-ready-to-start-your-food-business">Food Standards Agency — Getting ready to start your food business</a> · Shelf-life guidance per <a href="https://www.goodnature.com/blog/understanding-shelf-life-of-cold-pressed-juice">Goodnature</a> and <a href="https://www.cfs.gov.hk/english/multimedia/multimedia_pub/multimedia_pub_fsf_181_02.html">CFS</a>.
+  </footer>
+
+</div>
