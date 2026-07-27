@@ -7,15 +7,29 @@
  * order and again with the delivery, so every item carries a full list.
  */
 
+/**
+ * The 14 allergens named in UK law (Food Information Regulations 2014).
+ * All 14 are trackable so a recipe change can always be declared accurately —
+ * an allergen that cannot be recorded is an allergen that gets missed.
+ *
+ * Note "gluten" covers cereals containing gluten (wheat, rye, barley, oats)
+ * as a single legal category, which is why there is no separate "wheat".
+ */
 export type Allergen =
-  | "milk"
-  | "eggs"
-  | "wheat"
+  | "celery"
   | "gluten"
-  | "soya"
+  | "crustaceans"
+  | "eggs"
+  | "fish"
+  | "lupin"
+  | "milk"
+  | "molluscs"
+  | "mustard"
   | "nuts"
   | "peanuts"
-  | "sesame";
+  | "sesame"
+  | "soya"
+  | "sulphites";
 
 export type Category = "juice" | "shake" | "dessert" | "shot";
 
@@ -200,7 +214,7 @@ export const products: Product[] = [
       "Wheat flour", "Whole milk", "Condensed milk", "Egg",
       "Sugar", "Mango", "Butter",
     ],
-    allergens: ["milk", "eggs", "wheat", "gluten"],
+    allergens: ["milk", "eggs", "gluten"],
     image: "mango-milkcake.jpg",
     accent: "#EFB33C",
     keepsDays: 3,
@@ -218,7 +232,7 @@ export const products: Product[] = [
       "Milk chocolate", "Wheat biscuit", "Butter",
       "Golden syrup", "Mini eggs", "Cocoa",
     ],
-    allergens: ["milk", "wheat", "gluten", "soya"],
+    allergens: ["milk", "gluten", "soya"],
     image: "mini-egg-crunch-cake.jpg",
     accent: "#C98B3A",
     bestseller: true,
@@ -237,7 +251,7 @@ export const products: Product[] = [
       "Biscoff spread", "Biscoff biscuit", "Milk chocolate",
       "Butter", "Golden syrup",
     ],
-    allergens: ["milk", "wheat", "gluten", "soya"],
+    allergens: ["milk", "gluten", "soya"],
     image: "biscoff-crunch-cake.jpg",
     accent: "#B87333",
     keepsDays: 5,
@@ -306,16 +320,29 @@ export const getProduct = (id: string): Product | undefined =>
 export const getTier = (id: string): SubscriptionTier | undefined =>
   subscriptionTiers.find((t) => t.id === id);
 
+/** Wording follows the legal category names, not casual shorthand. */
 export const allergenLabel: Record<Allergen, string> = {
-  milk: "Milk",
+  celery: "Celery",
+  gluten: "Cereals containing gluten",
+  crustaceans: "Crustaceans",
   eggs: "Eggs",
-  wheat: "Wheat",
-  gluten: "Gluten",
-  soya: "Soya",
-  nuts: "Nuts",
+  fish: "Fish",
+  lupin: "Lupin",
+  milk: "Milk",
+  molluscs: "Molluscs",
+  mustard: "Mustard",
+  nuts: "Tree nuts",
   peanuts: "Peanuts",
   sesame: "Sesame",
+  soya: "Soybeans",
+  sulphites: "Sulphur dioxide / sulphites",
 };
+
+/** Stable display order for tables and badges. */
+export const allergenOrder: Allergen[] = [
+  "celery", "gluten", "crustaceans", "eggs", "fish", "lupin", "milk",
+  "molluscs", "mustard", "nuts", "peanuts", "sesame", "soya", "sulphites",
+];
 
 export const categoryLabel: Record<Category, string> = {
   juice: "Cold Pressed",

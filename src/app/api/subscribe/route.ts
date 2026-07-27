@@ -116,6 +116,7 @@ export async function POST(request: Request) {
         order_type: "subscription",
         tier_id: tier.id,
         tier_name: tier.name,
+        tier_contents: tier.contents,
         postcode: postcode.formatted,
         outward_code: postcode.outward,
         delivery_city: DELIVERY.city,
@@ -131,6 +132,7 @@ export async function POST(request: Request) {
         metadata: {
           tier_id: tier.id,
           tier_name: tier.name,
+          tier_contents: tier.contents,
           postcode: postcode.formatted,
           outward_code: postcode.outward,
           drop_day: DELIVERY.dropDay,

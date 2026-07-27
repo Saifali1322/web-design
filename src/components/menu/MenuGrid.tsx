@@ -2,10 +2,8 @@
 
 import { useMemo, useState } from "react";
 import ProductCard from "@/components/ui/ProductCard";
-import { useCart } from "@/components/cart/CartProvider";
 import {
   categoryLabel,
-  formatPrice,
   type Category,
   type Product,
 } from "@/lib/catalogue";
@@ -16,9 +14,7 @@ import { AllergenBadgeList } from "./AllergenBadge";
 const CATEGORY_ORDER: Category[] = ["juice", "shake", "dessert", "shot"];
 
 export default function MenuGrid({ products }: { products: Product[] }) {
-  const { add } = useCart();
   const [filter, setFilter] = useState<CategoryFilterValue>("all");
-  const [justAdded, setJustAdded] = useState<string | null>(null);
 
   const presentCategories = useMemo(
     () => CATEGORY_ORDER.filter((c) => products.some((p) => p.category === c)),
@@ -35,14 +31,6 @@ export default function MenuGrid({ products }: { products: Product[] }) {
         })),
     [presentCategories, products, filter],
   );
-
-  const handleAdd = (product: Product) => {
-    add(product.id);
-    setJustAdded(product.id);
-    window.setTimeout(() => {
-      setJustAdded((current) => (current === product.id ? null : current));
-    }, 1800);
-  };
 
   return (
     <div className="flex flex-col gap-14">
@@ -70,32 +58,21 @@ export default function MenuGrid({ products }: { products: Product[] }) {
 
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((product) => (
-              <li
-                key={product.id}
-                className="flex flex-col border border-ink-line bg-ink-card"
-              >
+              <li key={product.id} className="flex flex-col">
+                {/* ProductCard (owned by another agent) covers name, price,
+                    tagline, image, size, keeps-days and add-to-basket. This
+                    panel adds the two things it doesn't: the full recipe
+                    description and the ingredients/allergens detail. */}
                 <ProductCard product={product} />
 
-                <div className="flex flex-1 flex-col gap-3 p-5 pt-4">
-                  <div>
-                    <h3 className="font-display text-lg text-cream">
-                      {product.name}
-                    </h3>
-                    <p className="font-script text-lg leading-tight text-gold">
-                      {product.tagline}
-                    </p>
-                  </div>
+                <div className="-mt-px flex flex-col gap-3 border border-t-0 border-ink-line bg-ink-raised px-5 py-4">
+                  <h4 className="text-[0.62rem] uppercase tracking-label text-gold-dim">
+                    More about this one
+                  </h4>
 
                   <p className="text-sm leading-relaxed text-cream-dim">
                     {product.description}
                   </p>
-
-                  <div className="flex items-center justify-between border-t border-ink-line pt-3 text-xs uppercase tracking-label text-cream-faint">
-                    <span>{product.size}</span>
-                    <span className="numeric text-sm font-medium text-gold-bright">
-                      {formatPrice(product.price)}
-                    </span>
-                  </div>
 
                   <p className="text-xs leading-relaxed text-cream-faint">
                     <span className="text-cream-dim">Ingredients: </span>
@@ -103,16 +80,6 @@ export default function MenuGrid({ products }: { products: Product[] }) {
                   </p>
 
                   <AllergenBadgeList allergens={product.allergens} />
-
-                  <button
-                    type="button"
-                    onClick={() => handleAdd(product)}
-                    className="numeric mt-2 flex items-center justify-center gap-2 border border-gold-dim/70 py-2.5 text-[0.68rem] font-medium uppercase tracking-label text-gold transition-colors hover:border-gold hover:bg-gold/10 focus-visible:bg-gold/10"
-                  >
-                    {justAdded === product.id
-                      ? "Added to basket"
-                      : `Add to basket — ${formatPrice(product.price)}`}
-                  </button>
                 </div>
               </li>
             ))}

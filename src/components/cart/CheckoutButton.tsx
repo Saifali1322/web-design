@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { formatPrice, SOCIALS } from "@/lib/catalogue";
 import { useCart } from "@/components/cart/CartProvider";
+import { Button } from "@/components/ui/Button";
 
 /**
  * The one button that spends money.
@@ -47,8 +48,8 @@ export default function CheckoutButton({
           (data as { configured?: unknown }).configured === true;
         if (active) setStatus(configured ? "ready" : "unavailable");
       } catch {
-        // Network hiccup on a probe is no reason to block ordering — let the
-        // POST be the source of truth instead.
+        // A failed probe is no reason to block ordering — let the POST be the
+        // source of truth instead.
         if (active) setStatus("ready");
       }
     })();
@@ -77,9 +78,13 @@ export default function CheckoutButton({
       });
 
       const data: unknown = await res.json().catch(() => null);
-      const payload = (data ?? {}) as { url?: string; error?: string; code?: string };
+      const payload = (data ?? {}) as {
+        url?: string;
+        error?: string;
+        code?: string;
+      };
 
-      if (payload.code === "stripe_unconfigured") {
+      if (res.status === 503 || payload.code === "stripe_unconfigured") {
         setStatus("unavailable");
         return;
       }
@@ -94,77 +99,65 @@ export default function CheckoutButton({
       // leaving, and a button that flicks back to "Checkout" looks broken.
       window.location.assign(payload.url);
     } catch {
-      setError("We couldn't reach the checkout. Check your connection and try again.");
+      setError(
+        "We couldn't reach the checkout. Check your connection and try again.",
+      );
       setStatus("ready");
     }
   }
 
   if (status === "unavailable") {
     return (
-      <div className="border border-gold-deep/50 bg-ink-card px-4 py-4 text-center">
-        <p className="font-display text-base tracking-wide text-cream">
-          Ordering opens soon
-        </p>
-        <p className="mt-2 text-sm leading-relaxed text-cream-dim">
-          Until then, message us on{" "}
-          <a
-            href={SOCIALS.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gold underline decoration-gold-deep underline-offset-4 transition-colors hover:text-gold-bright"
-          >
-            Instagram
-          </a>{" "}
-          and we&rsquo;ll sort it.
-        </p>
-      </div>
+      <p className="border border-gold-dim/60 bg-ink-raised px-4 py-3 text-sm leading-relaxed text-cream-dim">
+        Ordering opens soon —{" "}
+        <a
+          href={SOCIALS.instagram}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gold underline underline-offset-2"
+        >
+          message us on Instagram
+        </a>{" "}
+        and we&apos;ll sort you out in the meantime.
+      </p>
     );
   }
 
   const busy = status === "submitting";
-  const blocked = disabled || busy || status === "checking" || items.length === 0;
 
   return (
     <div>
       {error ? (
         <p
           role="alert"
-          className="mb-3 border-l-2 border-warn bg-warn/5 py-2 pl-3 text-sm leading-relaxed text-warn"
+          className="mb-3 border-l-2 border-warn bg-warn/[0.06] py-2 pl-3 text-sm leading-relaxed text-warn"
         >
           {error}
         </p>
       ) : null}
 
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        size="lg"
+        fullWidth
         onClick={handleCheckout}
-        disabled={blocked}
+        disabled={disabled || busy || status === "checking" || items.length === 0}
         aria-busy={busy}
-        className="
-          group flex w-full items-center justify-center gap-3
-          border border-gold bg-gold px-6 py-4
-          font-sans text-xs font-medium uppercase tracking-label text-ink
-          transition-all duration-300
-          hover:bg-gold-bright hover:border-gold-bright
-          focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-gold
-          disabled:cursor-not-allowed disabled:border-ink-line disabled:bg-transparent
-          disabled:text-cream-faint
-        "
       >
         {busy ? (
-          <span className="animate-pulse">Taking you to checkout</span>
+          <span className="animate-pulse">Redirecting…</span>
         ) : (
           <>
-            <span>Checkout</span>
+            Checkout
             <span aria-hidden className="opacity-40">
               ·
             </span>
             <span className="numeric">{formatPrice(total)}</span>
           </>
         )}
-      </button>
+      </Button>
 
-      <p className="mt-3 text-center text-[11px] leading-relaxed text-cream-faint">
+      <p className="mt-3 text-center text-xs leading-relaxed text-cream-faint">
         Secure payment by Stripe. Card details never touch our servers.
       </p>
     </div>
