@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/**
+ * Juice Cartel — black and gold.
+ *
+ * This is a deliberately single-theme design. The identity is gold foil on
+ * near-black across every existing asset (labels, flyers, logo); a light mode
+ * would not be the same brand, so the palette is committed rather than themed.
+ */
+
+@theme {
+  /* Grounds — warm blacks, never neutral grey */
+  --color-ink: #080706;
+  --color-ink-raised: #100e0b;
+  --color-ink-card: #16130f;
+  --color-ink-line: #262019;
+
+  /* Gold — the whole identity lives here */
+  --color-gold: #d4a63c;
+  --color-gold-bright: #f3da8b;
+  --color-gold-deep: #8a6015;
+  --color-gold-dim: #6b5220;
+
+  /* Type */
+  --color-cream: #f7f1e4;
+  --color-cream-dim: #b8ad99;
+  --color-cream-faint: #7d7466;
+
+  /* Semantic */
+  --color-fresh: #7fbf5a;
+  --color-warn: #e0a03a;
+
+  --font-display: var(--font-playfair), "Didot", "Bodoni MT", Georgia, serif;
+  --font-script: var(--font-parisienne), cursive;
+  --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-gold: 0 0 60px -15px rgba(212, 166, 60, 0.45);
+  --shadow-lift: 0 24px 60px -30px rgba(0, 0, 0, 0.95);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-cream);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: var(--color-gold);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+@layer utilities {
+  /* The metallic fill used on the logo and every display heading. */
+  .text-foil {
+    background: linear-gradient(
+      168deg,
+      #f7e6ae 0%,
+      #d4a63c 28%,
+      #a97c1e 52%,
+      #f0d68a 74%,
+      #b8892a 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .border-foil {
+    border-image: linear-gradient(140deg, #f3da8b, #a97c1e 45%, #f0d68a) 1;
+  }
+
+  /* Hairline gold rule that fades at both ends. */
+  .rule-foil {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(212, 166, 60, 0.55) 20%,
+      rgba(243, 218, 139, 0.85) 50%,
+      rgba(212, 166, 60, 0.55) 80%,
+      transparent
+    );
+  }
+
+  .tracking-label {
+    letter-spacing: 0.22em;
+  }
+
+  .bg-grain {
+    background-image:
+      radial-gradient(
+        ellipse 80% 60% at 50% -10%,
+        rgba(212, 166, 60, 0.13),
+        transparent 70%
+      );
+  }
+
+  .numeric {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Marquee used on the trust bar — pauses for reduced-motion users. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 38s linear infinite;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
