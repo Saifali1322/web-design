@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import SpinIt from "@/components/bottle3d/SpinIt";
 import { BottleMark } from "@/components/brand/Logo";
 import { useCart } from "@/components/cart/CartProvider";
 import {
@@ -151,6 +152,13 @@ export function ProductCard({
         <span className="pointer-events-none absolute left-0 top-4 bg-ink/80 py-1.5 pl-4 pr-3 font-sans text-[0.625rem] tracking-label text-gold uppercase backdrop-blur-sm">
           {categoryLabel[product.category]}
         </span>
+
+        {/* 3D viewer, juices only. The model is the 330ml cold-press bottle;
+            offering "spin it" on a protein shake or a tub of crunch cake would
+            hand people the wrong product in three dimensions. */}
+        {product.category === "juice" && (
+          <SpinIt product={product} className="absolute bottom-3 left-3" />
+        )}
 
         {(product.seasonal || product.bestseller) && (
           <div className="pointer-events-none absolute bottom-0 right-0 flex">
