@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import BottleArt from "@/components/hero/BottleArt";
 import { allergenLabel, formatPrice } from "@/lib/catalogue";
 import {
@@ -20,6 +21,15 @@ import {
 /** Empty glass, so an unstarted blend reads as empty rather than broken. */
 const EMPTY_ACCENT = "#2b241a";
 const EMPTY_ACCENT_DEEP = "#15110c";
+
+/**
+ * Always two decimals, for figures that sit in the aligned column of the sum.
+ *
+ * `formatPrice` drops a trailing ".00" — right for prose ("£12 minimum") but
+ * wrong here, where a bare "£1" next to "£3.80" and "£4.80" reads as a typo
+ * rather than a price. Prose in this file still uses `formatPrice`.
+ */
+const money = (pence: number): string => `£${(pence / 100).toFixed(2)}`;
 
 export interface BlendPreviewProps {
   blend: Blend | null;
@@ -104,7 +114,7 @@ export default function BlendPreview({
                   </span>
                 </dt>
                 <dd className="numeric shrink-0 text-cream">
-                  {formatPrice(c.product.price * c.parts)}
+                  {money(c.product.price * c.parts)}
                 </dd>
               </div>
             ))}
@@ -115,7 +125,11 @@ export default function BlendPreview({
               {formatPrice(blend.pricing.weightedTotal)}
             </span>{" "}
             across{" "}
-            <span className="numeric">{blend.pricing.totalParts} parts</span> ={" "}
+            <span className="numeric">
+              {blend.pricing.totalParts} part
+              {blend.pricing.totalParts === 1 ? "" : "s"}
+            </span>{" "}
+            ={" "}
             <span className="numeric text-cream-dim">
               {formatPrice(blend.pricing.ingredients)}
             </span>{" "}
@@ -127,7 +141,7 @@ export default function BlendPreview({
             <div className="flex items-baseline justify-between gap-3">
               <dt className="text-cream-dim">Ingredients</dt>
               <dd className="numeric text-cream">
-                {formatPrice(blend.pricing.ingredients)}
+                {money(blend.pricing.ingredients)}
               </dd>
             </div>
             <div className="flex items-baseline justify-between gap-3">
@@ -138,7 +152,7 @@ export default function BlendPreview({
                 </span>
               </dt>
               <dd className="numeric text-cream">
-                {formatPrice(blend.pricing.premium)}
+                {money(blend.pricing.premium)}
               </dd>
             </div>
             <div className="rule-foil my-3 opacity-60" />
@@ -147,10 +161,32 @@ export default function BlendPreview({
                 Per bottle
               </dt>
               <dd className="numeric font-display text-2xl text-foil">
-                {formatPrice(blend.price)}
+                {money(blend.price)}
               </dd>
             </div>
           </dl>
+
+          {/* One juice on its own is not a blend — it is that juice with the
+              bespoke charge on top. Say so plainly. A customer who works that
+              out for themselves after paying does not order again, and the
+              nudge costs us nothing when they genuinely want it pressed fresh. */}
+          {blend.components.length === 1 ? (
+            <p className="mt-4 border border-gold/30 bg-gold/[0.06] px-3 py-2.5 text-left text-xs leading-relaxed text-cream-dim">
+              That is just our{" "}
+              <span className="text-cream">
+                {blend.components[0].product.name}
+              </span>{" "}
+              with the bespoke charge on top.{" "}
+              <Link
+                href="/menu"
+                className="text-gold underline underline-offset-2"
+              >
+                Buy it from the menu for{" "}
+                {formatPrice(blend.components[0].product.price)}
+              </Link>{" "}
+              instead, or add a second juice to make it properly yours.
+            </p>
+          ) : null}
 
           {/* ---- what's in it ---- */}
           <div className="mt-5 border-t border-ink-line pt-4 text-xs leading-relaxed">
