@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import BottleArt from "@/components/hero/BottleArt";
+import BottleArt, { VB_W, VB_H } from "@/components/hero/BottleArt";
 import { allergenLabel, formatPrice } from "@/lib/catalogue";
 import {
   componentName,
@@ -59,7 +59,12 @@ export default function BlendPreview({
               opacity: blend ? 0.32 : 0.1,
             }}
           />
-          <div className="aspect-[200/520] w-[5.5rem] sm:w-24 lg:w-36">
+          {/* Derived from the art's own viewBox rather than a literal ratio,
+              so redrawing the bottle can never leave this box the wrong shape. */}
+          <div
+            className="w-[5.5rem] sm:w-24 lg:w-36"
+            style={{ aspectRatio: `${VB_W} / ${VB_H}` }}
+          >
             <BottleArt
               uid="mixer-preview"
               accent={accent}
