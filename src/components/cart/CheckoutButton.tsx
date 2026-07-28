@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/Button";
 /**
  * The one button that spends money.
  *
- * It posts nothing but product ids, quantities and a postcode — the server
- * prices the order — then follows the Checkout Session URL Stripe returns.
+ * It posts nothing but product ids, blend recipes, quantities and a postcode —
+ * the server prices the order — then follows the Checkout Session URL Stripe
+ * returns.
  *
  * If the owner hasn't wired Stripe up yet the button doesn't exist at all;
  * in its place is a line pointing at Instagram, which is where orders actually
@@ -69,10 +70,25 @@ export default function CheckoutButton({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lines: items.map((i) => ({
-            productId: i.productId,
-            quantity: i.quantity,
-          })),
+          // Ids, parts and quantities only. A blend goes up as its components,
+          // not its price — the server prices it from the catalogue.
+          lines: items.map((i) =>
+            i.kind === "blend"
+              ? {
+                  kind: "blend" as const,
+                  components: i.blend.components.map((c) => ({
+                    juiceId: c.product.id,
+                    parts: c.parts,
+                  })),
+                  name: i.name,
+                  quantity: i.quantity,
+                }
+              : {
+                  kind: "product" as const,
+                  productId: i.product.id,
+                  quantity: i.quantity,
+                },
+          ),
           postcode,
         }),
       });

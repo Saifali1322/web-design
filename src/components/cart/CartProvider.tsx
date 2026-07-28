@@ -9,12 +9,24 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { DELIVERY, getProduct, type Product } from "@/lib/catalogue";
+import { DELIVERY } from "@/lib/catalogue";
+import type { BlendComponent } from "@/lib/blend";
+import {
+  blendLine,
+  clampQuantity,
+  lineKey,
+  parseStoredCart,
+  resolveLine,
+  serialiseCart,
+  LEGACY_STORAGE_KEY,
+  STORAGE_KEY,
+  type CartItem,
+  type CartLine,
+} from "@/components/cart/cartModel";
 
-export interface CartLine {
-  productId: string;
-  quantity: number;
-}
+// Re-exported so consumers only ever import the cart from one place.
+export { MAX_LINE_QUANTITY } from "@/components/cart/cartModel";
+export type { CartItem, CartLine } from "@/components/cart/cartModel";
 
 interface CartState {
   lines: CartLine[];
@@ -22,47 +34,52 @@ interface CartState {
 
 type CartAction =
   | { type: "add"; productId: string; quantity?: number }
-  | { type: "remove"; productId: string }
-  | { type: "setQuantity"; productId: string; quantity: number }
+  | { type: "addBlend"; line: CartLine }
+  | { type: "remove"; key: string }
+  | { type: "setQuantity"; key: string; quantity: number }
   | { type: "clear" }
   | { type: "hydrate"; lines: CartLine[] };
 
-const STORAGE_KEY = "jc.cart.v1";
+/** Adds a line, or tops up the matching one. Merging is by {@link lineKey}. */
+function upsert(lines: CartLine[], incoming: CartLine): CartLine[] {
+  const key = lineKey(incoming);
+  const existing = lines.find((l) => lineKey(l) === key);
+  if (!existing) return [...lines, incoming];
+
+  return lines.map((l) =>
+    lineKey(l) === key
+      ? // The stored name wins on a merge: the composition is identical, so
+        // renaming somebody's existing basket line from under them would be
+        // the surprising outcome, not the helpful one.
+        { ...l, quantity: clampQuantity(l.quantity + incoming.quantity) }
+      : l,
+  );
+}
 
 function reducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "hydrate":
       return { lines: action.lines };
-    case "add": {
-      const qty = action.quantity ?? 1;
-      const existing = state.lines.find((l) => l.productId === action.productId);
-      if (existing) {
-        return {
-          lines: state.lines.map((l) =>
-            l.productId === action.productId
-              ? { ...l, quantity: Math.min(l.quantity + qty, 99) }
-              : l,
-          ),
-        };
-      }
+    case "add":
       return {
-        lines: [...state.lines, { productId: action.productId, quantity: qty }],
+        lines: upsert(state.lines, {
+          kind: "product",
+          productId: action.productId,
+          quantity: clampQuantity(action.quantity ?? 1),
+        }),
       };
-    }
+    case "addBlend":
+      return { lines: upsert(state.lines, action.line) };
     case "remove":
-      return {
-        lines: state.lines.filter((l) => l.productId !== action.productId),
-      };
+      return { lines: state.lines.filter((l) => lineKey(l) !== action.key) };
     case "setQuantity": {
       if (action.quantity <= 0) {
-        return {
-          lines: state.lines.filter((l) => l.productId !== action.productId),
-        };
+        return { lines: state.lines.filter((l) => lineKey(l) !== action.key) };
       }
       return {
         lines: state.lines.map((l) =>
-          l.productId === action.productId
-            ? { ...l, quantity: Math.min(action.quantity, 99) }
+          lineKey(l) === action.key
+            ? { ...l, quantity: clampQuantity(action.quantity) }
             : l,
         ),
       };
@@ -70,11 +87,6 @@ function reducer(state: CartState, action: CartAction): CartState {
     case "clear":
       return { lines: [] };
   }
-}
-
-export interface CartItem extends CartLine {
-  product: Product;
-  lineTotal: number;
 }
 
 interface CartContextValue {
@@ -91,8 +103,15 @@ interface CartContextValue {
   amountToFreeDelivery: number;
   isOpen: boolean;
   add: (productId: string, quantity?: number) => void;
-  remove: (productId: string) => void;
-  setQuantity: (productId: string, quantity: number) => void;
+  /** Adds a custom blend. Returns false if the mix broke the rules. */
+  addBlend: (
+    components: ReadonlyArray<BlendComponent>,
+    name: string,
+    quantity?: number,
+  ) => boolean;
+  /** `key` comes from the item, not the product id — blends have no product. */
+  remove: (key: string) => void;
+  setQuantity: (key: string, quantity: number) => void;
   clear: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -105,27 +124,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  // Restore a basket left behind on a previous visit.
+  // Restore a basket left behind on a previous visit, including one saved by
+  // the pre-blend v1 build — parseStoredCart reads either shape.
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed: unknown = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          const lines = parsed.filter(
-            (l): l is CartLine =>
-              typeof l === "object" &&
-              l !== null &&
-              typeof (l as CartLine).productId === "string" &&
-              typeof (l as CartLine).quantity === "number" &&
-              // Drop anything no longer on the menu.
-              Boolean(getProduct((l as CartLine).productId)),
-          );
-          dispatch({ type: "hydrate", lines });
+      const current = localStorage.getItem(STORAGE_KEY);
+      if (current) {
+        dispatch({ type: "hydrate", lines: parseStoredCart(current) });
+      } else {
+        const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacy) {
+          dispatch({ type: "hydrate", lines: parseStoredCart(legacy) });
+          // The persist effect below writes v2 on the next tick; drop v1 so a
+          // later visit can't resurrect a stale copy over the live basket.
+          localStorage.removeItem(LEGACY_STORAGE_KEY);
         }
       }
     } catch {
-      // A corrupt basket is not worth surfacing — start empty.
+      // A corrupt or blocked basket is not worth surfacing — start empty.
     }
     setHydrated(true);
   }, []);
@@ -133,7 +149,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.lines));
+      localStorage.setItem(STORAGE_KEY, serialiseCart(state.lines));
     } catch {
       // Storage full or blocked; the basket still works for this session.
     }
@@ -159,9 +175,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const items: CartItem[] = state.lines.flatMap((line) => {
-      const product = getProduct(line.productId);
-      if (!product) return [];
-      return [{ ...line, product, lineTotal: product.price * line.quantity }];
+      const item = resolveLine(line);
+      return item ? [item] : [];
     });
 
     const subtotal = items.reduce((sum, i) => sum + i.lineTotal, 0);
@@ -187,9 +202,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         dispatch({ type: "add", productId, quantity });
         setIsOpen(true);
       },
-      remove: (productId) => dispatch({ type: "remove", productId }),
-      setQuantity: (productId, quantity) =>
-        dispatch({ type: "setQuantity", productId, quantity }),
+      addBlend: (components, name, quantity) => {
+        const line = blendLine(components, name, quantity);
+        if (!line) return false;
+        dispatch({ type: "addBlend", line });
+        setIsOpen(true);
+        return true;
+      },
+      remove: (key) => dispatch({ type: "remove", key }),
+      setQuantity: (key, quantity) =>
+        dispatch({ type: "setQuantity", key, quantity }),
       clear: () => dispatch({ type: "clear" }),
       openCart: () => setIsOpen(true),
       closeCart: () => setIsOpen(false),

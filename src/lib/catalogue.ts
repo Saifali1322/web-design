@@ -42,6 +42,12 @@ export type Category = "juice" | "fuel" | "bake";
 export interface Product {
   id: string;
   name: string;
+  /**
+   * How the item is referred to inside a custom blend, where the full menu
+   * name reads as a mouthful ("Classic Orange & Apple Blend"). Falls back to
+   * `name`, so only the juices that need one carry it.
+   */
+  shortName?: string;
   tagline: string;
   description: string;
   category: Category;
@@ -115,6 +121,7 @@ export const products: Product[] = [
   {
     id: "classic-orange",
     name: "Classic Orange",
+    shortName: "Orange",
     tagline: "The one that started it",
     description:
       "Whole oranges, cold pressed the morning they go out. Nothing added, nothing watered down.",
@@ -167,6 +174,7 @@ export const products: Product[] = [
   {
     id: "orange-carrot",
     name: "Orange + Carrot",
+    shortName: "Orange Carrot",
     tagline: "The morning fix",
     description:
       "Oranges and carrots pressed together. Bright, earthy and the best colour we make.",

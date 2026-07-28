@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { DELIVERY, formatPrice } from "@/lib/catalogue";
+import { MAX_COMPONENTS, MAX_PARTS, MIN_PARTS } from "@/lib/blend";
 import { absoluteUrl, MissingEnvError, stripeConfigured } from "@/lib/env";
 import {
+  blendPackSheet,
   checkPostcode,
   getStripe,
   orderSummary,
@@ -18,19 +20,41 @@ export const dynamic = "force-dynamic";
 /**
  * One-off orders.
  *
- * The request body carries product ids, quantities and a postcode — nothing
- * else. Every price, the delivery fee and the total are recomputed here from
- * the catalogue, so a tampered basket buys nothing at a discount.
+ * The request body carries product ids, blend recipes, quantities and a
+ * postcode — nothing else. Every price, the delivery fee and the total are
+ * recomputed here from the catalogue, so a tampered basket buys nothing at a
+ * discount. A custom blend is no exception: it arrives as juice ids and parts,
+ * and its price is rebuilt by the same function the mixer used to display it.
  */
 
-const BodySchema = z.object({
-  lines: z
+const ProductLineSchema = z.object({
+  kind: z.literal("product").optional(),
+  productId: z.string().min(1).max(64),
+  quantity: z.number().int().min(1).max(99),
+});
+
+const BlendLineSchema = z.object({
+  kind: z.literal("blend"),
+  components: z
     .array(
       z.object({
-        productId: z.string().min(1).max(64),
-        quantity: z.number().int().min(1).max(99),
+        juiceId: z.string().min(1).max(64),
+        parts: z.number().int().min(MIN_PARTS).max(MAX_PARTS),
       }),
     )
+    .min(1)
+    .max(MAX_COMPONENTS),
+  // Free text, so it is length-capped here and sanitised again before it
+  // reaches Stripe or a printed sheet.
+  name: z.string().max(120).optional(),
+  quantity: z.number().int().min(1).max(99),
+});
+
+const BodySchema = z.object({
+  // A union rather than a discriminated union: the product variant's `kind` is
+  // optional so a tab still running the pre-blend bundle can check out.
+  lines: z
+    .array(z.union([BlendLineSchema, ProductLineSchema]))
     .min(1, "Your basket is empty.")
     .max(50),
   postcode: z.string().min(2).max(12),
@@ -98,6 +122,7 @@ export async function POST(request: Request) {
 
   const order = pricing.order;
   const summary = orderSummary(order);
+  const packSheet = blendPackSheet(order);
 
   try {
     const session = await getStripe().checkout.sessions.create({
@@ -125,6 +150,9 @@ export async function POST(request: Request) {
         total_pence: String(order.total),
         total_display: formatPrice(order.total),
         order_summary: summary,
+        // Only present when something has to be mixed to order, so the ticket
+        // stays clean for the ordinary case.
+        ...(packSheet ? { custom_blends: packSheet } : {}),
       },
       payment_intent_data: {
         description: truncateForMetadata(
@@ -136,6 +164,7 @@ export async function POST(request: Request) {
         metadata: {
           postcode: postcode.formatted,
           order_summary: summary,
+          ...(packSheet ? { custom_blends: packSheet } : {}),
         },
       },
     });

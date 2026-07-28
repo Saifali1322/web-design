@@ -1,8 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { DELIVERY, formatPrice, isInDeliveryArea } from "@/lib/catalogue";
-import { useCart, type CartItem } from "@/components/cart/CartProvider";
+import {
+  MAX_LINE_QUANTITY,
+  useCart,
+  type CartItem,
+} from "@/components/cart/CartProvider";
 import CheckoutButton from "@/components/cart/CheckoutButton";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -140,7 +145,7 @@ export default function CartDrawer() {
           <div className="flex-1 overflow-y-auto overscroll-contain px-6">
             <ul className="divide-y divide-ink-line">
               {items.map((item) => (
-                <BasketRow key={item.productId} item={item} />
+                <BasketRow key={item.key} item={item} />
               ))}
             </ul>
           </div>
@@ -259,7 +264,16 @@ export default function CartDrawer() {
 
 function BasketRow({ item }: { item: CartItem }) {
   const { setQuantity, remove } = useCart();
-  const { product, quantity, lineTotal } = item;
+  const { key, name, quantity, unitPrice, lineTotal } = item;
+
+  // A blend has no catalogue entry, so everything shown here comes off the
+  // blend itself — its mixed colour, and the pour that made it.
+  const accent =
+    item.kind === "blend" ? item.blend.accent : item.product.accent;
+  const detail =
+    item.kind === "blend"
+      ? item.blend.composition
+      : `${item.product.size} · ${formatPrice(unitPrice)} each`;
 
   return (
     <li className="flex gap-4 py-5">
@@ -271,15 +285,15 @@ function BasketRow({ item }: { item: CartItem }) {
         <span
           className="absolute inset-0 opacity-25"
           style={{
-            background: `radial-gradient(circle at 50% 30%, ${product.accent}, transparent 70%)`,
+            background: `radial-gradient(circle at 50% 30%, ${accent}, transparent 70%)`,
           }}
         />
         <span className="relative font-display text-xl text-cream-dim">
-          {product.name.charAt(0)}
+          {item.kind === "blend" ? "＋" : item.product.name.charAt(0)}
         </span>
         <span
           className="absolute inset-x-0 bottom-0 h-[2px]"
-          style={{ backgroundColor: product.accent }}
+          style={{ backgroundColor: accent }}
         />
       </div>
 
@@ -287,12 +301,21 @@ function BasketRow({ item }: { item: CartItem }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="truncate font-display text-base leading-snug text-cream">
-              {product.name}
+              {name}
             </h3>
-            <p className="mt-0.5 text-xs text-cream-faint">
-              {product.size} ·{" "}
-              <span className="numeric">{formatPrice(product.price)}</span> each
+            {item.kind === "blend" ? (
+              <p className="mt-0.5 text-xs uppercase tracking-label text-gold-deep">
+                Your blend · 330ml
+              </p>
+            ) : null}
+            <p className="mt-0.5 text-xs leading-relaxed text-cream-faint">
+              {detail}
             </p>
+            {item.kind === "blend" ? (
+              <p className="mt-0.5 text-xs text-cream-faint">
+                <span className="numeric">{formatPrice(unitPrice)}</span> each
+              </p>
+            ) : null}
           </div>
           <p className="numeric shrink-0 text-sm text-cream">
             {formatPrice(lineTotal)}
@@ -302,24 +325,24 @@ function BasketRow({ item }: { item: CartItem }) {
         <div className="mt-3 flex items-center justify-between gap-3">
           <div className="inline-flex items-center border border-ink-line">
             <StepperButton
-              label={`Decrease quantity of ${product.name}`}
-              onClick={() => setQuantity(product.id, quantity - 1)}
+              label={`Decrease quantity of ${name}`}
+              onClick={() => setQuantity(key, quantity - 1)}
             >
               <path d="M5 12h14" strokeLinecap="round" />
             </StepperButton>
 
             <span
               aria-live="polite"
-              aria-label={`Quantity of ${product.name}`}
+              aria-label={`Quantity of ${name}`}
               className="numeric w-9 text-center text-sm text-cream"
             >
               {quantity}
             </span>
 
             <StepperButton
-              label={`Increase quantity of ${product.name}`}
-              onClick={() => setQuantity(product.id, quantity + 1)}
-              disabled={quantity >= 99}
+              label={`Increase quantity of ${name}`}
+              onClick={() => setQuantity(key, quantity + 1)}
+              disabled={quantity >= MAX_LINE_QUANTITY}
             >
               <path d="M12 5v14M5 12h14" strokeLinecap="round" />
             </StepperButton>
@@ -327,8 +350,8 @@ function BasketRow({ item }: { item: CartItem }) {
 
           <button
             type="button"
-            onClick={() => remove(product.id)}
-            aria-label={`Remove ${product.name} from basket`}
+            onClick={() => remove(key)}
+            aria-label={`Remove ${name} from basket`}
             className="text-xs uppercase tracking-label text-cream-faint transition-colors hover:text-warn focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
           >
             Remove
@@ -383,6 +406,16 @@ function EmptyBasket({ onBrowse }: { onBrowse: () => void }) {
       <ButtonLink href="/menu" variant="secondary" size="md" onClick={onBrowse} className="mt-8">
         Browse the menu
       </ButtonLink>
+      <p className="mt-5 text-sm text-cream-dim">
+        or{" "}
+        <Link
+          href="/mixer"
+          onClick={onBrowse}
+          className="text-gold underline underline-offset-2"
+        >
+          build your own blend
+        </Link>
+      </p>
       <p className="mt-6 text-xs text-cream-faint">
         Minimum order{" "}
         <span className="numeric">{formatPrice(DELIVERY.minimumOrder)}</span> ·
