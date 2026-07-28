@@ -44,3 +44,7 @@ next-env.d.ts
 
 # static homepage export, regenerated on demand
 preview/
+
+# Claude Code scratch space. `.claude/worktrees/` holds live git worktrees —
+# committing it would nest checkouts inside the repo they belong to.
+.claude/
