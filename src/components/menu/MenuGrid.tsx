@@ -61,6 +61,12 @@ export default function MenuGrid({ products }: { products: Product[] }) {
             </div>
             <p className="text-xs uppercase tracking-label text-cream-faint">
               {categoryNote[category]}
+              {/* Signposts the viewer for anyone who reads the section header
+                  before they read the cards. The button on each card is the
+                  real affordance; this is just a nudge. */}
+              {category === "juice" && (
+                <span className="text-gold-dim"> · Spin any bottle in 3D</span>
+              )}
             </p>
           </div>
 
