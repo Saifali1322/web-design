@@ -29,6 +29,10 @@ import {
 import {
   CAP_RIB_BAND,
   CAP_RIB_COUNT,
+  FOAM_BOTTOM_Y,
+  JC_BASELINE_Y,
+  JC_PATCH_H,
+  JC_PATCH_W,
   LABEL_CY,
   LABEL_HALF_ARC,
   LABEL_R,
@@ -47,6 +51,7 @@ import {
   dropletLayout,
   makeCondensationNormal,
   makeCondensationRoughness,
+  makeJCTexture,
   makeJuiceTexture,
   makeLabelTexture,
   makeSurfaceTexture,
@@ -160,6 +165,40 @@ function knurl(
   nrm.needsUpdate = true;
 }
 
+/**
+ * A patch of artwork wrapped on the bottle, as a lathe over the real profile.
+ *
+ * A cone would be simpler, but the label now reaches up onto the shoulder,
+ * where a straight generatrix cuts inside the curve and lets the glass tear
+ * through the artwork. Sampling the profile at uniform `y` keeps the lathe's
+ * `uv.y` (which is index-based) linear in height, so the flat texture still
+ * lands square on it.
+ */
+function curvedPatch(
+  profile: readonly Pt[],
+  yTop: number,
+  yBottom: number,
+  halfArc: number,
+  midRadius: number,
+  standoff: number,
+  radialSegments: number,
+  heightSegments: number,
+): LatheGeometry {
+  const pts: Vector2[] = [];
+  for (let i = 0; i <= heightSegments; i++) {
+    /* Bottom to top, so the lathe's normals face outward and v=0 is the foot. */
+    const y = yBottom + ((yTop - yBottom) * i) / heightSegments;
+    pts.push(new Vector2(toRadius(radiusAtY(profile, y)) + standoff, toHeight(y)));
+  }
+  return new LatheGeometry(
+    pts,
+    radialSegments,
+    /* theta 0 faces +Z, so centring the sweep puts the artwork at the front. */
+    -(halfArc / midRadius),
+    (2 * halfArc) / midRadius,
+  );
+}
+
 /* ------------------------------------------------------------------ *
  * Build
  * ------------------------------------------------------------------ */
@@ -254,7 +293,12 @@ export function buildBottle(opts: BottleBuildOptions): BottleBuild {
   const liquidGeo = new LatheGeometry(toLathe(inner), bodySegments);
   geometries.push(liquidGeo);
 
-  const juiceTex = track(makeJuiceTexture(accent, accentDeep));
+  /* The foam line has to be placed in the lathe's index-based V, not as a
+     fraction of the liquid's height, or it lands wherever the shoulder
+     happened to be sampled most densely. */
+  const juiceTex = track(
+    makeJuiceTexture(accent, accentDeep, vAtY(inner, FOAM_BOTTOM_Y)),
+  );
   /* Opaque on purpose. Three renders opaque geometry into the transmission
      buffer that the glass then samples, so an opaque juice is what makes the
      juice visible *through* the bottle. Give the juice its own transmission
@@ -297,19 +341,16 @@ export function buildBottle(opts: BottleBuildOptions): BottleBuild {
 
   /* ---- label ---- */
 
-  const labelTop = LABEL_CY - LABEL_R;
-  const labelBottom = LABEL_CY + LABEL_R;
   const standoff = 0.008;
-  const labelGeo = new CylinderGeometry(
-    toRadius(radiusAtY(outer, labelTop)) + standoff,
-    toRadius(radiusAtY(outer, labelBottom)) + standoff,
-    LABEL_R * 2 * UNIT,
+  const labelGeo = curvedPatch(
+    outer,
+    LABEL_CY - LABEL_R,
+    LABEL_CY + LABEL_R,
+    LABEL_HALF_ARC,
+    labelMidR,
+    standoff,
     lowPower ? 40 : 64,
-    1,
-    true,
-    /* theta 0 faces +Z, so centring the sweep puts the label at the front. */
-    -(LABEL_HALF_ARC / labelMidR),
-    (2 * LABEL_HALF_ARC) / labelMidR,
+    lowPower ? 8 : 14,
   );
   geometries.push(labelGeo);
 
@@ -331,22 +372,58 @@ export function buildBottle(opts: BottleBuildOptions): BottleBuild {
   });
   materials.push(labelMat);
   const label = new Mesh(labelGeo, labelMat);
-  label.position.y = toHeight(LABEL_CY);
   label.renderOrder = 6;
   group.add(label);
 
+  /* ---- JC. ----
+     Its own patch, same trick as the label: a curved quad carrying flat
+     artwork. Additive rather than alpha-blended would bloom over the juice, so
+     it is a plain transparent map sitting a hair off the glass. */
+
+  const jcMidR = radiusAtY(outer, JC_BASELINE_Y - JC_PATCH_H / 2) - 100;
+  const jcHalfArc = JC_PATCH_W / 2;
+  const jcGeo = curvedPatch(
+    outer,
+    JC_BASELINE_Y - JC_PATCH_H,
+    JC_BASELINE_Y,
+    jcHalfArc,
+    jcMidR,
+    standoff,
+    lowPower ? 20 : 32,
+    2,
+  );
+  geometries.push(jcGeo);
+
+  const jcTex = track(makeJCTexture(lowPower ? 192 : 256));
+  const jcMat = new MeshPhysicalMaterial({
+    map: jcTex,
+    transparent: true,
+    depthWrite: false,
+    metalness: 0,
+    roughness: 0.5,
+    clearcoat: 0.6,
+    clearcoatRoughness: 0.2,
+    envMapIntensity: 0.9,
+    side: FrontSide,
+  });
+  materials.push(jcMat);
+  const jc = new Mesh(jcGeo, jcMat);
+  jc.renderOrder = 6;
+  group.add(jc);
+
   /* ---- cap ---- */
 
-  const capSegments = lowPower ? 120 : 192;
-  const ribs = lowPower ? 24 : CAP_RIB_COUNT;
+  const capSegments = lowPower ? 176 : 300;
+  const ribs = lowPower ? 44 : CAP_RIB_COUNT;
   const capGeo = new LatheGeometry(toLathe(capProfile()), capSegments);
-  /* ±1.5 SVG units of relief. Subtler and the knurling disappears under the
-     cap's own specular; deeper and a 39-unit cap starts looking like a gear. */
+  /* ±1.1 SVG units of relief. The closure carries 76 fine ribs rather than
+     the 40 coarse ones this used to model, and at that pitch anything deeper
+     reads as a gear rather than knurling. */
   knurl(
     capGeo,
     capSegments,
     ribs,
-    0.03,
+    0.022,
     toHeight(CAP_RIB_BAND[0]),
     toHeight(CAP_RIB_BAND[1]),
   );

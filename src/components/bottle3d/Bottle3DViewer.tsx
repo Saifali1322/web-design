@@ -18,7 +18,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useId, useState } from "react";
-import BottleArt from "@/components/hero/BottleArt";
+import BottleArt, { VB_H, VB_W } from "@/components/hero/BottleArt";
 
 const BottleScene = dynamic(() => import("./BottleScene"), {
   ssr: false,
@@ -66,7 +66,10 @@ export default function Bottle3DViewer({
           ready ? "opacity-0" : "opacity-100"
         }`}
       >
-        <div className="h-[92%] aspect-[200/520]">
+        {/* Aspect straight off the art's own viewBox rather than a literal, so
+            re-cutting the silhouette can never leave the poster letterboxed
+            inside a box shaped like the previous bottle. */}
+        <div className="h-[92%]" style={{ aspectRatio: `${VB_W} / ${VB_H}` }}>
           <BottleArt
             uid={`b3d-${uid}`}
             accent={accent}

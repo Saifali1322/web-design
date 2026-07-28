@@ -23,10 +23,9 @@ import {
   type Texture,
 } from "three";
 
-import { LABEL_CY, LABEL_R } from "./bottleProfile";
+import { JC_PATCH_H, JC_PATCH_W, LABEL_CY, LABEL_R } from "./bottleProfile";
 
 const GOLD = "#d4a63c";
-const GOLD_BRIGHT = "#f3da8b";
 const GOLD_PALE = "#f7e6ae";
 const GOLD_DEEP = "#8a6015";
 
@@ -45,29 +44,59 @@ function canvas(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContex
 
 /**
  * Vertical juice gradient, matching BottleArt's `-juice` stops: the product's
- * `accent` from the surface down to 45%, then falling to `accentDeep`, with
- * the extra dense settle the SVG paints over the last 45 units of the bottle.
+ * `accent` almost the whole way down, falling to `accentDeep` only over the
+ * last fifth, plus the pale pulp head floating on the surface.
  *
  * The lathe's V runs 0 at the base to 1 at the surface and textures are
  * flipped on upload, so canvas-top is the surface — which is also the order
  * you would naturally write the stops in.
+ *
+ * `foamV` is the head's underside in the lathe's own V, which is a function of
+ * profile-point index rather than height, so the caller has to measure it and
+ * hand it in. Guessing at a fraction of the canvas would put the separation
+ * line wherever the shoulder happened to be sampled most densely.
  */
-export function makeJuiceTexture(accent: string, accentDeep: string): Texture {
-  const [c, ctx] = canvas(8, 512);
+export function makeJuiceTexture(
+  accent: string,
+  accentDeep: string,
+  foamV: number,
+): Texture {
+  const H = 512;
+  const [c, ctx] = canvas(8, H);
 
-  const g = ctx.createLinearGradient(0, 0, 0, 512);
+  const g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, accent);
-  g.addColorStop(0.45, accent);
+  g.addColorStop(0.78, accent);
   g.addColorStop(1, accentDeep);
   ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 8, 512);
+  ctx.fillRect(0, 0, 8, H);
 
-  /* Sediment settling at the base — the SVG's `accentDeep @ 0.5` slab. */
-  const settle = ctx.createLinearGradient(0, 512 - 90, 0, 512);
+  /* Sediment settling at the base — the SVG's `accentDeep @ 0.28` slab. */
+  const settle = ctx.createLinearGradient(0, H - 60, 0, H);
   settle.addColorStop(0, `${accentDeep}00`);
-  settle.addColorStop(1, `${accentDeep}b0`);
+  settle.addColorStop(1, `${accentDeep}70`);
   ctx.fillStyle = settle;
-  ctx.fillRect(0, 512 - 90, 8, 90);
+  ctx.fillRect(0, H - 60, 8, 60);
+
+  /* Pulp head: white over the juice rather than a third catalogue colour, the
+     same trick BottleArt's `-foam` gradient plays, so it works for every
+     flavour. */
+  const foamPx = Math.round((1 - foamV) * H);
+  const foam = ctx.createLinearGradient(0, 0, 0, foamPx);
+  foam.addColorStop(0, "rgba(255,255,255,0.32)");
+  foam.addColorStop(0.55, "rgba(255,255,255,0.24)");
+  foam.addColorStop(0.86, "rgba(255,255,255,0.18)");
+  foam.addColorStop(1, "rgba(255,255,255,0.06)");
+  ctx.fillStyle = foam;
+  ctx.fillRect(0, 0, 8, foamPx);
+
+  /* The line the juice settles out along: pale above, deep below. */
+  ctx.fillStyle = "rgba(255,255,255,0.14)";
+  ctx.fillRect(0, foamPx - 3, 8, 3);
+  ctx.fillStyle = accentDeep;
+  ctx.globalAlpha = 0.4;
+  ctx.fillRect(0, foamPx, 8, 4);
+  ctx.globalAlpha = 1;
 
   const tex = new CanvasTexture(c);
   tex.colorSpace = SRGBColorSpace;
@@ -76,9 +105,9 @@ export function makeJuiceTexture(accent: string, accentDeep: string): Texture {
 }
 
 /**
- * The juice surface seen from above: darker in the middle, brighter where the
- * meniscus climbs the glass. Mapped onto a disc, whose UVs cover its bounding
- * square, so a plain radial gradient lands where you would expect.
+ * The juice surface seen from above. This is the top of the pulp head, not the
+ * juice itself, so it is a good deal paler than `accent` — the whole point of
+ * the head is that fresh juice separates.
  */
 export function makeSurfaceTexture(accent: string, accentDeep: string): Texture {
   const [c, ctx] = canvas(256, 256);
@@ -89,6 +118,9 @@ export function makeSurfaceTexture(accent: string, accentDeep: string): Texture 
   g.addColorStop(0.9, accent);
   g.addColorStop(1, "#ffffff");
   ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 256, 256);
+
+  ctx.fillStyle = "rgba(255,255,255,0.34)";
   ctx.fillRect(0, 0, 256, 256);
 
   /* Foam ring, straight off BottleArt's meniscus ellipses. */
@@ -211,7 +243,6 @@ const MARK_PATHS = {
 export function makeLabelTexture(size = 1024): Texture {
   const [c, ctx] = canvas(size, size);
   const display = fontStack("--font-playfair", "Georgia, serif");
-  const sans = fontStack("--font-jost", "system-ui, sans-serif");
 
   const box = LABEL_R * 2;
   const s = size / box;
@@ -237,7 +268,8 @@ export function makeLabelTexture(size = 1024): Texture {
   ctx.arc(cx, cy, LABEL_R, 0, Math.PI * 2);
   ctx.fill();
 
-  /* Gold ring and the hairline inside it. */
+  /* One thin gold ring, set in from the edge. The real sticker has no second
+     hairline — that was invented. */
   const ring = ctx.createLinearGradient(
     cx - LABEL_R,
     cy - LABEL_R,
@@ -249,43 +281,38 @@ export function makeLabelTexture(size = 1024): Texture {
   ring.addColorStop(0.6, GOLD_DEEP);
   ring.addColorStop(1, "#f0d68a");
   ctx.strokeStyle = ring;
-  ctx.lineWidth = 1.6;
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.arc(cx, cy, LABEL_R - 2.5, 0, Math.PI * 2);
+  ctx.arc(cx, cy, LABEL_R - 5.5, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.strokeStyle = GOLD;
-  ctx.globalAlpha = 0.5;
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  ctx.arc(cx, cy, LABEL_R - 6.5, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.globalAlpha = 1;
-
-  /* Arc type. Canvas angles run clockwise with y down, so -90° is the top. */
+  /* Arc type. Canvas angles run clockwise with y down, so -90° is the top.
+     Serif on both arcs — all the type on the real sticker is one family. */
+  /* `arcText` centres each glyph on the radius; the SVG puts its *baseline*
+     there. Half a cap-height in, so the two rings of type land together. */
   ctx.fillStyle = GOLD;
-  ctx.font = `500 8px ${sans}`;
-  arcText(ctx, "FRESHLY MADE", cx, cy, 50, -Math.PI / 2, 1.9, false);
+  ctx.font = `400 7.4px ${display}`;
+  arcText(ctx, "FRESHLY MADE", cx, cy, 56.5, -Math.PI / 2, 1.8, false);
 
   ctx.globalAlpha = 0.92;
-  ctx.font = `400 6.4px ${sans}`;
+  ctx.font = `400 6.6px ${display}`;
   arcText(
     ctx,
     "Apart of EK Entrepreneurship",
     cx,
     cy,
-    58,
+    63.5,
     Math.PI / 2,
-    0.85,
+    0.4,
     true,
   );
   ctx.globalAlpha = 1;
 
   /* Line-art bottle mark, sitting above the wordmark. */
   ctx.save();
-  ctx.translate(cx, cy - 32);
-  ctx.scale(0.28, 0.28);
-  ctx.translate(-32, -44);
+  ctx.translate(cx, cy - 28);
+  ctx.scale(0.44, 0.44);
+  ctx.translate(-32, -43);
   ctx.fillStyle = GOLD;
   ctx.strokeStyle = GOLD;
   ctx.lineJoin = "round";
@@ -317,22 +344,36 @@ export function makeLabelTexture(size = 1024): Texture {
   ctx.fillStyle = foil;
 
   ctx.font = `500 19px ${display}`;
-  tracked(ctx, "JUICE", cx, cy + 4, 2.2);
-  ctx.font = `500 17px ${display}`;
-  tracked(ctx, "CARTEL", cx, cy + 22, 1.6);
+  tracked(ctx, "JUICE", cx, cy + 12, 3.2);
+  ctx.font = `500 19px ${display}`;
+  tracked(ctx, "CARTEL", cx, cy + 30, 0.7);
 
-  ctx.strokeStyle = GOLD_BRIGHT;
-  ctx.globalAlpha = 0.55;
-  ctx.lineWidth = 0.6;
-  ctx.beginPath();
-  ctx.moveTo(cx - 15, cy + 29);
-  ctx.lineTo(cx + 15, cy + 29);
-  ctx.stroke();
-  ctx.globalAlpha = 1;
+  ctx.fillStyle = GOLD_PALE;
+  ctx.font = `400 9px ${display}`;
+  tracked(ctx, "330ml", cx, cy + 50, 0.8);
 
-  ctx.fillStyle = GOLD;
-  ctx.font = `400 7.6px ${sans}`;
-  tracked(ctx, "330ml", cx, cy + 38, 1.3);
+  const tex = new CanvasTexture(c);
+  tex.colorSpace = SRGBColorSpace;
+  tex.minFilter = LinearMipmapLinearFilter;
+  tex.magFilter = LinearFilter;
+  return tex;
+}
+
+/**
+ * `JC.` as it is printed on the glass: white, opaque, transparent everywhere
+ * else. Rides its own curved patch below the label for the same reason the
+ * label does — a flat texture beats projecting type onto a lathe.
+ */
+export function makeJCTexture(size = 256): Texture {
+  const [c, ctx] = canvas(size, Math.round(size * (JC_PATCH_H / JC_PATCH_W)));
+  const sans = fontStack("--font-jost", "system-ui, sans-serif");
+  const s = size / JC_PATCH_W;
+  ctx.setTransform(s, 0, 0, s, 0, 0);
+  ctx.fillStyle = "rgba(255,255,255,0.93)";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  ctx.font = `700 33px ${sans}`;
+  tracked(ctx, "JC.", JC_PATCH_W / 2, 36, 0.5);
 
   const tex = new CanvasTexture(c);
   tex.colorSpace = SRGBColorSpace;

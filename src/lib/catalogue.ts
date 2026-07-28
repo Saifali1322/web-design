@@ -59,7 +59,16 @@ export interface Product {
   allergens: Allergen[];
   /** Filename inside /public/products. Swap for real photography. */
   image: string;
-  /** Drives the liquid colour of the vector bottle and the card glow. */
+  /**
+   * Drives the liquid colour of the vector bottle and the card glow.
+   *
+   * For the juices these are sampled pixels, not invented hexes: a lit
+   * mid-tone and a shadowed deep tone read off the photographs in
+   * `docs/reference/bottles/`, corrected for each frame's white point (the
+   * wall in 01, the counter in 04 and 05, the sky in 03). Per-product notes
+   * are on the lines below. Anything not photographed is set to sit in the
+   * same family rather than guessed from the fruit.
+   */
   accent: string;
   /** Second stop, so the liquid reads as a gradient rather than a flat fill. */
   accentDeep: string;
@@ -131,8 +140,9 @@ export const products: Product[] = [
     ingredients: ["Orange"],
     allergens: [],
     image: "classic-orange.jpg",
-    accent: "#F5A314",
-    accentDeep: "#D96B06",
+    /* 01-three-bottles-straight-on: body mid-column #dc9e15, base #987704. */
+    accent: "#EEAB16",
+    accentDeep: "#A2790A",
     bestseller: true,
     keepsDays: 3,
     fruit: "orange",
@@ -149,8 +159,9 @@ export const products: Product[] = [
     ingredients: ["Apple"],
     allergens: [],
     image: "apple.jpg",
-    accent: "#C9D93F",
-    accentDeep: "#8FA318",
+    /* Not photographed. Held green, pulled to the value the sampled juices sit at. */
+    accent: "#C2D33A",
+    accentDeep: "#7E9114",
     keepsDays: 3,
     fruit: "apple",
   },
@@ -166,8 +177,9 @@ export const products: Product[] = [
     ingredients: ["Pineapple"],
     allergens: [],
     image: "pineapple.jpg",
-    accent: "#F3CC22",
-    accentDeep: "#C99406",
+    /* Not photographed. A shade lighter and greener than the sampled orange. */
+    accent: "#EFC81E",
+    accentDeep: "#B98A08",
     keepsDays: 3,
     fruit: "pineapple",
   },
@@ -184,8 +196,9 @@ export const products: Product[] = [
     ingredients: ["Orange", "Carrot"],
     allergens: [],
     image: "orange-carrot.jpg",
-    accent: "#F27318",
-    accentDeep: "#C2470A",
+    /* 02-orange-carrot-held: lit body #c65906, shadowed left edge #aa3f11. */
+    accent: "#DC630D",
+    accentDeep: "#A83C0B",
     bestseller: true,
     keepsDays: 3,
     fruit: "carrot",
@@ -202,8 +215,9 @@ export const products: Product[] = [
     ingredients: ["Watermelon"],
     allergens: [],
     image: "watermelon.jpg",
-    accent: "#F0455F",
-    accentDeep: "#B01536",
+    /* 05-watermelon-pour: #a72031 / #7e0315, white-balanced off the counter. */
+    accent: "#E24358",
+    accentDeep: "#9A1233",
     keepsDays: 3,
     fruit: "watermelon",
   },
@@ -219,8 +233,10 @@ export const products: Product[] = [
     ingredients: ["Pomegranate"],
     allergens: [],
     image: "pomegranate.jpg",
-    accent: "#D31E45",
-    accentDeep: "#7C0A26",
+    /* 04-orange-pour-kitchen, but that bottle sits in deep shade — the frame
+       only gives the depth, so the hue is held and the value pulled down. */
+    accent: "#B4173C",
+    accentDeep: "#6A0A22",
     keepsDays: 3,
     fruit: "pomegranate",
   },
@@ -236,8 +252,10 @@ export const products: Product[] = [
     ingredients: ["Mango"],
     allergens: [],
     image: "mango.jpg",
-    accent: "#F9B517",
-    accentDeep: "#DC7C04",
+    /* 03-mango-sunset: transmitted edge #df7a2a, body #916644, sunset grade
+       divided out against the near-white sky. */
+    accent: "#EFA224",
+    accentDeep: "#B96A0B",
     bestseller: true,
     seasonal: true,
     keepsDays: 3,

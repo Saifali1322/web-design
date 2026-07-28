@@ -3,9 +3,13 @@
 /**
  * The Juice Cartel 330ml bottle, drawn as vector.
  *
- * Modelled on the real product: clear PET, a slight taper from shoulder to
- * base, a ribbed white screw cap, and a circular black label with a thin gold
- * ring. Everything is inline SVG with plain gradients — no SVG filters, no
+ * Traced from the photographs in `docs/reference/bottles/` rather than from a
+ * description of them — see that folder's README. The product is a clear PET
+ * milk bottle / carafe: a tall ribbed cap in translucent natural white, a short
+ * threaded neck, a long conical shoulder, a near straight-walled body, and a
+ * circular black-and-gold label that spans most of the body width.
+ *
+ * Everything is inline SVG with plain gradients — no SVG filters, no
  * <feGaussianBlur>, because a filter on a moving element re-rasterises every
  * frame and this thing has to hold 60fps on a £150 Android.
  *
@@ -24,43 +28,93 @@
 import { hashRandom } from "./useHeroMotion";
 
 /* ---------------- geometry ----------------
- * One place to change the silhouette. All coordinates are in the 200×520
+ * One place to change the silhouette. All coordinates are in the 200×556
  * user space of the viewBox.
+ *
+ * Everything below is measured off `01-three-bottles-straight-on.jpeg`, using
+ * the left-hand bottle (the largest one with a clean, unoccluded left edge)
+ * and normalising by its body width. The photographed bottle is 2.78 body
+ * widths tall including the cap, so the viewBox is sized to bound the drawing
+ * tightly: a caller who sizes by BOTTLE_RATIO then gets the real proportions
+ * rather than the proportions of a box with the bottle rattling around inside.
  */
 export const VB_W = 200;
-export const VB_H = 520;
-/** Bottle art is 200 wide by 520 tall; scenes size by width and derive height. */
+export const VB_H = 556;
+/** Bottle art is 200 wide by 556 tall; scenes size by width and derive height. */
 export const BOTTLE_RATIO = VB_H / VB_W;
 
-/** Surface of the juice. The bottle is filled to about 85%. */
-const LIQUID_TOP = 176;
-const LIQUID_BOTTOM = 486;
-const LIQUID_SPAN = LIQUID_BOTTOM - LIQUID_TOP;
+/**
+ * Top of the cap. The base the bottle stands on is y=542, so the drawing is
+ * 528 tall against a body 190 wide (x 5..195) — the photographed 2.78:1.
+ */
+const CAP_TOP = 14;
 
-const LABEL_CX = 100;
-const LABEL_CY = 300;
-const LABEL_R = 66;
+/** Cap: 0.27 body widths tall, 0.66 wide — a 38mm closure on a 65mm bottle. */
+const CAP_BOTTOM = 64;
+const CAP_R = 63;
+/** The knurling stops well short of the tamper band, as it does on the real cap. */
+const RIB_TOP = 19;
+const RIB_BOTTOM = 45;
+const RIB_COUNT = 41;
 
 /**
- * Outer glass silhouette — cap sits on top of this. Rounded shoulder, gentle
- * taper down to a slightly narrower base, soft corners at the foot.
+ * Neck: the two thread turns that clear the closure skirt, then the support
+ * ring it seals against. Only ~3% of the real bottle's height shows below the
+ * cap, and the juice comes up behind it, so the threads read as pale ridges
+ * over colour — not as the bare grey coil you get if you draw them against the
+ * hero's black ground.
+ */
+const NECK_R = 57;
+const NECK_RING_TOP = 84;
+const NECK_RING_BOTTOM = 92;
+const NECK_RING_R = 59;
+const THREAD_YS = [65, 74];
+
+/**
+ * Surface of the juice. The real bottles are filled to the base of the neck —
+ * the whole shoulder is full — and carry a pale foam / pulp head about 0.17 of
+ * the bottle's height deep. A flat slab starting below the shoulder is what
+ * made the old drawing read as squash.
+ */
+const LIQUID_TOP = 96;
+const LIQUID_BOTTOM = 536;
+const LIQUID_SPAN = LIQUID_BOTTOM - LIQUID_TOP;
+const FOAM_BOTTOM = 184;
+/** Inner radius at the surface — the shoulder is still closing in up here. */
+const LIQUID_TOP_R = 53;
+
+/** Label: 0.87 body widths across, centred 1.56 body widths below the cap. */
+const LABEL_CX = 100;
+const LABEL_CY = 310;
+const LABEL_R = 76;
+
+/** `JC.`, printed white on the glass 0.82 label-diameters below the label. */
+const JC_BASELINE = 448;
+
+/**
+ * Outer glass silhouette — the cap sits on top of this.
+ *
+ * The shoulder is the part everyone draws wrong. It is not a tight radius: it
+ * leaves the neck fast and then eases for the better part of a body width
+ * before it meets the straight wall, which is why the cubic's first control
+ * point is so far out and its second is so far down.
  */
 const BODY_PATH =
-  "M134 41 L134 78 " +
-  "C134 118 173 126 174 166 " +
-  "L167 452 C167 476 157 492 141 492 " +
-  "L59 492 C43 492 33 476 33 452 " +
-  "L26 166 C27 126 66 118 66 78 " +
-  "L66 41 Z";
+  "M157 64 L157 92 " +
+  "C160 104 191 164 195 250 " +
+  "L193.5 496 C193.5 524 185 542 163 542 " +
+  "L37 542 C15 542 6.5 524 6.5 496 " +
+  "L5 250 C9 164 40 104 43 92 " +
+  "L43 64 Z";
 
 /** Inner void, inset for glass thickness. Clips the liquid and the droplets. */
 const INNER_PATH =
-  "M129 45 L129 82 " +
-  "C129 120 168 129 169 168 " +
-  "L162 450 C162 470 153 486 139 486 " +
-  "L61 486 C47 486 38 470 38 450 " +
-  "L31 168 C32 129 71 120 71 82 " +
-  "L71 45 Z";
+  "M152 64 L152 92 " +
+  "C155 105 186 165 190 251 " +
+  "L188.5 494 C188.5 518 181 536 161 536 " +
+  "L39 536 C19 536 11.5 518 11.5 494 " +
+  "L10 251 C14 165 45 105 48 92 " +
+  "L48 64 Z";
 
 /* ---------------- bubbles ---------------- */
 
@@ -87,9 +141,9 @@ export function bubbleSpecs(seed: number, count: number): BubbleSpec[] {
     const c = hashRandom(seed * 3.9 + i * 5.6 + 97);
     const d = hashRandom(seed * 11.1 + i * 2.2 + 173);
     out.push({
-      x: 48 + a * 104,
-      r: 1.1 + b * 2.4,
-      speed: 13 + c * 22,
+      x: 34 + a * 132,
+      r: 1.2 + b * 2.6,
+      speed: 14 + c * 24,
       phase: d,
       wobble: 1.5 + a * 4,
     });
@@ -100,6 +154,39 @@ export function bubbleSpecs(seed: number, count: number): BubbleSpec[] {
 export const BUBBLE_RISE = LIQUID_SPAN;
 export const BUBBLE_BASE_Y = LIQUID_BOTTOM - 4;
 export const BUBBLE_TOP_Y = LIQUID_TOP;
+
+/* ---------------- foam head ---------------- */
+
+interface FoamCell {
+  x: number;
+  y: number;
+  r: number;
+  o: number;
+}
+
+/**
+ * The pulp head that sits on fresh pressed juice: a raft of pale cells rather
+ * than a smooth band, densest just under the surface. Deterministic so a
+ * bottle looks the same on every render and between server and client.
+ */
+function foamCells(seed: number, count: number): FoamCell[] {
+  const out: FoamCell[] = [];
+  const span = FOAM_BOTTOM - LIQUID_TOP;
+  for (let i = 0; i < count; i++) {
+    const a = hashRandom(seed * 6.2 + i * 3.7 + 11);
+    const b = hashRandom(seed * 4.1 + i * 8.3 + 59);
+    const c = hashRandom(seed * 9.7 + i * 1.9 + 131);
+    /* Bias upwards: b*b lands most cells in the top third of the head. */
+    const t = b * b;
+    out.push({
+      x: 22 + a * 156,
+      y: LIQUID_TOP + 3 + t * (span - 6),
+      r: 1 + c * 2.6,
+      o: 0.16 + (1 - t) * 0.34,
+    });
+  }
+  return out;
+}
 
 /* ---------------- condensation ---------------- */
 
@@ -113,12 +200,12 @@ interface Droplet {
 function droplets(seed: number, count: number): Droplet[] {
   const out: Droplet[] = [];
   for (let i = 0; i < count * 4 && out.length < count; i++) {
-    const x = 34 + hashRandom(seed * 5.1 + i * 1.7) * 132;
-    const y = 120 + hashRandom(seed * 2.3 + i * 4.9 + 13) * 360;
+    const x = 18 + hashRandom(seed * 5.1 + i * 1.7) * 164;
+    const y = 150 + hashRandom(seed * 2.3 + i * 4.9 + 13) * 370;
     /* Keep the glass clear over the label, or the type stops being legible. */
     const dx = x - LABEL_CX;
     const dy = y - LABEL_CY;
-    if (dx * dx + dy * dy < (LABEL_R + 7) * (LABEL_R + 7)) continue;
+    if (dx * dx + dy * dy < (LABEL_R + 8) * (LABEL_R + 8)) continue;
     out.push({
       x,
       y,
@@ -143,30 +230,22 @@ function Label({
   detail: LabelDetail;
 }) {
   const gold = "#d4a63c";
-  const goldBright = "#f3da8b";
+  const goldPale = "#f2e3b4";
   const full = detail === "full";
 
   return (
     <g>
       {/* black disc */}
       <circle cx={LABEL_CX} cy={LABEL_CY} r={LABEL_R} fill={`url(#${uid}-lab)`} />
-      {/* thin gold ring, and a hairline inside it */}
+      {/* One thin gold ring, set in from the edge. The real sticker has no
+          second hairline — that was invented. */}
       <circle
         cx={LABEL_CX}
         cy={LABEL_CY}
-        r={LABEL_R - 2.5}
+        r={LABEL_R - 5.5}
         fill="none"
         stroke={`url(#${uid}-ring)`}
-        strokeWidth="1.6"
-      />
-      <circle
-        cx={LABEL_CX}
-        cy={LABEL_CY}
-        r={LABEL_R - 6.5}
-        fill="none"
-        stroke={gold}
-        strokeWidth="0.5"
-        opacity="0.5"
+        strokeWidth="1.5"
       />
 
       {arcs ? (
@@ -174,24 +253,25 @@ function Label({
           <defs>
             <path
               id={`${uid}-arc-top`}
-              d={`M ${LABEL_CX - 50} ${LABEL_CY} A 50 50 0 0 1 ${LABEL_CX + 50} ${LABEL_CY}`}
+              d={`M ${LABEL_CX - 59} ${LABEL_CY} A 59 59 0 0 1 ${LABEL_CX + 59} ${LABEL_CY}`}
               fill="none"
             />
             {/* Drawn right-to-left round the bottom so the type sits upright
-                the way it does on the real label, and pushed out to r=58 so
+                the way it does on the real label, and pushed out to r=68 so
                 it clears the "330ml" line entirely. */}
             <path
               id={`${uid}-arc-bot`}
-              d={`M ${LABEL_CX - 58} ${LABEL_CY} A 58 58 0 0 0 ${LABEL_CX + 58} ${LABEL_CY}`}
+              d={`M ${LABEL_CX - 66} ${LABEL_CY} A 66 66 0 0 0 ${LABEL_CX + 66} ${LABEL_CY}`}
               fill="none"
             />
           </defs>
+          {/* All the label type is a serif on the real sticker, including the
+              two arcs — they were sans here. */}
           <text
             fill={gold}
-            fontSize="8"
-            letterSpacing="1.9"
-            fontFamily="var(--font-jost), sans-serif"
-            fontWeight="500"
+            fontSize="7.4"
+            letterSpacing="1.8"
+            fontFamily="var(--font-playfair), Georgia, serif"
           >
             <textPath href={`#${uid}-arc-top`} startOffset="50%" textAnchor="middle">
               FRESHLY MADE
@@ -199,9 +279,9 @@ function Label({
           </text>
           <text
             fill={gold}
-            fontSize="6.4"
-            letterSpacing="0.85"
-            fontFamily="var(--font-jost), sans-serif"
+            fontSize="6.6"
+            letterSpacing="0.4"
+            fontFamily="var(--font-playfair), Georgia, serif"
             opacity="0.92"
           >
             <textPath href={`#${uid}-arc-bot`} startOffset="50%" textAnchor="middle">
@@ -217,8 +297,8 @@ function Label({
       <g
         transform={
           full
-            ? `translate(${LABEL_CX} ${LABEL_CY - 32}) scale(0.28) translate(-32 -44)`
-            : `translate(${LABEL_CX} ${LABEL_CY}) scale(0.85) translate(-32 -44)`
+            ? `translate(${LABEL_CX} ${LABEL_CY - 28}) scale(0.44) translate(-32 -43)`
+            : `translate(${LABEL_CX} ${LABEL_CY}) scale(1) translate(-32 -43)`
         }
         stroke={gold}
         fill={gold}
@@ -243,54 +323,45 @@ function Label({
         />
       </g>
 
-      {/* wordmark, two lines, gold serif */}
+      {/* wordmark, two lines, gold serif. Both lines are the same size on the
+          real label; JUICE is tracked out to match CARTEL's width. */}
       {full ? (
         <>
-      <text
-        x={LABEL_CX}
-        y={LABEL_CY + 4}
-        textAnchor="middle"
-        fill={`url(#${uid}-foil)`}
-        fontSize="19"
-        letterSpacing="2.2"
-        fontFamily="var(--font-playfair), Georgia, serif"
-        fontWeight="500"
-      >
-        JUICE
-      </text>
-      <text
-        x={LABEL_CX}
-        y={LABEL_CY + 22}
-        textAnchor="middle"
-        fill={`url(#${uid}-foil)`}
-        fontSize="17"
-        letterSpacing="1.6"
-        fontFamily="var(--font-playfair), Georgia, serif"
-        fontWeight="500"
-      >
-        CARTEL
-      </text>
-
-      <line
-        x1={LABEL_CX - 15}
-        x2={LABEL_CX + 15}
-        y1={LABEL_CY + 29}
-        y2={LABEL_CY + 29}
-        stroke={goldBright}
-        strokeWidth="0.6"
-        opacity="0.55"
-      />
-      <text
-        x={LABEL_CX}
-        y={LABEL_CY + 38}
-        textAnchor="middle"
-        fill={gold}
-        fontSize="7.6"
-        letterSpacing="1.3"
-        fontFamily="var(--font-jost), sans-serif"
-      >
-        330ml
-      </text>
+          <text
+            x={LABEL_CX}
+            y={LABEL_CY + 12}
+            textAnchor="middle"
+            fill={`url(#${uid}-foil)`}
+            fontSize="19"
+            letterSpacing="3.2"
+            fontFamily="var(--font-playfair), Georgia, serif"
+            fontWeight="500"
+          >
+            JUICE
+          </text>
+          <text
+            x={LABEL_CX}
+            y={LABEL_CY + 30}
+            textAnchor="middle"
+            fill={`url(#${uid}-foil)`}
+            fontSize="19"
+            letterSpacing="0.7"
+            fontFamily="var(--font-playfair), Georgia, serif"
+            fontWeight="500"
+          >
+            CARTEL
+          </text>
+          <text
+            x={LABEL_CX}
+            y={LABEL_CY + 50}
+            textAnchor="middle"
+            fill={goldPale}
+            fontSize="9"
+            letterSpacing="0.8"
+            fontFamily="var(--font-playfair), Georgia, serif"
+          >
+            330ml
+          </text>
         </>
       ) : null}
 
@@ -298,10 +369,10 @@ function Label({
       <g clipPath={`url(#${uid}-labclip)`}>
         <rect
           data-sweep=""
-          x={LABEL_CX - LABEL_R - 90}
-          y={LABEL_CY - LABEL_R - 10}
-          width="46"
-          height={LABEL_R * 2 + 20}
+          x={LABEL_CX - LABEL_R - 100}
+          y={LABEL_CY - LABEL_R - 12}
+          width="52"
+          height={LABEL_R * 2 + 24}
           fill={`url(#${uid}-sweep)`}
           transform="rotate(-16)"
           style={{ transformOrigin: `${LABEL_CX}px ${LABEL_CY}px` }}
@@ -362,8 +433,10 @@ export function BottleArt({
     showLabel &&
     labelDetail === "full" &&
     (arcs ?? (typeof width === "number" ? width >= 120 : true));
+  const showFine = labelDetail === "full";
   const bubbleList = bubbles > 0 ? bubbleSpecs(seed, bubbles) : [];
   const drops = dropletCount > 0 ? droplets(seed, dropletCount) : [];
+  const foam = foamCells(seed, dropletCount > 0 ? 54 : 24);
   const h =
     height ?? (typeof width === "number" ? width * BOTTLE_RATIO : "100%");
 
@@ -390,28 +463,61 @@ export function BottleArt({
           <circle cx={LABEL_CX} cy={LABEL_CY} r={LABEL_R - 2} />
         </clipPath>
 
-        {/* juice: bright at the surface, deep at the base */}
+        {/* Juice. Nearly flat, then a fall over the last fifth: sampling a
+            column down the photographs shows the colour holding almost constant
+            and only dropping where the heel turns away from the light. The old
+            half-and-half ramp turned every flavour to gravy at the base. */}
         <linearGradient id={`${uid}-juice`} x1="0" y1={LIQUID_TOP} x2="0" y2={LIQUID_BOTTOM} gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor={accent} />
-          <stop offset="0.45" stopColor={accent} />
+          <stop offset="0.78" stopColor={accent} />
           <stop offset="1" stopColor={accentDeep} />
         </linearGradient>
 
+        {/* The pulp head, as white laid over the juice rather than a second
+            colour: it has to work for every flavour without the catalogue
+            carrying a third hex. Nearly flat, then a fast fall at the bottom —
+            fresh juice separates along a visible line. */}
+        <linearGradient id={`${uid}-foam`} x1="0" y1={LIQUID_TOP} x2="0" y2={FOAM_BOTTOM} gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.32" />
+          <stop offset="0.55" stopColor="#fff" stopOpacity="0.24" />
+          <stop offset="0.86" stopColor="#fff" stopOpacity="0.18" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0.06" />
+        </linearGradient>
+
         {/* cylinder shading: dark at both edges, open in the middle */}
-        <linearGradient id={`${uid}-cyl`} x1="26" y1="0" x2="174" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#000" stopOpacity="0.55" />
-          <stop offset="0.16" stopColor="#000" stopOpacity="0.16" />
+        <linearGradient id={`${uid}-cyl`} x1="5" y1="0" x2="195" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#000" stopOpacity="0.45" />
+          <stop offset="0.16" stopColor="#000" stopOpacity="0.12" />
           <stop offset="0.4" stopColor="#000" stopOpacity="0" />
           <stop offset="0.72" stopColor="#000" stopOpacity="0.05" />
-          <stop offset="1" stopColor="#000" stopOpacity="0.5" />
+          <stop offset="1" stopColor="#000" stopOpacity="0.42" />
         </linearGradient>
 
         {/* empty glass above the juice */}
-        <linearGradient id={`${uid}-glass`} x1="26" y1="0" x2="174" y2="0" gradientUnits="userSpaceOnUse">
+        <linearGradient id={`${uid}-glass`} x1="5" y1="0" x2="195" y2="0" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#f7f1e4" stopOpacity="0.10" />
           <stop offset="0.35" stopColor="#f7f1e4" stopOpacity="0.03" />
           <stop offset="0.78" stopColor="#f7f1e4" stopOpacity="0.05" />
           <stop offset="1" stopColor="#f7f1e4" stopOpacity="0.13" />
+        </linearGradient>
+
+        {/* empty neck: brighter than the body's glass, because there is no
+            juice behind it to darken it and it is the narrowest part of the
+            bottle, so it picks up light from both sides at once */}
+        <linearGradient id={`${uid}-neck`} x1={100 - NECK_R} y1="0" x2={100 + NECK_R} y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#e6dfcd" stopOpacity="0.58" />
+          <stop offset="0.22" stopColor="#fbf7ec" stopOpacity="0.34" />
+          <stop offset="0.55" stopColor="#fbf7ec" stopOpacity="0.24" />
+          <stop offset="0.82" stopColor="#f2ebda" stopOpacity="0.4" />
+          <stop offset="1" stopColor="#ded6c2" stopOpacity="0.62" />
+        </linearGradient>
+
+        {/* a thread turn seen edge-on: bright crest, shaded underside */}
+        <linearGradient id={`${uid}-thread`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.24" />
+          <stop offset="0.34" stopColor="#ffffff" stopOpacity="0.58" />
+          <stop offset="0.72" stopColor="#e7dfcd" stopOpacity="0.34" />
+          <stop offset="1" stopColor="#8d8674" stopOpacity="0.3" />
         </linearGradient>
 
         {/* hard specular down one side */}
@@ -444,12 +550,17 @@ export function BottleArt({
           <stop offset="1" stopColor="#8a6015" stopOpacity="0.45" />
         </linearGradient>
 
-        <linearGradient id={`${uid}-cap`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#6d6a63" />
-          <stop offset="0.16" stopColor="#efeae0" />
-          <stop offset="0.44" stopColor="#ffffff" />
-          <stop offset="0.72" stopColor="#cdc7bb" />
-          <stop offset="1" stopColor="#5f5b54" />
+        {/* Cap: translucent natural-white PET, not metal. Warm off-white in the
+            middle falling to a dull putty at both edges — the old white-to-grey
+            ramp read as an aluminium crown. */}
+        <linearGradient id={`${uid}-cap`} x1={100 - CAP_R} y1="0" x2={100 + CAP_R} y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#9d968a" />
+          <stop offset="0.09" stopColor="#d9d3c6" />
+          <stop offset="0.3" stopColor="#f1ede3" />
+          <stop offset="0.46" stopColor="#f8f5ec" />
+          <stop offset="0.68" stopColor="#ece7db" />
+          <stop offset="0.88" stopColor="#c3bcac" />
+          <stop offset="1" stopColor="#8f887c" />
         </linearGradient>
 
         <linearGradient id={`${uid}-lab`} x1="0" y1="0" x2="0.6" y2="1">
@@ -490,9 +601,9 @@ export function BottleArt({
       {/* ---- juice ---- */}
       <g clipPath={`url(#${uid}-inner)`}>
         <rect
-          x="20"
+          x="0"
           y={LIQUID_TOP}
-          width="160"
+          width="200"
           height={LIQUID_SPAN + 12}
           fill={`url(#${uid}-juice)`}
         />
@@ -510,50 +621,60 @@ export function BottleArt({
           />
         ))}
 
-        {/* meniscus + foam at the surface */}
+        {/* ---- foam / pulp head ----
+             Drawn before the cylinder shading so it darkens at the edges with
+             the rest of the liquid instead of floating on top of it. */}
+        <rect
+          x="0"
+          y={LIQUID_TOP}
+          width="200"
+          height={FOAM_BOTTOM - LIQUID_TOP}
+          fill={`url(#${uid}-foam)`}
+        />
+        {foam.map((f, i) => (
+          <circle key={i} cx={f.x} cy={f.y} r={f.r} fill="#fff" opacity={f.o} />
+        ))}
+        {/* The line the juice settles out along. Pale above, deep below —
+            without both edges it reads as a scratch rather than an interface. */}
+        <rect x="0" y={FOAM_BOTTOM - 2.4} width="200" height="2.4" fill="#fff" opacity="0.14" />
+        <rect x="0" y={FOAM_BOTTOM} width="200" height="3" fill={accentDeep} opacity="0.4" />
+
+        {/* meniscus where the surface climbs the glass */}
         <ellipse
           cx="100"
           cy={LIQUID_TOP}
-          rx="68"
-          ry="7.5"
+          rx={LIQUID_TOP_R}
+          ry="6"
           fill={`url(#${uid}-meniscus)`}
         />
         <ellipse
           cx="100"
-          cy={LIQUID_TOP + 1.5}
-          rx="66"
-          ry="6"
+          cy={LIQUID_TOP + 1.2}
+          rx={LIQUID_TOP_R - 2}
+          ry="4.6"
           fill="none"
           stroke="#fff"
-          strokeOpacity="0.5"
+          strokeOpacity="0.55"
           strokeWidth="1.1"
-        />
-        <ellipse
-          cx="100"
-          cy={LIQUID_TOP + 4}
-          rx="60"
-          ry="4"
-          fill="#fff"
-          opacity="0.12"
         />
 
         {/* cylinder shading over the juice so it is not a flat slab */}
         <rect
-          x="20"
+          x="0"
           y={LIQUID_TOP - 2}
-          width="160"
+          width="200"
           height={LIQUID_SPAN + 14}
           fill={`url(#${uid}-cyl)`}
         />
 
         {/* dense settle at the very bottom */}
         <rect
-          x="20"
-          y={LIQUID_BOTTOM - 46}
-          width="160"
-          height="52"
+          x="0"
+          y={LIQUID_BOTTOM - 44}
+          width="200"
+          height="50"
           fill={accentDeep}
-          opacity="0.5"
+          opacity="0.28"
         />
       </g>
 
@@ -584,34 +705,36 @@ export function BottleArt({
 
       {/* ---- lighting ---- */}
       <g clipPath={`url(#${uid}-body)`}>
+        {/* The photographed highlight is a narrow band about a tenth of the
+            body across, not the wide blade this used to be. */}
         <g data-spec="">
           <rect
-            x="41"
-            y="100"
-            width="27"
-            height="378"
-            rx="13"
+            x="26"
+            y="120"
+            width="20"
+            height="386"
+            rx="10"
             fill={`url(#${uid}-spec)`}
-            opacity="0.9"
+            opacity="0.85"
           />
           <rect
-            x="41"
-            y="100"
-            width="27"
-            height="378"
-            rx="13"
+            x="26"
+            y="120"
+            width="20"
+            height="386"
+            rx="10"
             fill={`url(#${uid}-specv)`}
-            opacity="0.4"
+            opacity="0.35"
           />
           {/* a second, tighter catch keeps the glass from looking matte */}
           <rect
-            x="49"
-            y="150"
-            width="6"
-            height="300"
-            rx="3"
+            x="33"
+            y="170"
+            width="5"
+            height="320"
+            rx="2.5"
             fill="#ffffff"
-            opacity="0.35"
+            opacity="0.32"
           />
         </g>
         {/* Bounce starts below the shoulder: run it any higher and the
@@ -619,11 +742,11 @@ export function BottleArt({
             empty glass. */}
         <g data-bounce="">
           <rect
-            x="139"
-            y="192"
-            width="22"
-            height="278"
-            rx="11"
+            x="148"
+            y="238"
+            width="26"
+            height="272"
+            rx="13"
             fill={`url(#${uid}-bounce)`}
             opacity="0.8"
           />
@@ -640,49 +763,112 @@ export function BottleArt({
         strokeWidth="1.8"
       />
       <path
-        d="M66 41 L66 78 C66 118 27 126 26 166 L33 452"
+        d="M43 64 L43 92 C40 104 9 164 5 250 L6.5 496"
         fill="none"
         stroke="#ffffff"
         strokeOpacity="0.42"
         strokeWidth="1.3"
       />
       <path
-        d="M174 166 L167 452 C167 476 157 492 141 492"
+        d="M195 250 L193.5 496 C193.5 524 185 542 163 542"
         fill="none"
         stroke="#f3da8b"
         strokeOpacity="0.5"
         strokeWidth="1.3"
       />
 
-      {/* ---- neck support ring ---- */}
-      <rect x="63" y="44" width="74" height="6" rx="3" fill="#efeae0" opacity="0.26" />
-      <rect x="63" y="44" width="74" height="6" rx="3" fill="none" stroke="#f3da8b" strokeOpacity="0.3" strokeWidth="0.6" />
-
-      {/* ---- ribbed screw cap ---- */}
-      <g>
-        <rect x="61" y="3" width="78" height="38" rx="4" fill={`url(#${uid}-cap)`} />
-        {Array.from({ length: 15 }, (_, i) => (
-          <rect
-            key={i}
-            x={64 + i * 5}
-            y="6"
-            width="1.4"
-            height="32"
-            fill="#000"
-            opacity="0.14"
-          />
-        ))}
-        <rect x="61" y="3" width="78" height="6" rx="3" fill="#fff" opacity="0.55" />
-        <rect x="61" y="35" width="78" height="6" rx="3" fill="#000" opacity="0.16" />
+      {/* ---- neck ----
+           Screw threads, then the support ring the closure seals against. On
+           the real bottle the skirt hides most of the thread, but the turns
+           that show under it do an outsized share of the work of looking like a
+           real bottle, so they are drawn a touch taller than life.
+           The neck sits above the fill line, so it is empty PET: on the dark
+           ground of the hero that would read as a hole. `-neck` lifts it to
+           the value of lit glass first, and the threads sit on top of that. */}
+      <g clipPath={`url(#${uid}-body)`}>
         <rect
-          x="61"
-          y="3"
-          width="78"
-          height="38"
-          rx="4"
+          x={100 - NECK_R}
+          y={CAP_BOTTOM - 2}
+          width={NECK_R * 2}
+          height={NECK_RING_BOTTOM - CAP_BOTTOM + 4}
+          fill={`url(#${uid}-neck)`}
+        />
+        {THREAD_YS.map((y, i) => (
+          <g key={i}>
+            <rect
+              x={100 - NECK_R + 1}
+              y={y}
+              width={(NECK_R - 1) * 2}
+              height="5.4"
+              rx="2.7"
+              fill={`url(#${uid}-thread)`}
+            />
+            {/* the trough under each turn, which is what makes it read as a
+                ridge rather than a painted stripe */}
+            <path
+              d={`M${100 - NECK_R + 3} ${y + 6.1} H${100 + NECK_R - 3}`}
+              stroke="#000000"
+              strokeOpacity="0.3"
+              strokeWidth="1.1"
+              fill="none"
+            />
+          </g>
+        ))}
+        <rect
+          x={100 - NECK_RING_R}
+          y={NECK_RING_TOP}
+          width={NECK_RING_R * 2}
+          height={NECK_RING_BOTTOM - NECK_RING_TOP}
+          rx="2.5"
+          fill={`url(#${uid}-thread)`}
+        />
+        <rect
+          x={100 - NECK_RING_R}
+          y={NECK_RING_TOP}
+          width={NECK_RING_R * 2}
+          height="1.4"
+          rx="0.7"
+          fill="#ffffff"
+          opacity="0.5"
+        />
+      </g>
+
+      {/* ---- ribbed screw cap ----
+           Tall, wide and translucent natural white. Fine vertical knurling over
+           the top two-thirds; the smooth band under it is the tamper skirt. */}
+      <g>
+        <rect
+          x={100 - CAP_R}
+          y={CAP_TOP}
+          width={CAP_R * 2}
+          height={CAP_BOTTOM - CAP_TOP}
+          rx="6"
+          fill={`url(#${uid}-cap)`}
+        />
+        {Array.from({ length: RIB_COUNT }, (_, i) => {
+          const x = 100 - CAP_R + 4 + (i * (CAP_R * 2 - 8)) / (RIB_COUNT - 1);
+          return (
+            <g key={i}>
+              <rect x={x} y={RIB_TOP} width="1.2" height={RIB_BOTTOM - RIB_TOP} fill="#000" opacity="0.1" />
+              <rect x={x + 1.2} y={RIB_TOP} width="0.8" height={RIB_BOTTOM - RIB_TOP} fill="#fff" opacity="0.3" />
+            </g>
+          );
+        })}
+        {/* moulded top face, then the bead that divides skirt from tamper band */}
+        <rect x={100 - CAP_R} y={CAP_TOP} width={CAP_R * 2} height="5" rx="2.5" fill="#fff" opacity="0.5" />
+        <rect x={100 - CAP_R + 2} y={RIB_BOTTOM + 1} width={CAP_R * 2 - 4} height="1.6" rx="0.8" fill="#000" opacity="0.13" />
+        {/* flange at the foot of the cap */}
+        <rect x={100 - CAP_R - 1.5} y={CAP_BOTTOM - 6} width={CAP_R * 2 + 3} height="6" rx="2" fill={`url(#${uid}-cap)`} />
+        <rect x={100 - CAP_R - 1.5} y={CAP_BOTTOM - 1.8} width={CAP_R * 2 + 3} height="1.8" fill="#000" opacity="0.1" />
+        <rect
+          x={100 - CAP_R}
+          y={CAP_TOP}
+          width={CAP_R * 2}
+          height={CAP_BOTTOM - CAP_TOP}
+          rx="6"
           fill="none"
           stroke="#d4a63c"
-          strokeOpacity="0.32"
+          strokeOpacity="0.28"
           strokeWidth="0.8"
         />
       </g>
@@ -695,6 +881,25 @@ export function BottleArt({
           arcClassName={arcClassName}
           detail={labelDetail}
         />
+      ) : null}
+
+      {/* ---- JC. ----
+           Printed white on the glass below the label. Drawn after the label so
+           it is never covered by the sweep's clip group. */}
+      {showFine ? (
+        <text
+          x={LABEL_CX}
+          y={JC_BASELINE}
+          textAnchor="middle"
+          fill="#ffffff"
+          fillOpacity="0.93"
+          fontSize="33"
+          fontWeight="700"
+          letterSpacing="0.5"
+          fontFamily="var(--font-jost), system-ui, sans-serif"
+        >
+          JC.
+        </text>
       ) : null}
     </svg>
   );
