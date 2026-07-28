@@ -10,9 +10,27 @@ Anywhere you see **£** or **COSTS MONEY**, that step has a real cost attached. 
 
 ---
 
+## Before anything else: the allergen information is not confirmed yet
+
+**Read this section before you read anything else in this guide.**
+
+The menu was recently replaced with your real products, in the file `src/lib/catalogue.ts`. Every product in that file has an `allergens` field, but those flags were worked out by reading each product's name and thinking about what a recipe like that would typically contain. Nobody has checked them against your actual recipes. They are a starting point, not a fact, and they must not be trusted as they stand.
+
+Before you take a single real order:
+
+1. Go through every product and check its `allergens` field against exactly what goes into it in your kitchen — the real ingredients you actually use, not what the product name suggests.
+2. Remember a topping changes a product's allergens. The Matilda Crunch Cake has no nuts in it on its own. Add the Kinder Bueno topping and it does, because Kinder Bueno contains tree nuts. If a customer can add a topping, the allergens for that combination need to be right too.
+3. By law, allergen information for food sold at a distance (which includes anything ordered online for delivery) must reach the customer **twice**: once when they order, on the website, and again with the delivery itself, for example on a label or slip attached to the order. Getting the website right is only half the job.
+
+**Where to fix it:** open `src/lib/catalogue.ts` and find the product. Each one has a line that reads `allergens: [...]` — list every allergen that product genuinely contains inside those square brackets. Toppings, further down the same file, each have their own `allergens: [...]` line too. There is only one place to edit this. The allergens page on the website and every product card on the menu both read from this same file, so one correct edit updates everywhere at once. Full instructions, including the complete list of allergen names the code understands, are in `docs/adding-products.md`.
+
+Do not skip this. Getting allergen information wrong can make someone seriously ill, and it is also the law to get it right.
+
+---
+
 ## What this site is
 
-This is the Juice Cartel ordering website: a page where customers in Nottingham browse your juices, milkshakes and desserts, add them to a basket, and pay by card. It also sells weekly subscriptions (a set of drinks delivered every Sunday, paid for automatically each week).
+This is the Juice Cartel ordering website: a page where customers in Nottingham browse the Juice Cartel cold-pressed juices, Fuel Cartel protein shakes and Cartel Bakes, add them to a basket, and pay by card. It also sells weekly subscriptions (a mix of juices and bakes delivered every Sunday, paid for automatically each week).
 
 Under the bonnet it's built with Next.js (the software that draws the pages) and Stripe (the company that handles card payments so you never touch anyone's card details directly).
 
@@ -83,7 +101,7 @@ Stripe is the company that will actually process card payments for you and move 
 
 1. Go to [stripe.com](https://stripe.com) and click to sign up. Use a proper business email address if you have one.
 2. Stripe will ask for your business details, including:
-   - Your business name and what it sells (food and drink — describe it as a juice, dessert and milkshake delivery business).
+   - Your business name and what it sells (food and drink — describe it as a cold-pressed juice, protein shake and cake delivery business).
    - Your business address (this can be your home address if you run it from home).
    - Your date of birth and a form of photo ID (passport or driving licence) — this is standard for anyone taking online payments and stops the platform being used for fraud.
    - Your **bank account details** — this is the account Stripe pays your takings into. Have your sort code and account number ready.
@@ -202,32 +220,37 @@ Once this is done, `https://juicecartel.uk` will show your live site, with a pad
 
 ## 8. Adding product photos
 
-Photos live in the `public/products` folder inside the project. The website looks for an **exact filename** for each product, taken from `src/lib/catalogue.ts` — if the filename doesn't match exactly (including the `.jpg`), the photo won't show.
+Photos live in the `public/products` folder inside the project. The website looks for an **exact filename** for each product, taken from the `image` line for that product in `src/lib/catalogue.ts` — if the filename doesn't match exactly (including the `.jpg`), the photo won't show.
 
-**Required filenames** (case-sensitive — keep them all lower-case exactly as below):
+**Required filenames** (case-sensitive — keep them all lower-case exactly as below; this list is taken straight from `src/lib/catalogue.ts`, so if the menu changes again, check that file rather than this list):
 
 ```
-public/products/mango-juice.jpg
-public/products/orange-juice.jpg
-public/products/watermelon-juice.jpg
-public/products/carrot-juice.jpg
-public/products/berry-juice.jpg
-public/products/ginger-shot.jpg
-public/products/mango-milkshake.jpg
-public/products/mango-milkcake.jpg
-public/products/mini-egg-crunch-cake.jpg
-public/products/biscoff-crunch-cake.jpg
+public/products/classic-orange.jpg
+public/products/apple.jpg
+public/products/pineapple.jpg
+public/products/orange-carrot.jpg
+public/products/watermelon.jpg
+public/products/pomegranate.jpg
+public/products/mango.jpg
+public/products/fuel-bueno.jpg
+public/products/fuel-lotus.jpg
+public/products/fuel-mars.jpg
+public/products/fuel-ramadan-sheikh.jpg
+public/products/bruce-matilda-cake.jpg
+public/products/matilda-crunch-cake.jpg
 ```
 
 If you add a new product later, you set its filename yourself when you add it to the catalogue — see `docs/adding-products.md`.
 
+**What happens if a photo is missing:** the site doesn't break or show a broken-image icon. Each product slot has a designed gold-and-black fallback built in — a warm gradient with a faint bottle outline, tinted with that product's own accent colour — so an empty slot still looks intentional and on-brand. The moment a correctly-named photo is uploaded, it fades in over the top automatically. So there's no rush and no risk in launching before every photo is ready.
+
 **Recommended photo specs:**
-- Square images, at least **1200 × 1200 pixels**, so they look sharp on phones.
-- File format: `.jpg` (or `.webp`, if you know how to export it — it's a smaller, modern alternative).
-- Keep each file **under around 500KB**. A phone photo straight from the camera is often several MB, which slows the site down — use a free online image compressor (search "compress jpg online") to shrink it before uploading, or ask whoever edits your photos to export at a web-friendly size.
+- Square images, roughly **1200 × 1200 pixels**, so they look sharp on phones.
+- File format: `.jpg`.
+- Keep each file **under about 400KB**. A phone photo straight from the camera is often several MB, which slows the site down — use a free online image compressor (search "compress jpg online") to shrink it before uploading, or ask whoever edits your photos to export at a web-friendly size.
 - Good, consistent lighting matters more than a fancy camera — natural daylight against a plain background works well for food photography.
 
-To upload: copy the files into the `public/products` folder on your computer if you're running the site locally (section 1), or use GitHub's website to upload files directly into that folder in the repository — either way, once the files reach GitHub, Vercel republishes the site automatically with the new photos within a couple of minutes.
+To upload: copy the files into the `public/products` folder on your computer if you're running the site locally (section 1), or use GitHub's website to upload files directly into that folder in the repository — either way, once the files reach GitHub's `main` branch, Vercel republishes the live site automatically with the new photos within a couple of minutes. There's no separate rebuild step to remember — a push to `main` is the trigger, every time.
 
 ---
 

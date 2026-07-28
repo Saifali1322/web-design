@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DELIVERY, formatPrice, products } from "@/lib/catalogue";
+import { DELIVERY, formatPrice, products, SOCIALS } from "@/lib/catalogue";
 import MenuGrid from "@/components/menu/MenuGrid";
 
 export const metadata: Metadata = {
   title: "Menu",
   description:
-    "Cold pressed juices, milkshakes, desserts and shots — pressed and made fresh, delivered every Sunday across Nottingham. Full ingredients and allergens for every item.",
+    "Cold pressed juices, protein shakes and Cartel Bakes — pressed and made fresh, delivered every Sunday across Nottingham. Full ingredients and allergens for every item.",
 };
 
 export default function MenuPage() {
@@ -20,12 +20,28 @@ export default function MenuPage() {
           Fresh, pressed, delivered
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-cream-dim sm:text-base">
-          Every bottle is 330ml, made the morning it goes out. No concentrate,
-          no shortcuts. Add anything below to your basket, or see the{" "}
+          Juices are cold pressed the morning they go out, shakes are built
+          fresh to order and bakes are made in-house. No concentrate, no
+          shortcuts. Add anything below to your basket, or see the{" "}
           <Link href="/subscribe" className="text-gold underline underline-offset-2">
             weekly subscription
           </Link>{" "}
           if you want it sorted every Sunday without thinking about it.
+        </p>
+
+        <p className="mt-4 max-w-2xl border border-warn/40 bg-ink-card px-4 py-3 text-xs leading-relaxed text-cream-dim sm:text-sm">
+          <strong className="text-warn">Allergy or intolerance?</strong> The
+          allergens shown on each item are our best reading of the recipe and
+          have not yet been confirmed against what actually goes in it. Read
+          the full{" "}
+          <Link href="/allergens" className="text-gold underline underline-offset-2">
+            allergen information
+          </Link>{" "}
+          before you order, and call{" "}
+          <a href={`tel:${SOCIALS.phone}`} className="text-gold underline underline-offset-2">
+            {SOCIALS.phone}
+          </a>{" "}
+          or message us on Instagram first if you need to be certain.
         </p>
 
         <div className="mt-8 flex flex-col gap-3 border border-ink-line bg-ink-card px-5 py-4 sm:flex-row sm:items-center sm:gap-8">

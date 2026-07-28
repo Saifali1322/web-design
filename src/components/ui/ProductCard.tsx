@@ -35,6 +35,8 @@ export interface FoilImageProps {
   alt: string;
   /** Product accent hex — tints the fallback so each slot reads as itself. */
   accent?: string;
+  /** Second gradient stop — without it the fallback falls back to a single-colour wash. */
+  accentDeep?: string;
   /** next/image sizes hint. Always pass one; these are all `fill` images. */
   sizes: string;
   priority?: boolean;
@@ -50,6 +52,7 @@ export function FoilImage({
   src,
   alt,
   accent = "#d4a63c",
+  accentDeep = "#8a6015",
   sizes,
   priority = false,
   className = "",
@@ -62,12 +65,14 @@ export function FoilImage({
 
   return (
     <div className={`relative overflow-hidden bg-ink-card ${className}`}>
-      {/* Ground: warm black with the product's own colour bleeding in. */}
+      {/* Ground: warm black with the product's own two-tone colour bleeding
+          in as a gradient, so the fallback reads as liquid/light rather
+          than a flat tint. */}
       <div
         aria-hidden="true"
         className="absolute inset-0"
         style={{
-          background: `radial-gradient(118% 88% at 50% 12%, ${accent}33, transparent 62%), linear-gradient(163deg, #191510 0%, #0c0a08 58%, #120f0b 100%)`,
+          background: `radial-gradient(118% 88% at 50% 12%, ${accent}40 0%, ${accentDeep}26 46%, transparent 72%), linear-gradient(163deg, #191510 0%, #0c0a08 58%, #120f0b 100%)`,
         }}
       />
       {/* A single sheet of light across the slot, like foil catching a lamp. */}
@@ -134,6 +139,7 @@ export function ProductCard({
           src={`/products/${product.image}`}
           alt={`${product.name} — ${product.tagline}`}
           accent={product.accent}
+          accentDeep={product.accentDeep}
           priority={priority}
           sizes="(max-width: 639px) 92vw, (max-width: 1023px) 44vw, 360px"
           className="aspect-[4/5] rounded-t-[2px]"
@@ -146,10 +152,19 @@ export function ProductCard({
           {categoryLabel[product.category]}
         </span>
 
-        {product.bestseller && (
-          <span className="pointer-events-none absolute bottom-0 right-0 bg-ink/85 px-3 py-1.5 font-sans text-[0.625rem] tracking-label text-gold-bright uppercase backdrop-blur-sm">
-            Bestseller
-          </span>
+        {(product.seasonal || product.bestseller) && (
+          <div className="pointer-events-none absolute bottom-0 right-0 flex">
+            {product.seasonal && (
+              <span className="bg-ink/85 px-3 py-1.5 font-sans text-[0.625rem] tracking-label text-cream-dim uppercase backdrop-blur-sm">
+                Seasonal
+              </span>
+            )}
+            {product.bestseller && (
+              <span className="bg-ink/85 px-3 py-1.5 font-sans text-[0.625rem] tracking-label text-gold-bright uppercase backdrop-blur-sm">
+                Bestseller
+              </span>
+            )}
+          </div>
         )}
       </div>
 
@@ -169,6 +184,9 @@ export function ProductCard({
 
         <div className="mt-4 mb-4 h-px bg-ink-line" />
 
+        {/* `size` is a spec line, not a volume — it reads "330ml" on a juice,
+            "35g+ protein" on a shake and "Single tub" on a bake, so it is
+            shown verbatim rather than assumed to be a measure. */}
         <p className="numeric text-[0.6875rem] tracking-[0.1em] text-cream-faint uppercase">
           {product.size} · Keeps {product.keepsDays} days chilled
         </p>
