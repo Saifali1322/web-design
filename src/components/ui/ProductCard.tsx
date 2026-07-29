@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import SpinIt from "@/components/bottle3d/SpinIt";
-import { BottleMark } from "@/components/brand/Logo";
+import BottleArt from "@/components/hero/BottleArt";
 import { useCart } from "@/components/cart/CartProvider";
 import {
   allergenLabel,
@@ -17,11 +17,11 @@ import { Button } from "./Button";
  * FoilImage
  *
  * There is no photography in /public yet, and a 404 on an <img> is the
- * ugliest thing a site can show. So the gold wash and bottle watermark are
+ * ugliest thing a site can show. So the gold wash and the drawn bottle are
  * not a "placeholder" that gets deleted later — they are the permanent floor
  * of the image slot. The photograph fades in on top once it loads, and if it
  * never loads (missing file, slow phone, blocked request) the slot still
- * looks designed.
+ * shows the product, in the right colour, rather than an empty frame.
  *
  * Drop real files into /public/products and /public/brand and they appear
  * with no code change.
@@ -45,8 +45,10 @@ export interface FoilImageProps {
   className?: string;
   /** Applied to the <Image> — hover transforms belong here. */
   imageClassName?: string;
-  /** Width of the watermark bottle inside the slot. */
-  markClassName?: string;
+  /** Namespaces the fallback bottle's gradient ids. Must be unique per card. */
+  uid: string;
+  /** Varies condensation between cards so a grid does not look stamped. */
+  seed?: number;
 }
 
 export function FoilImage({
@@ -58,7 +60,8 @@ export function FoilImage({
   priority = false,
   className = "",
   imageClassName = "",
-  markClassName = "w-[30%]",
+  uid,
+  seed = 1,
 }: FoilImageProps) {
   const [status, setStatus] = useState<"pending" | "loaded" | "failed">(
     "pending",
@@ -81,11 +84,26 @@ export function FoilImage({
         aria-hidden="true"
         className="absolute inset-0 bg-[linear-gradient(112deg,transparent_26%,rgba(243,218,139,0.08)_45%,transparent_63%)]"
       />
+      {/* Until a photograph exists, show the actual product — the bottle art
+          filled with this juice's own colour — not a ghosted logo. A 20%
+          opacity mark reads as a broken image slot, which is exactly what a
+          grid of them looked like while /public/products was empty. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 flex items-center justify-center"
+        className="absolute inset-0 flex items-end justify-center"
       >
-        <BottleMark className={`${markClassName} h-auto text-gold/20`} />
+        <BottleArt
+          uid={`card-${uid}`}
+          accent={accent}
+          accentDeep={accentDeep}
+          height="86%"
+          width="auto"
+          seed={seed}
+          dropletCount={8}
+          labelDetail="mark"
+          arcs={false}
+          className="drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+        />
       </div>
 
       {status !== "failed" && (
@@ -145,7 +163,8 @@ export function ProductCard({
           sizes="(max-width: 639px) 92vw, (max-width: 1023px) 44vw, 360px"
           className="aspect-[4/5] rounded-t-[2px]"
           imageClassName="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
-          markClassName="w-[26%]"
+          uid={product.id}
+          seed={product.id.length * 7 + product.name.length}
         />
 
         {/* Category, set as a label rather than a badge — no pills. */}
