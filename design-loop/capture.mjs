@@ -54,13 +54,59 @@ function auditInPage() {
     el.getAttribute("aria-hidden") === "true" || el.getAttribute("role") === "presentation";
   const missingAlt = imgs.filter((i) => !i.hasAttribute("alt") && !decorative(i)).length;
 
-  // Interactive things smaller than 24px fail WCAG 2.2 target size (minimum).
+  // WCAG 2.2 SC 2.5.8 Target Size (Minimum), including its exceptions — without
+  // them this counts every inline link in a paragraph and the number is noise.
   const interactive = [...document.querySelectorAll("a,button,[role=button],input,select")];
-  const small = interactive.filter((el) => {
+  const visible = interactive.filter((el) => {
     const r = el.getBoundingClientRect();
-    if (r.width === 0 || r.height === 0) return false; // hidden, not tiny
+    return r.width > 0 && r.height > 0;
+  });
+
+  const undersized = visible.filter((el) => {
+    const r = el.getBoundingClientRect();
     return r.width < 24 || r.height < 24;
-  }).length;
+  });
+
+  /** Inline exception: the target sits in a sentence or block of text. */
+  const isInline = (el) => {
+    if (getComputedStyle(el).display !== "inline") return false;
+    const parent = el.parentElement;
+    if (!parent) return false;
+    // Real surrounding prose, not just whitespace between stacked links.
+    const own = (el.textContent ?? "").trim();
+    const around = (parent.textContent ?? "").trim();
+    return around.length > own.length + 10;
+  };
+
+  /**
+   * Spacing exception: undersized is acceptable if a 24px circle centred on the
+   * target does not overlap the circle of any other target.
+   */
+  const centre = (el) => {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  };
+  const hasSpacing = (el) => {
+    const a = centre(el);
+    return !visible.some((other) => {
+      if (other === el) return false;
+      const b = centre(other);
+      return Math.hypot(a.x - b.x, a.y - b.y) < 24;
+    });
+  };
+
+  const failing = undersized.filter((el) => !isInline(el) && !hasSpacing(el));
+
+  const small = failing.length;
+  const smallDetail = failing.slice(0, 6).map((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      tag: el.tagName.toLowerCase(),
+      text: (el.textContent ?? "").trim().slice(0, 32),
+      size: `${Math.round(r.width)}x${Math.round(r.height)}`,
+    };
+  });
+  const smallExempt = undersized.length - failing.length;
 
   const docWidth = document.documentElement.scrollWidth;
   const overflowX = docWidth > window.innerWidth + 1;
@@ -78,6 +124,8 @@ function auditInPage() {
     imgCount: imgs.length,
     missingAlt,
     smallTargets: small,
+    smallTargetsExempt: smallExempt,
+    smallTargetDetail: smallDetail,
     overflowX,
     docWidth,
     wideNodes,
@@ -188,6 +236,7 @@ const totals = {
   headingSkips: results.reduce((n, r) => n + (r.headingSkips ?? 0), 0),
   missingAlt: results.reduce((n, r) => n + (r.missingAlt ?? 0), 0),
   smallTargets: results.reduce((n, r) => n + (r.smallTargets ?? 0), 0),
+  smallTargetsExempt: results.reduce((n, r) => n + (r.smallTargetsExempt ?? 0), 0),
   routesWithOverflowX: results.filter((r) => r.overflowX).length,
   worstLcp: Math.max(0, ...results.map((r) => r.lcp ?? 0)),
 };
