@@ -48,3 +48,7 @@ preview/
 # Claude Code scratch space. `.claude/worktrees/` holds live git worktrees —
 # committing it would nest checkouts inside the repo they belong to.
 .claude/
+
+# Design-loop capture output — screenshots and reports are large and
+# regenerated on every run. RUBRIC.md and SCORES.md are the durable record.
+design-loop/runs/

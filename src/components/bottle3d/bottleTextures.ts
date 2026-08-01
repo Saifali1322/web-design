@@ -24,6 +24,7 @@ import {
 } from "three";
 
 import { JC_PATCH_H, JC_PATCH_W, LABEL_CY, LABEL_R } from "./bottleProfile";
+import { hashRandom } from "@/lib/hash";
 
 const GOLD = "#d4a63c";
 const GOLD_PALE = "#f7e6ae";
@@ -386,11 +387,9 @@ export function makeJCTexture(size = 256): Texture {
  * Condensation
  * ------------------------------------------------------------------ */
 
-/** Same deterministic hash the hero uses, so both bottles bead identically. */
-function hashRandom(seed: number): number {
-  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-}
+/* The condensation hash now lives in `@/lib/hash`, imported at the top of this
+ * file — it used to be a second copy of the hero's, which is exactly how the
+ * two came to differ. */
 
 export interface Droplet {
   /** 0..1 around the bottle. */

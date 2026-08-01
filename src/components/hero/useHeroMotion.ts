@@ -303,11 +303,12 @@ export const clamp = (v: number, lo: number, hi: number): number =>
 export const lerp = (a: number, b: number, t: number): number =>
   a + (b - a) * t;
 
-/** Deterministic pseudo-random in 0..1. Same droplets on server and client. */
-export function hashRandom(seed: number): number {
-  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-}
+/**
+ * Deterministic pseudo-random in 0..1. Re-exported so the hero pieces can keep
+ * importing it from here; the implementation lives in `@/lib/hash` because the
+ * 3D bottle needs the same numbers and must not pull in a client hook module.
+ */
+export { hashRandom } from "@/lib/hash";
 
 /** Cheap ease used by the flavour transition. */
 export const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);

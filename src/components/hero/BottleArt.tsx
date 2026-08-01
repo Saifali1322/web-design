@@ -440,15 +440,26 @@ export function BottleArt({
   const h =
     height ?? (typeof width === "number" ? width * BOTTLE_RATIO : "100%");
 
+  // `auto` is a CSS keyword, not an SVG length: as an attribute the browser
+  // rejects it outright ("Expected length") and falls back to the default 100%,
+  // which is why a card asking for height:86% / width:auto came out stretched.
+  // Sent through style instead it means what the caller intended, and the
+  // viewBox keeps the bottle in proportion.
+  const widthIsAuto = width === "auto";
+
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
-      width={width}
+      width={widthIsAuto ? undefined : width}
       height={h}
       className={className}
       role={title ? "img" : "presentation"}
       aria-hidden={title ? undefined : true}
-      style={{ display: "block", overflow: "visible" }}
+      style={{
+        display: "block",
+        overflow: "visible",
+        ...(widthIsAuto ? { width: "auto" } : null),
+      }}
     >
       {title ? <title>{title}</title> : null}
 
