@@ -1,25 +1,30 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
-import { DELIVERY, formatPrice, isInDeliveryArea } from "@/lib/catalogue";
-import {
-  MAX_LINE_QUANTITY,
-  useCart,
-  type CartItem,
-} from "@/components/cart/CartProvider";
+import { useEffect, useRef } from "react";
+import { DELIVERY, formatPrice } from "@/lib/catalogue";
+import { useCart } from "@/components/cart/CartProvider";
+import BasketRow from "@/components/cart/BasketRow";
 import CheckoutButton from "@/components/cart/CheckoutButton";
-import { ButtonLink } from "@/components/ui/Button";
+import DeliveryProgress from "@/components/cart/DeliveryProgress";
+import EmptyBasket from "@/components/cart/EmptyBasket";
+import PostcodeField from "@/components/cart/PostcodeField";
+import { useDeliveryPostcode } from "@/components/subscribe/postcode";
 
 /**
  * The basket, as a slide-over.
  *
  * Mounted once in the root layout and driven entirely by the cart provider,
- * which already owns Escape-to-close and the body scroll lock. This component
- * owns the postcode, because the postcode is only ever needed at checkout.
+ * which already owns Escape-to-close and the body scroll lock. This adds the
+ * two things a modal owes a keyboard user: focus goes in when it opens and
+ * comes back out to wherever it was when it closes, and Tab stays inside while
+ * it is open.
+ *
+ * The postcode is shared with /delivery and /subscribe rather than owned here,
+ * so somebody who checked their postcode before browsing is never asked twice.
  */
 
-const POSTCODE_KEY = "jc.postcode.v1";
+/** How long the undo offer stays up after a line is removed. */
+const UNDO_TIMEOUT_MS = 12_000;
 
 export default function CartDrawer() {
   const {
@@ -29,48 +34,76 @@ export default function CartDrawer() {
     deliveryFee,
     total,
     belowMinimum,
-    amountToMinimum,
-    amountToFreeDelivery,
+    hydrated,
+    lastRemoved,
     isOpen,
     closeCart,
+    undoRemove,
+    dismissUndo,
   } = useCart();
 
-  const [postcode, setPostcode] = useState("");
-  const [touched, setTouched] = useState(false);
+  const { postcode, status: postcodeStatus } = useDeliveryPostcode();
+
   const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
-  const fieldId = useId();
-  const errorId = `${fieldId}-error`;
-  const hintId = `${fieldId}-hint`;
-
-  // Remember the postcode between visits — it never changes for most people.
+  // Focus in on open, and back to the trigger on close — otherwise a keyboard
+  // user who closes the basket lands at the top of the document.
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(POSTCODE_KEY);
-      if (saved) setPostcode(saved);
-    } catch {
-      // Private mode or blocked storage; the field just starts empty.
+    if (isOpen) {
+      returnFocusRef.current = document.activeElement as HTMLElement | null;
+      // The close button, not the panel: it is the one control that always
+      // exists, so Shift+Tab from it reaches the end of the drawer.
+      closeRef.current?.focus();
+      return;
     }
-  }, []);
-
-  useEffect(() => {
-    try {
-      if (postcode.trim()) localStorage.setItem(POSTCODE_KEY, postcode);
-    } catch {
-      // Not worth surfacing.
-    }
-  }, [postcode]);
-
-  // Move focus into the drawer when it opens so keyboard and screen-reader
-  // users aren't left behind on the page underneath.
-  useEffect(() => {
-    if (isOpen) panelRef.current?.focus();
+    returnFocusRef.current?.focus?.();
+    returnFocusRef.current = null;
   }, [isOpen]);
 
-  const entered = postcode.trim().length > 0;
-  const postcodeValid = entered && isInDeliveryArea(postcode);
-  const showPostcodeError = touched && entered && !postcodeValid;
+  // Keep Tab inside the drawer while it is open.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown, true);
+    return () => document.removeEventListener("keydown", onKeyDown, true);
+  }, [isOpen]);
+
+  // The undo offer expires on its own; leaving it up for the rest of the
+  // session turns a helpful line into a permanent piece of furniture.
+  const removedKey = lastRemoved?.key;
+  useEffect(() => {
+    if (!removedKey) return;
+    const timer = window.setTimeout(dismissUndo, UNDO_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [removedKey, dismissUndo]);
+
   const empty = items.length === 0;
+  const canCheckout = !belowMinimum && postcodeStatus === "in";
 
   return (
     <div
@@ -96,8 +129,7 @@ export default function CartDrawer() {
         role="dialog"
         aria-modal={isOpen ? true : undefined}
         aria-label="Your basket"
-        tabIndex={-1}
-        className={`absolute right-0 top-0 flex h-dvh w-full max-w-md flex-col border-l border-ink-line bg-ink-raised shadow-[var(--shadow-lift)] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] focus:outline-none ${
+        className={`absolute right-0 top-0 flex h-dvh w-full max-w-md flex-col border-l border-ink-line bg-ink-raised shadow-[var(--shadow-lift)] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -118,6 +150,7 @@ export default function CartDrawer() {
           </div>
 
           <button
+            ref={closeRef}
             type="button"
             onClick={closeCart}
             aria-label="Close basket"
@@ -138,8 +171,34 @@ export default function CartDrawer() {
 
         <div className="rule-foil mx-6" />
 
+        {/* Undo. Announced as well as shown — a line disappearing silently is
+            the failure this is here to catch. */}
+        {lastRemoved ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mx-6 mt-4 flex items-center justify-between gap-3 border border-ink-line bg-ink px-4 py-2.5"
+          >
+            <p className="min-w-0 truncate text-xs text-cream-dim">
+              Removed{" "}
+              <span className="text-cream">{lastRemoved.name}</span>
+            </p>
+            <button
+              type="button"
+              onClick={undoRemove}
+              className="shrink-0 text-[0.6875rem] uppercase tracking-label text-gold underline underline-offset-4 transition-colors hover:text-gold-bright focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+            >
+              Undo
+            </button>
+          </div>
+        ) : null}
+
         {/* ---------- Body ---------- */}
-        {empty ? (
+        {!hydrated ? (
+          // One frame or two while localStorage is read. Showing the empty
+          // state first would tell returning customers their basket was gone.
+          <div className="flex-1" aria-hidden />
+        ) : empty ? (
           <EmptyBasket onBrowse={closeCart} />
         ) : (
           <div className="flex-1 overflow-y-auto overscroll-contain px-6">
@@ -152,30 +211,10 @@ export default function CartDrawer() {
         )}
 
         {/* ---------- Footer ---------- */}
-        {empty ? null : (
+        {hydrated && !empty ? (
           <div className="border-t border-ink-line bg-ink px-6 pb-7 pt-5">
-            {/* Nudges — the two numbers the cart already works out for us. */}
-            {amountToMinimum > 0 ? (
-              <p className="mb-4 border-l-2 border-warn bg-warn/[0.06] py-2.5 pl-3 text-sm leading-relaxed text-warn">
-                Add <span className="numeric">{formatPrice(amountToMinimum)}</span>{" "}
-                to reach the{" "}
-                <span className="numeric">{formatPrice(DELIVERY.minimumOrder)}</span>{" "}
-                minimum
-              </p>
-            ) : amountToFreeDelivery > 0 ? (
-              <p className="mb-4 border-l-2 border-gold-deep bg-gold/[0.05] py-2.5 pl-3 text-sm leading-relaxed text-cream-dim">
-                <span className="numeric text-gold">
-                  {formatPrice(amountToFreeDelivery)}
-                </span>{" "}
-                more for free delivery
-              </p>
-            ) : (
-              <p className="mb-4 border-l-2 border-gold bg-gold/[0.05] py-2.5 pl-3 text-sm leading-relaxed text-gold">
-                Free delivery unlocked
-              </p>
-            )}
+            <DeliveryProgress subtotal={subtotal} />
 
-            {/* Totals */}
             <dl className="space-y-2 text-sm">
               <div className="flex items-baseline justify-between">
                 <dt className="text-cream-dim">Subtotal</dt>
@@ -202,228 +241,24 @@ export default function CartDrawer() {
               </div>
             </dl>
 
-            {/* Postcode */}
-            <div className="mt-6">
-              <label
-                htmlFor={fieldId}
-                className="mb-2 block text-xs uppercase tracking-label text-cream-dim"
-              >
-                Delivery postcode
-              </label>
-              <input
-                id={fieldId}
-                name="postcode"
-                type="text"
-                inputMode="text"
-                autoComplete="postal-code"
-                required
-                placeholder="e.g. NG7 2RD"
-                value={postcode}
-                onChange={(e) => setPostcode(e.target.value)}
-                onBlur={() => setTouched(true)}
-                aria-invalid={showPostcodeError}
-                aria-describedby={showPostcodeError ? errorId : hintId}
-                className={`numeric w-full border bg-ink-raised px-4 py-3 text-cream transition-colors placeholder:text-cream-faint focus:outline-none ${
-                  showPostcodeError
-                    ? "border-warn"
-                    : "border-ink-line focus:border-gold"
-                }`}
-              />
+            <PostcodeField className="mt-5" />
 
-              {showPostcodeError ? (
-                <p
-                  id={errorId}
-                  role="alert"
-                  className="mt-2 text-sm leading-relaxed text-warn"
-                >
-                  We don&rsquo;t deliver to that postcode yet — {DELIVERY.city}{" "}
-                  only for now.
-                </p>
-              ) : (
-                <p id={hintId} className="mt-2 text-xs leading-relaxed text-cream-faint">
-                  {DELIVERY.city} only: {DELIVERY.postcodes.join(", ")}
-                </p>
-              )}
-            </div>
-
-            {/* Checkout */}
             <div className="mt-5">
               <CheckoutButton
                 postcode={postcode}
-                disabled={belowMinimum || !postcodeValid}
+                blocked={
+                  belowMinimum
+                    ? "minimum"
+                    : postcodeStatus === "in"
+                      ? null
+                      : "postcode"
+                }
+                disabled={!canCheckout}
               />
             </div>
           </div>
-        )}
+        ) : null}
       </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function BasketRow({ item }: { item: CartItem }) {
-  const { setQuantity, remove } = useCart();
-  const { key, name, quantity, unitPrice, lineTotal } = item;
-
-  // A blend has no catalogue entry, so everything shown here comes off the
-  // blend itself — its mixed colour, and the pour that made it.
-  const accent =
-    item.kind === "blend" ? item.blend.accent : item.product.accent;
-  const detail =
-    item.kind === "blend"
-      ? item.blend.composition
-      : `${item.product.size} · ${formatPrice(unitPrice)} each`;
-
-  return (
-    <li className="flex gap-4 py-5">
-      {/* Stand-in for photography: the item's own accent, quietly. */}
-      <div
-        className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border border-ink-line bg-ink-card"
-        aria-hidden
-      >
-        <span
-          className="absolute inset-0 opacity-25"
-          style={{
-            background: `radial-gradient(circle at 50% 30%, ${accent}, transparent 70%)`,
-          }}
-        />
-        <span className="relative font-display text-xl text-cream-dim">
-          {item.kind === "blend" ? "＋" : item.product.name.charAt(0)}
-        </span>
-        <span
-          className="absolute inset-x-0 bottom-0 h-[2px]"
-          style={{ backgroundColor: accent }}
-        />
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="truncate font-display text-base leading-snug text-cream">
-              {name}
-            </h3>
-            {item.kind === "blend" ? (
-              <p className="mt-0.5 text-xs uppercase tracking-label text-gold-deep">
-                Your blend · 330ml
-              </p>
-            ) : null}
-            <p className="mt-0.5 text-xs leading-relaxed text-cream-faint">
-              {detail}
-            </p>
-            {item.kind === "blend" ? (
-              <p className="mt-0.5 text-xs text-cream-faint">
-                <span className="numeric">{formatPrice(unitPrice)}</span> each
-              </p>
-            ) : null}
-          </div>
-          <p className="numeric shrink-0 text-sm text-cream">
-            {formatPrice(lineTotal)}
-          </p>
-        </div>
-
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <div className="inline-flex items-center border border-ink-line">
-            <StepperButton
-              label={`Decrease quantity of ${name}`}
-              onClick={() => setQuantity(key, quantity - 1)}
-            >
-              <path d="M5 12h14" strokeLinecap="round" />
-            </StepperButton>
-
-            <span
-              aria-live="polite"
-              aria-label={`Quantity of ${name}`}
-              className="numeric w-9 text-center text-sm text-cream"
-            >
-              {quantity}
-            </span>
-
-            <StepperButton
-              label={`Increase quantity of ${name}`}
-              onClick={() => setQuantity(key, quantity + 1)}
-              disabled={quantity >= MAX_LINE_QUANTITY}
-            >
-              <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-            </StepperButton>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => remove(key)}
-            aria-label={`Remove ${name} from basket`}
-            className="text-xs uppercase tracking-label text-cream-faint transition-colors hover:text-warn focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
-          >
-            Remove
-          </button>
-        </div>
-      </div>
-    </li>
-  );
-}
-
-function StepperButton({
-  label,
-  onClick,
-  disabled,
-  children,
-}: {
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      className="flex h-8 w-8 items-center justify-center text-cream-dim transition-colors hover:bg-ink-card hover:text-gold focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-gold disabled:cursor-not-allowed disabled:text-cream-faint/40"
-    >
-      <svg
-        viewBox="0 0 24 24"
-        className="h-3.5 w-3.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        aria-hidden
-      >
-        {children}
-      </svg>
-    </button>
-  );
-}
-
-function EmptyBasket({ onBrowse }: { onBrowse: () => void }) {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center px-10 text-center">
-      <p className="font-script text-4xl leading-none text-foil">Nothing yet</p>
-      <p className="mt-5 text-sm leading-relaxed text-cream-dim">
-        Your basket is empty. Everything is pressed the morning it goes out, and
-        the mango tends to go first.
-      </p>
-      <ButtonLink href="/menu" variant="secondary" size="md" onClick={onBrowse} className="mt-8">
-        Browse the menu
-      </ButtonLink>
-      <p className="mt-5 text-sm text-cream-dim">
-        or{" "}
-        <Link
-          href="/mixer"
-          onClick={onBrowse}
-          className="text-gold underline underline-offset-2"
-        >
-          build your own blend
-        </Link>
-      </p>
-      <p className="mt-6 text-xs text-cream-faint">
-        Minimum order{" "}
-        <span className="numeric">{formatPrice(DELIVERY.minimumOrder)}</span> ·
-        Free delivery over{" "}
-        <span className="numeric">
-          {formatPrice(DELIVERY.freeDeliveryThreshold)}
-        </span>
-      </p>
     </div>
   );
 }

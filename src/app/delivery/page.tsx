@@ -5,8 +5,18 @@ import PostcodeCheck from "@/components/subscribe/PostcodeCheck";
 
 export const metadata: Metadata = {
   title: "Delivery",
-  description: `Juice Cartel delivers across ${DELIVERY.city} every ${DELIVERY.dropDay}. Check your postcode, see the minimum order and free delivery threshold, or arrange collection.`,
+  description: `Juice Cartel delivers across ${DELIVERY.city} every ${DELIVERY.dropDay}. Check your postcode in one second, see the minimum order and free delivery threshold, or arrange collection.`,
 };
+
+/**
+ * Delivery, and the postcode question.
+ *
+ * Eleven outward codes is a small route, so this page leads with the checker
+ * rather than burying it under three sections of copy: the single most useful
+ * thing it can do for a stranger is tell them, immediately, whether the rest
+ * of the site is relevant to them. Everything else on the page is the answer
+ * to "yes, and then what" or "no, so what now".
+ */
 
 const facts = [
   {
@@ -30,27 +40,35 @@ export default function DeliveryPage() {
   return (
     <div className="bg-grain">
       <section className="mx-auto max-w-4xl px-5 pb-8 pt-14 text-center sm:px-8 sm:pt-20">
-        <p className="tracking-label text-xs uppercase text-gold">
-          Delivery
-        </p>
+        <p className="tracking-label text-xs uppercase text-gold">Delivery</p>
         <h1 className="mt-3 font-display text-4xl text-foil sm:text-5xl">
           Across {DELIVERY.city}, every {DELIVERY.dropDay}
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-cream-dim sm:text-base">
-          One driver, one route, once a week — it's how everything stays
-          fresh and the price stays fair. If you're outside {DELIVERY.city},
-          we're not able to reach you yet.
+          One driver, one route, once a week — it&rsquo;s how everything stays
+          fresh and the price stays fair. That does mean the map is small, so
+          the first thing worth doing is checking whether we reach you.
         </p>
       </section>
 
+      {/* ---------- The check, front and centre ---------- */}
       <section
         aria-labelledby="postcode-check"
-        className="mx-auto max-w-4xl px-5 py-10 sm:px-8"
+        className="mx-auto max-w-3xl px-5 pb-6 pt-4 sm:px-8"
       >
-        <h2 id="postcode-check" className="mb-4 font-display text-xl text-cream">
-          Check your postcode
-        </h2>
-        <PostcodeCheck />
+        <div className="border border-gold-dim/50 bg-ink-card p-6 sm:p-8">
+          <h2
+            id="postcode-check"
+            className="font-display text-2xl text-foil sm:text-3xl"
+          >
+            Do we reach you?
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-cream-dim">
+            Type your postcode — the first part is enough. We&rsquo;ll remember
+            it for the basket, so you only ever do this once.
+          </p>
+          <PostcodeCheck className="mt-6" />
+        </div>
       </section>
 
       <section
@@ -62,7 +80,10 @@ export default function DeliveryPage() {
         </h2>
         <div className="grid gap-6 sm:grid-cols-3">
           {facts.map((fact) => (
-            <div key={fact.label} className="border border-ink-line bg-ink-card p-6">
+            <div
+              key={fact.label}
+              className="border border-ink-line bg-ink-card p-6"
+            >
               <p className="text-xs uppercase tracking-label text-cream-faint">
                 {fact.label}
               </p>
@@ -81,12 +102,16 @@ export default function DeliveryPage() {
         aria-labelledby="areas"
         className="mx-auto max-w-5xl px-5 py-10 sm:px-8"
       >
-        <h2 id="areas" className="mb-2 font-display text-2xl text-foil sm:text-3xl">
-          Areas we cover
+        <h2
+          id="areas"
+          className="mb-2 font-display text-2xl text-foil sm:text-3xl"
+        >
+          The {DELIVERY.postcodes.length} codes on the route
         </h2>
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-cream-dim">
-          These are the outward codes currently on the route. Match the first
-          part of your postcode against the list — if it's here, you're in.
+          These are the outward codes we currently reach. Match the first part
+          of your postcode against the list — if it&rsquo;s here, you&rsquo;re
+          in.
         </p>
         <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
           {DELIVERY.postcodes.map((code) => (
@@ -103,12 +128,15 @@ export default function DeliveryPage() {
         aria-labelledby="collection"
         className="mx-auto max-w-5xl px-5 py-10 sm:px-8"
       >
-        <h2 id="collection" className="mb-2 font-display text-2xl text-foil sm:text-3xl">
-          Prefer to collect?
+        <h2
+          id="collection"
+          className="mb-2 font-display text-2xl text-foil sm:text-3xl"
+        >
+          Outside the route? Collection still works
         </h2>
         <p className="max-w-2xl text-sm leading-relaxed text-cream-dim">
-          Outside the delivery postcodes, or just passing through {DELIVERY.city}?
-          Message us on{" "}
+          Outside the delivery postcodes, or just passing through{" "}
+          {DELIVERY.city}? Message us on{" "}
           <a
             href={SOCIALS.instagram}
             target="_blank"
@@ -117,8 +145,18 @@ export default function DeliveryPage() {
           >
             Instagram
           </a>{" "}
-          ahead of {DELIVERY.dropDay} and we'll arrange a collection time and
-          place near our kitchen — no minimum order applies to collections.
+          ahead of {DELIVERY.dropDay} and we&rsquo;ll arrange a collection time
+          and place near our kitchen — no minimum order applies to collections.
+        </p>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-dim">
+          Or call{" "}
+          <a
+            href={`tel:${SOCIALS.phone}`}
+            className="numeric text-gold underline underline-offset-2"
+          >
+            {SOCIALS.phone}
+          </a>{" "}
+          if it&rsquo;s easier to say out loud.
         </p>
       </section>
 
@@ -126,14 +164,20 @@ export default function DeliveryPage() {
         <div className="rule-foil mb-8" />
         <p className="max-w-2xl text-sm leading-relaxed text-cream-dim">
           Ordering something with allergies in mind? Read the{" "}
-          <Link href="/allergens" className="text-gold underline underline-offset-2">
+          <Link
+            href="/allergens"
+            className="text-gold underline underline-offset-2"
+          >
             full allergen matrix
           </Link>{" "}
           before you order, or head to the{" "}
-          <Link href="/subscribe" className="text-gold underline underline-offset-2">
+          <Link
+            href="/subscribe"
+            className="text-gold underline underline-offset-2"
+          >
             weekly subscription
           </Link>{" "}
-          if you'd rather it just turned up every {DELIVERY.dropDay}.
+          if you&rsquo;d rather it just turned up every {DELIVERY.dropDay}.
         </p>
       </section>
     </div>
