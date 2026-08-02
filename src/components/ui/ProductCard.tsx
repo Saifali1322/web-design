@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import SpinIt from "@/components/bottle3d/SpinIt";
-import BottleArt from "@/components/hero/BottleArt";
+import BottleArt, { VB_W, VB_H } from "@/components/hero/BottleArt";
 import { useCart } from "@/components/cart/CartProvider";
 import {
   allergenLabel,
@@ -114,18 +114,28 @@ export function FoilImage({
           aria-hidden="true"
           className="absolute inset-0 flex items-end justify-center"
         >
-          <BottleArt
-            uid={`card-${uid}`}
-            accent={accent}
-            accentDeep={accentDeep}
-            height="86%"
-            width="auto"
-            seed={seed}
-            dropletCount={8}
-            labelDetail="mark"
-            arcs={false}
-            className="drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
-          />
+          {/* Sized by a wrapper holding the art's own aspect, not by width
+              ="auto" on the <svg>. SVG's width attribute takes a length, not
+              a CSS keyword, so "auto" is invalid: React renders it, the
+              browser rejects it, and the two disagree — a hydration mismatch
+              plus a console error on every page showing a card. */}
+          <div
+            className="h-[86%]"
+            style={{ aspectRatio: `${VB_W} / ${VB_H}` }}
+          >
+            <BottleArt
+              uid={`card-${uid}`}
+              accent={accent}
+              accentDeep={accentDeep}
+              width="100%"
+              height="100%"
+              seed={seed}
+              dropletCount={8}
+              labelDetail="mark"
+              arcs={false}
+              className="drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+            />
+          </div>
         </div>
 
         {status !== "failed" && (
