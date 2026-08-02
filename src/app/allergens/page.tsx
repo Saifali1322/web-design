@@ -85,7 +85,7 @@ export default function AllergensPage() {
       {/* Title in a narrow left rail, prose in the column beside it. The page
           is a reference document, so it is set like one. */}
       <section className="mx-auto max-w-6xl px-5 pt-12 pb-10 sm:px-8 sm:pt-16">
-        <div className="grid gap-x-14 gap-y-6 lg:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]">
+        <div className="grid gap-x-14 gap-y-6 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)]">
           <div>
             <p className="tracking-label text-xs uppercase text-gold">
               Allergen information
@@ -135,24 +135,29 @@ export default function AllergensPage() {
         aria-labelledby="matrix"
         className="mx-auto max-w-7xl px-5 pb-10 sm:px-8"
       >
-        <div className="flex flex-col gap-x-12 gap-y-4 border-t border-ink-line pt-8 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <h2
-              id="matrix"
-              className="font-display text-2xl text-foil sm:text-3xl"
-            >
-              Full allergen matrix
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-cream-dim">
-              Every one of the fourteen is recorded per product rather than
-              assumed, which is why the table is this wide. Scroll it sideways.
-              Nothing is folded away or summarised.
-            </p>
-          </div>
+        <div className="border-t border-ink-line pt-8">
+          <h2 id="matrix" className="font-display text-2xl text-foil sm:text-3xl">
+            Full allergen matrix
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-cream-dim">
+            Every one of the fourteen is recorded per product rather than
+            assumed, which is why the table is this wide. Scroll it sideways.
+            Nothing is folded away or summarised.
+          </p>
+        </div>
 
-          {/* A key, set as a key. It used to be a sentence with two dashes in
-              it, which is a harder thing to check a row against. */}
-          <dl className="flex shrink-0 gap-x-8 gap-y-2 text-xs leading-relaxed">
+        {/* The key sits on the table it explains, not four inches away from it.
+            It used to be a sentence with two dashes in the middle, which is a
+            harder thing to check a row against. */}
+        <div className="mt-6 mb-3 flex flex-col gap-x-10 gap-y-3 sm:flex-row sm:items-end sm:justify-between">
+          <p className="max-w-2xl text-xs leading-relaxed text-cream-faint">
+            Toppings sit in their own block under the products. They are
+            optional add-ons that change a bake&apos;s allergens rather than
+            part of the recipe, so a plain bake can be nut-free and still pick
+            up tree nuts the moment a Kinder Bueno goes on top.
+          </p>
+
+          <dl className="flex shrink-0 gap-x-7 text-xs leading-relaxed">
             <div>
               <dt className="font-semibold text-warn">Yes</dt>
               <dd className="text-cream-faint">In the recipe.</dd>
@@ -163,13 +168,6 @@ export default function AllergensPage() {
             </div>
           </dl>
         </div>
-
-        <p className="mt-4 mb-6 max-w-3xl text-xs leading-relaxed text-cream-faint">
-          Toppings sit in their own block under the products. They are optional
-          add-ons that change a bake&apos;s allergens rather than part of the
-          recipe, so a plain bake can be nut-free and still pick up tree nuts
-          the moment a Kinder Bueno goes on top.
-        </p>
 
         <div className="overflow-x-auto border border-ink-line">
           <table className="w-full min-w-[1150px] border-collapse text-sm">
@@ -345,7 +343,6 @@ export default function AllergensPage() {
         </div>
       </section>
 
-      <div className="pb-24" />
     </div>
   );
 }

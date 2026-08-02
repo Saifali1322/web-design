@@ -78,7 +78,7 @@ export const faqGroups: FaqGroup[] = [
   {
     id: "juice",
     title: "The juice itself",
-    note: "What is in it, how it behaves and how long you have.",
+    note: "What is in it, how it behaves, and how long you have.",
     items: [
       {
         q: "Is it pasteurised?",
@@ -189,7 +189,7 @@ export const faqGroups: FaqGroup[] = [
   {
     id: "delivery",
     title: "Delivery",
-    note: `${DELIVERY.postcodes.length} outward codes, one route, every ${DELIVERY.dropDay}.`,
+    note: `${DELIVERY.postcodes.length} outward codes, covered in one ${DELIVERY.dropDay} afternoon.`,
     items: [
       {
         q: "Where do you deliver?",
