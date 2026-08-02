@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatPrice, SOCIALS } from "@/lib/catalogue";
+import { DELIVERY, formatPrice, SOCIALS } from "@/lib/catalogue";
 import { useCart } from "@/components/cart/CartProvider";
 import { Button } from "@/components/ui/Button";
 
@@ -12,27 +12,39 @@ import { Button } from "@/components/ui/Button";
  * the server prices the order — then follows the Checkout Session URL Stripe
  * returns.
  *
- * If the owner hasn't wired Stripe up yet the button doesn't exist at all;
- * in its place is a line pointing at Instagram, which is where orders actually
- * came from before this site existed.
+ * The interesting half of this component is what happens when that doesn't
+ * work. Every failure the route can return has a specific answer here, and
+ * every answer has something to press: a stale product can be removed in one
+ * click, a network blip can be retried without rebuilding the basket, and an
+ * unconfigured shop says so plainly instead of throwing. A basket is the
+ * worst possible place to hit a dead end.
  */
 
 type Status = "checking" | "ready" | "unavailable" | "submitting";
 
+/** A failure the customer can act on, rather than a sentence to read. */
+interface Recovery {
+  message: string;
+  action?: { label: string; run: () => void };
+}
+
 interface CheckoutButtonProps {
   /** Raw postcode from the drawer field. Validated again server-side. */
   postcode: string;
+  /** Why the button is off, so it can say so rather than just look grey. */
+  blocked?: "minimum" | "postcode" | null;
   /** Set when the basket is under the minimum or the postcode isn't valid. */
   disabled?: boolean;
 }
 
 export default function CheckoutButton({
   postcode,
+  blocked = null,
   disabled = false,
 }: CheckoutButtonProps) {
-  const { items, total } = useCart();
+  const { items, total, amountToMinimum, remove } = useCart();
   const [status, setStatus] = useState<Status>("checking");
-  const [error, setError] = useState<string | null>(null);
+  const [recovery, setRecovery] = useState<Recovery | null>(null);
 
   // Ask up front whether ordering is switched on, so the fallback shows before
   // anyone clicks rather than after.
@@ -62,7 +74,7 @@ export default function CheckoutButton({
 
   async function handleCheckout() {
     if (status === "submitting") return;
-    setError(null);
+    setRecovery(null);
     setStatus("submitting");
 
     try {
@@ -98,6 +110,7 @@ export default function CheckoutButton({
         url?: string;
         error?: string;
         code?: string;
+        productId?: string;
       };
 
       if (res.status === 503 || payload.code === "stripe_unconfigured") {
@@ -106,7 +119,7 @@ export default function CheckoutButton({
       }
 
       if (!res.ok || !payload.url) {
-        setError(payload.error ?? "Something went wrong. Try again in a moment.");
+        setRecovery(recoveryFor(payload, { remove, handleCheckout }));
         setStatus("ready");
         return;
       }
@@ -115,27 +128,35 @@ export default function CheckoutButton({
       // leaving, and a button that flicks back to "Checkout" looks broken.
       window.location.assign(payload.url);
     } catch {
-      setError(
-        "We couldn't reach the checkout. Check your connection and try again.",
-      );
+      setRecovery({
+        message: reassure(
+          "We couldn't reach the checkout. Check your connection — your basket is safe either way.",
+        ),
+        action: { label: "Try again", run: () => void handleCheckout() },
+      });
       setStatus("ready");
     }
   }
 
+  // Deliberately compact: this sits in the drawer's pinned footer, and every
+  // line added here is a line taken off the basket itself. The waitlist form
+  // lives on /subscribe and /delivery, where there is room for it.
   if (status === "unavailable") {
     return (
-      <p className="border border-gold-dim/60 bg-ink-raised px-4 py-3 text-sm leading-relaxed text-cream-dim">
-        Ordering opens soon —{" "}
+      <div className="border border-gold-dim/60 bg-ink-raised px-4 py-3.5">
+        <p className="text-sm leading-relaxed text-cream-dim">
+          <span className="text-cream">Card payment isn&rsquo;t live yet.</span>{" "}
+          Your basket is saved — send it over and we&rsquo;ll sort it.
+        </p>
         <a
           href={SOCIALS.instagram}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-gold underline underline-offset-2"
+          className="mt-3 inline-flex w-full items-center justify-center border border-gold bg-gold/10 px-4 py-3 text-xs font-medium uppercase tracking-label text-gold-bright transition-colors hover:bg-gold/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
         >
-          message us on Instagram
-        </a>{" "}
-        and we&apos;ll sort you out in the meantime.
-      </p>
+          Order via {SOCIALS.handle}
+        </a>
+      </div>
     );
   }
 
@@ -143,13 +164,24 @@ export default function CheckoutButton({
 
   return (
     <div>
-      {error ? (
-        <p
+      {recovery ? (
+        <div
           role="alert"
-          className="mb-3 border-l-2 border-warn bg-warn/[0.06] py-2 pl-3 text-sm leading-relaxed text-warn"
+          className="mb-3 border-l-2 border-warn bg-warn/[0.06] py-2.5 pl-3 pr-3"
         >
-          {error}
-        </p>
+          <p className="text-sm leading-relaxed text-warn">
+            {recovery.message}
+          </p>
+          {recovery.action ? (
+            <button
+              type="button"
+              onClick={recovery.action.run}
+              className="mt-2 text-[0.6875rem] uppercase tracking-label text-gold underline underline-offset-4 transition-colors hover:text-gold-bright focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+            >
+              {recovery.action.label}
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
       <Button
@@ -173,9 +205,113 @@ export default function CheckoutButton({
         )}
       </Button>
 
+      {/* A disabled button that doesn't say why is a dead end. */}
       <p className="mt-3 text-center text-xs leading-relaxed text-cream-faint">
-        Secure payment by Stripe. Card details never touch our servers.
+        {blocked === "minimum" ? (
+          <span className="text-warn">
+            Add{" "}
+            <span className="numeric">{formatPrice(amountToMinimum)}</span>{" "}more
+            to reach the{" "}
+            <span className="numeric">
+              {formatPrice(DELIVERY.minimumOrder)}
+            </span>{" "}
+            minimum before checking out.
+          </span>
+        ) : blocked === "postcode" ? (
+          <span className="text-warn">
+            Enter a {DELIVERY.city} postcode we deliver to and the button opens
+            up.
+          </span>
+        ) : (
+          <>
+            Secure payment by Stripe. Card details never touch our servers.
+            You&rsquo;ll confirm your address on the next screen.
+          </>
+        )}
       </p>
     </div>
   );
+}
+
+/* ------------------------------------------------------------------ */
+
+/**
+ * The one sentence anybody actually wants after a payment button misbehaves.
+ *
+ * It is appended to whatever the server said rather than replacing it, because
+ * the server's message explains what to do and this one explains what it cost
+ * — which, on a checkout that never started, is nothing. Only added where it
+ * is unambiguously true: a Session that was never created cannot have taken
+ * any money.
+ */
+function reassure(message: string): string {
+  return /charged/i.test(message) ? message : `${message} Nothing has been charged.`;
+}
+
+/**
+ * Turns a failed checkout into something to press.
+ *
+ * The codes here are exactly the ones `/api/checkout` returns; anything else
+ * falls through to a retry, which is the right answer for a transient fault
+ * and harmless for a permanent one.
+ */
+function recoveryFor(
+  payload: { error?: string; code?: string; productId?: string },
+  handlers: {
+    remove: (key: string) => void;
+    handleCheckout: () => Promise<void>;
+  },
+): Recovery {
+  const retry = {
+    label: "Try again",
+    run: () => void handlers.handleCheckout(),
+  };
+
+  switch (payload.code) {
+    case "unknown_product":
+      // Something in the basket left the menu between adding and paying.
+      return {
+        message:
+          payload.error ??
+          "One of these isn't on the menu any more. Take it out and the rest can go through.",
+        action: payload.productId
+          ? {
+              label: "Remove it and continue",
+              run: () => {
+                handlers.remove(`p:${payload.productId}`);
+                void handlers.handleCheckout();
+              },
+            }
+          : undefined,
+      };
+
+    case "invalid_blend":
+      return {
+        message:
+          payload.error ??
+          "One of your blends no longer works — a juice in it has come off the menu. Remove it and try again.",
+      };
+
+    case "below_minimum":
+    case "out_of_area":
+      // Both are already true statements about the basket, and both are fixed
+      // above this button rather than by pressing anything in here.
+      return { message: payload.error ?? "That order can't go through yet." };
+
+    case "invalid_body":
+      return {
+        message:
+          "Something in the basket didn't make sense to us. Refresh the page and it should clear.",
+        action: {
+          label: "Refresh",
+          run: () => window.location.reload(),
+        },
+      };
+
+    default:
+      return {
+        message: reassure(payload.error ?? "Something went wrong."),
+        action: retry,
+      };
+  }
 }

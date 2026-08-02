@@ -9,6 +9,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/menu`, lastModified: now, priority: 0.9 },
     { url: `${BASE}/mixer`, lastModified: now, priority: 0.8 },
     { url: `${BASE}/subscribe`, lastModified: now, priority: 0.9 },
+    /* About and the FAQ sit above the other supporting pages: for a food
+       business nobody has heard of they are what a first-time visitor reads
+       before deciding to order, and they are the pages search actually sends
+       people to for "is it pasteurised" style queries. */
+    { url: `${BASE}/about`, lastModified: now, priority: 0.7 },
+    { url: `${BASE}/faq`, lastModified: now, priority: 0.7 },
     { url: `${BASE}/delivery`, lastModified: now, priority: 0.6 },
     { url: `${BASE}/allergens`, lastModified: now, priority: 0.5 },
   ];

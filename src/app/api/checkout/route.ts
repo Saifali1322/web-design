@@ -115,7 +115,15 @@ export async function POST(request: Request) {
   const pricing = priceOrder(parsed.data.lines);
   if (!pricing.ok) {
     return NextResponse.json(
-      { error: pricing.message, code: pricing.code },
+      {
+        error: pricing.message,
+        code: pricing.code,
+        // Named so the basket can offer to take the dead line out rather than
+        // leaving the customer to work out which of six items is the problem.
+        ...(pricing.code === "unknown_product"
+          ? { productId: pricing.productId }
+          : {}),
+      },
       { status: 400 },
     );
   }
