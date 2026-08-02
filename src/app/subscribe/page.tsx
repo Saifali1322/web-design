@@ -48,7 +48,7 @@ const steps = [
   {
     n: "03",
     title: "Swap, skip or cancel",
-    body: "Change your flavours, skip a week, or cancel outright, whenever it suits you. A message is all it takes.",
+    body: "Change your flavours, skip a week, or cancel outright, whenever it suits you. A message is all it takes, and a skipped week is not charged for.",
   },
 ];
 
@@ -97,7 +97,12 @@ const faqs = [
   },
   {
     q: "How do I skip a week if I'm away?",
-    a: `Message us before the ${DELIVERY.dropDay} cutoff and we'll pause that week's drop. Your subscription picks straight back up the week after — nothing is lost.`,
+    /* This says the payment is paused, not just the delivery, because a
+       weekly Stripe subscription bills on its own schedule whether or not a
+       box goes out. Skipping therefore has to pause collection on the
+       subscription as well — see docs/running-subscriptions.md. Promising a
+       free skip while still taking the money is charging for nothing. */
+    a: `Message us before the ${DELIVERY.dropDay} cutoff. We pause that week's drop and that week's payment, so you aren't charged for juice you didn't get, and it starts again the week after.`,
   },
   {
     q: "How do I cancel?",
