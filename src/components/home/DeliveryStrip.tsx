@@ -1,22 +1,41 @@
+import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import { DELIVERY, formatPrice } from "@/lib/catalogue";
 
+/**
+ * The closing beat: where it goes, what it costs to get it there, and the two
+ * ways to start. It is the last section on the page, so it carries the primary
+ * call to action rather than another link into the middle of the site.
+ */
 export function DeliveryStrip() {
   const facts = [
-    { label: "Minimum order", value: formatPrice(DELIVERY.minimumOrder) },
+    {
+      label: "Minimum order",
+      value: formatPrice(DELIVERY.minimumOrder),
+      note: "Below this a run loses money on fuel.",
+    },
     {
       label: "Free delivery over",
       value: formatPrice(DELIVERY.freeDeliveryThreshold),
+      note: "Roughly a four-bottle box.",
     },
-    { label: "Otherwise", value: formatPrice(DELIVERY.deliveryFee) },
-    { label: "Drop day", value: DELIVERY.dropDay },
+    {
+      label: "Otherwise",
+      value: formatPrice(DELIVERY.deliveryFee),
+      note: "Flat, whatever is in the bag.",
+    },
+    {
+      label: "Drop day",
+      value: DELIVERY.dropDay,
+      note: "One press, one route, one afternoon.",
+    },
   ];
 
   return (
     <section
       aria-labelledby="delivery-heading"
-      className="relative isolate overflow-hidden border-t border-ink-line bg-ink-raised py-16 sm:py-20 lg:py-24"
+      className="relative isolate overflow-hidden border-t border-ink-line bg-ink-raised py-20 sm:py-24 lg:py-28"
     >
       <div
         aria-hidden="true"
@@ -24,7 +43,7 @@ export function DeliveryStrip() {
       />
 
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
-        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <Reveal>
             <p className="flex items-center gap-3 font-sans text-[0.6875rem] tracking-label text-gold uppercase">
               <span className="h-px w-8 bg-gold/60" />
@@ -40,19 +59,31 @@ export function DeliveryStrip() {
 
             <p className="mt-5 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
               {DELIVERY.city} only, for now. If your outward code is on this
-              list we are already on your street every {DELIVERY.dropDay} — and
-              if it isn&rsquo;t, message us and it goes on the list of places we
-              are trying to reach next.
+              list we are already on your street every {DELIVERY.dropDay}. If it
+              is not, we will say so rather than take the order — a box that
+              arrives warm is worse than one that never went out.
             </p>
 
-            <ButtonLink
-              href="/menu"
-              variant="secondary"
-              size="md"
-              className="mt-8"
-            >
-              Start an order
-            </ButtonLink>
+            <p className="mt-4 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
+              Everything travels in a cool bag with ice packs and goes straight
+              from the cold box to your door. Outside the route,{" "}
+              <Link
+                href="/delivery"
+                className="text-gold underline underline-offset-4 transition-colors hover:text-gold-bright"
+              >
+                collection can be arranged
+              </Link>{" "}
+              with no minimum order.
+            </p>
+
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <ButtonLink href="/menu" variant="primary" size="lg">
+                Start an order
+              </ButtonLink>
+              <ButtonLink href="/faq" variant="secondary" size="lg">
+                Read the FAQ
+              </ButtonLink>
+            </div>
           </Reveal>
 
           <Reveal delay={0.08}>
@@ -70,14 +101,19 @@ export function DeliveryStrip() {
               ))}
             </ul>
 
-            <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-ink-line pt-8 sm:grid-cols-4">
+            <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-7 border-t border-ink-line pt-8 sm:grid-cols-4">
               {facts.map((fact) => (
                 <div key={fact.label}>
                   <dt className="font-sans text-[0.5625rem] tracking-label text-cream-faint uppercase sm:text-[0.625rem]">
                     {fact.label}
                   </dt>
-                  <dd className="numeric mt-2 font-display text-xl leading-none text-gold sm:text-2xl">
-                    {fact.value}
+                  <dd>
+                    <span className="numeric mt-2 block font-display text-xl leading-none text-gold sm:text-2xl">
+                      {fact.value}
+                    </span>
+                    <span className="mt-2 block text-xs leading-relaxed font-light text-cream-faint">
+                      {fact.note}
+                    </span>
                   </dd>
                 </div>
               ))}

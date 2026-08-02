@@ -5,12 +5,25 @@ import { useEffect, useState } from "react";
 import { LogoInline } from "@/components/brand/Logo";
 import { useCart } from "@/components/cart/CartProvider";
 
+/**
+ * Ordered as the buying decision runs: what there is, how to make it yours,
+ * how to get it regularly, who is behind it, whether we reach you.
+ *
+ * The FAQ is deliberately not up here. Six items plus the logo and the basket
+ * overflows the bar between the md breakpoint and about 860px, and the
+ * questions people need are already linked from the sections that raise them,
+ * from the footer, and from the mobile menu, where the space is free.
+ */
 const nav = [
   { href: "/menu", label: "Menu" },
   { href: "/mixer", label: "Build a Blend" },
   { href: "/subscribe", label: "Weekly Drops" },
+  { href: "/about", label: "About" },
   { href: "/delivery", label: "Delivery" },
 ];
+
+/** The mobile sheet is a vertical list, so it can afford the extra links. */
+const mobileNav = [...nav, { href: "/faq", label: "Questions" }];
 
 export default function SiteHeader() {
   const { count, openCart } = useCart();
@@ -43,7 +56,7 @@ export default function SiteHeader() {
         </Link>
 
         <nav
-          className="hidden items-center gap-9 md:flex"
+          className="hidden items-center gap-6 md:flex lg:gap-9"
           aria-label="Main navigation"
         >
           {nav.map((item) => (
@@ -114,7 +127,7 @@ export default function SiteHeader() {
           aria-label="Mobile navigation"
         >
           <ul className="flex flex-col px-5 py-2">
-            {nav.map((item) => (
+            {mobileNav.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
