@@ -27,6 +27,22 @@ export interface HeroShot {
   alt: string;
   /** 14px WebP, ~150 bytes. See the note on BLUR below. */
   blurDataURL: string;
+  /**
+   * How this shot is fitted to the stage, because the two kinds of
+   * photograph want opposite things and the stage is one fixed box.
+   *
+   * The group shot is a tall frame with a lot of empty air above the caps and
+   * a reflection running off the bottom; contained, the bottles end up
+   * occupying about a third of the stage and the hero looks like a thumbnail.
+   * It wants covering, cropped to the mass.
+   *
+   * The individual shots are square and composed edge to edge — the splash
+   * and the cut fruit fan right out to the corners, which is most of what
+   * makes them good. Any crop takes the best part off, so they are contained.
+   */
+  fit: "cover" | "contain";
+  /** Where the crop is anchored. Only meaningful for `cover`. */
+  focus: string;
 }
 
 /* ------------------------------------------------------------------ *
@@ -85,6 +101,11 @@ export const LINEUP: HeroShot = {
     "pineapple, orange and carrot, watermelon, pomegranate and mango — " +
     "arranged on a black plinth above a spray of juice and cut fruit.",
   blurDataURL: BLUR["hero/lineup.png"],
+  fit: "cover",
+  /* Slightly above centre: the crop then loses the empty air over the caps
+     and the far end of the reflection, and keeps every bottle and the whole
+     fan of fruit. Nudging this past about 0.6 starts cutting the caps. */
+  focus: "50% 55%",
 };
 
 /**
@@ -123,6 +144,8 @@ export function shotFor(
       `${product.name.toLowerCase()} juice on a black plinth, with fresh ` +
       `${fruit} and a splash of juice thrown around it.`,
     blurDataURL: BLUR[product.image],
+    fit: "contain",
+    focus: "50% 50%",
   };
 }
 
@@ -133,9 +156,9 @@ export function shotFor(
  * candidate — too small and the hero is soft, too large and a phone downloads
  * a desktop image, which is the whole LCP problem this hero was rebuilt to
  * avoid. The bands are: phone (single column, full bleed), tablet (single
- * column, capped at 30rem), small desktop (the right-hand grid column, which
- * is a shade under half the viewport), and finally the capped container,
- * where the column stops growing at 34rem.
+ * column, capped at 30rem), small desktop (the right-hand grid column plus
+ * the 4rem it bleeds past the container), and finally the capped container,
+ * where the column stops growing at 34rem and the bleed takes it to 38rem.
  */
 export const HERO_SIZES =
-  "(max-width: 767px) 92vw, (max-width: 1023px) 30rem, (max-width: 1279px) 48vw, 34rem";
+  "(max-width: 767px) 92vw, (max-width: 1023px) 30rem, (max-width: 1279px) 53vw, 38rem";

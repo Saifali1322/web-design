@@ -102,6 +102,16 @@ const REVEAL_TIMEOUT_MS = 900;
 /** Brand gold, for the resting state where no single flavour is selected. */
 const GOLD = "#d4a63c";
 
+/**
+ * Peak opacity of the flavour bloom.
+ *
+ * It lives here because the frame loop writes `opacity` every frame and would
+ * otherwise silently overwrite whatever the initial style said — which it did
+ * for a while, and the bloom ran at three times its intended strength with
+ * the declared value sitting there looking authoritative.
+ */
+const BLOOM_OP = 0.34;
+
 /* ------------------------------------------------------------------ *
  * Masks and film stock
  * ------------------------------------------------------------------ */
@@ -112,15 +122,40 @@ const GOLD = "#d4a63c";
  * straight onto the page that is a rectangle of picture sitting on black,
  * which is the single loudest tell of a template.
  *
- * So the plate is masked rather than cropped. The transparent stop has to
- * land inside every edge of the box or the fade never finishes: with the
- * centre at 50%/45% the nearest edge is the top, 45% away, which is 0.6 of a
- * 75% radius — so everything must be gone by 60%, and the sides (0.641) and
- * the bottom (0.733) follow. Move the centre or the radii and this sum has to
- * be redone.
+ * So the plate is masked. The obvious mask is one big radial, and it is
+ * wrong: a radial whose fade completes inside the nearest edge has to start
+ * fading barely half way out, and what you get is a legible disc — a
+ * porthole cut in the page, with the photograph peering through it.
+ *
+ * Two crossed linear gradients instead, multiplied together by
+ * `mask-composite: intersect`. Each edge gets its own feather, the middle is
+ * untouched at full strength, and the corners — faded by both layers at once
+ * — fall away fastest, which is the shape a vignette actually wants. The
+ * bottom feather is the longest because that is where the slate is lightest.
  */
-const PLATE_MASK =
-  "radial-gradient(ellipse 78% 75% at 50% 45%, #000 46%, rgba(0,0,0,0.72) 56%, transparent 60%)";
+const PLATE_MASK = [
+  "linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%)",
+  "linear-gradient(to bottom, transparent 0%, #000 7%, #000 84%, transparent 100%)",
+].join(", ");
+
+/**
+ * The vignette, and the reason the mask alone is not enough.
+ *
+ * The group shot is cropped to its subject and has dark air around it, so a
+ * feathered edge is all it needs. The individual shots do not: they are
+ * composed corner to corner, and the warm bokeh behind the bottle is
+ * genuinely bright right up to the frame. Feathering *that* to transparent
+ * over a few percent leaves a bright band that stops abruptly — you have
+ * traded a hard edge for a glowing one.
+ *
+ * So the corners are also pulled down toward the page's own black before the
+ * mask ever touches them. Painted in ink rather than masked to transparency
+ * because it has to darken the photograph, not remove it: the light pass
+ * still rakes underneath, and a print ad seats a photograph on a dark page
+ * exactly this way.
+ */
+const PLATE_VIGNETTE =
+  "radial-gradient(ellipse 76% 70% at 50% 47%, rgba(8,7,6,0) 0%, rgba(8,7,6,0.12) 54%, rgba(8,7,6,0.62) 82%, rgba(8,7,6,0.95) 100%)";
 
 /** The same film stock the rest of the site uses. */
 const GRAIN =
@@ -309,7 +344,10 @@ export function CinematicHero({
           `translate3d(${(px * -TRAVEL_BLOOM).toFixed(2)}px, ` +
           `${(py * -TRAVEL_BLOOM * 0.7).toFixed(2)}px, 0) ` +
           `scale(${b.toFixed(4)})`;
-        bloom.style.opacity = (0.76 + 0.24 * Math.sin(t * 0.31 + 1.1)).toFixed(3);
+        bloom.style.opacity = (
+          BLOOM_OP *
+          (0.78 + 0.22 * Math.sin(t * 0.31 + 1.1))
+        ).toFixed(3);
       }
       const core = coreRef.current;
       if (core) {
@@ -449,7 +487,7 @@ export function CinematicHero({
       {/* On phones this is a single column — mark, then the photograph, then
           the headline — so the product is above the fold. From lg it becomes
           two columns with the stage spanning both rows on the right. */}
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-5 pt-10 sm:px-8 sm:pt-12 lg:grid lg:grid-cols-[1fr_1.06fr] lg:grid-rows-[auto_auto] lg:items-center lg:gap-x-12 lg:gap-y-0 lg:pt-14">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-5 pt-10 sm:px-8 sm:pt-12 lg:grid lg:grid-cols-[1fr_1.12fr] lg:grid-rows-[auto_auto] lg:items-center lg:gap-x-10 lg:gap-y-0 lg:pt-12">
         {/* ---------- mark + eyebrow ---------- */}
         <div className="animate-rise motion-reduce:animate-none order-1 text-center lg:order-none lg:col-start-1 lg:row-start-1 lg:self-end lg:text-left">
           <LogoLockup size="md" />
@@ -470,7 +508,12 @@ export function CinematicHero({
             className="animate-rise motion-reduce:animate-none mt-1 lg:mt-6"
             style={{ animationDelay: "0.18s" }}
           >
-            <span className="text-foil block font-script text-5xl leading-[1.05] sm:text-6xl lg:text-7xl">
+            {/* One step down at lg, and it is not a taste call: at 7xl the
+                script line runs wider than the left column and breaks as
+                "Pressed the / morning / it reaches you," — a one-word line in
+                the middle of a three-line rag. The <br/> below is the only
+                break this sentence is supposed to have. */}
+            <span className="text-foil block font-script text-5xl leading-[1.05] sm:text-6xl">
               Pressed the morning
               <br />
               it reaches you,
@@ -503,24 +546,31 @@ export function CinematicHero({
         </div>
 
         {/* ---------- the stage ---------- */}
-        <div className="order-2 lg:order-none lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        {/* From lg the stage bleeds 4rem past the container. At 1440 there is
+            9rem of dead margin on that side and the photograph is the reason
+            anyone is on the page — letting it run into some of that is what
+            stops the hero reading as two equal columns of content. */}
+        <div className="order-2 lg:order-none lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:-mr-10 xl:-mr-16">
           <div
             ref={sceneRef}
             /* `color` is the flavour. The bloom and both particle fields paint
                in currentColor, so picking a juice is one interpolated property
-               rather than a scene-wide repaint. */
-            className="relative mx-auto aspect-[1/1.04] w-full max-w-[25rem] transition-[color] duration-700 ease-out sm:aspect-[1/1.08] sm:max-w-[27rem] lg:aspect-[1/1.12] lg:max-w-none"
+               rather than a scene-wide repaint.
+               The box is very slightly taller than square: enough for the
+               group shot to crop to its subject, shallow enough that the
+               square shots lose nothing off their sides. */
+            className="relative mx-auto aspect-[1/1.02] w-full max-w-[25rem] transition-[color] duration-700 ease-out sm:aspect-[1/1.05] sm:max-w-[27rem] lg:max-w-none"
             style={{ color: accent }}
           >
             {/* --- the lamp behind the set --- */}
             <div
               ref={bloomRef}
               aria-hidden="true"
-              className="pointer-events-none absolute left-1/2 top-[44%] h-[74%] w-[92%] rounded-[50%] blur-[64px]"
+              className="pointer-events-none absolute left-1/2 top-[46%] h-[84%] w-[106%] rounded-[50%] blur-[70px]"
               style={{
                 background:
-                  "radial-gradient(closest-side, currentColor, transparent 72%)",
-                opacity: 0.34,
+                  "radial-gradient(closest-side, currentColor, transparent 74%)",
+                opacity: BLOOM_OP,
                 transform: "translate(-50%, -50%)",
                 zIndex: 0,
                 willChange: "transform, opacity",
@@ -574,6 +624,8 @@ export function CinematicHero({
                   style={{
                     maskImage: PLATE_MASK,
                     WebkitMaskImage: PLATE_MASK,
+                    maskComposite: "intersect",
+                    WebkitMaskComposite: "source-in",
                     maskRepeat: "no-repeat",
                     WebkitMaskRepeat: "no-repeat",
                     willChange: "transform",
@@ -616,11 +668,23 @@ export function CinematicHero({
                              inline value — set it in a class and the
                              placeholder is cropped differently from the
                              photograph it is standing in for. */
-                          style={{ objectFit: "contain" }}
+                          style={{
+                            objectFit: shot.fit,
+                            objectPosition: shot.focus,
+                          }}
                         />
                       </div>
                     );
                   })}
+
+                  {/* Seats the photograph on the page. Under the light pass,
+                      so the rake reads as light on the picture rather than
+                      light on a piece of glass laid over it. */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0"
+                    style={{ background: PLATE_VIGNETTE }}
+                  />
 
                   {/* --- the light pass ---
                       A rake of warm light crossing the glass. `screen` over a
@@ -629,6 +693,7 @@ export function CinematicHero({
                   <div
                     ref={lightRef}
                     aria-hidden="true"
+                    data-hero-light=""
                     className="pointer-events-none absolute -inset-y-[14%] left-0 w-[30%] mix-blend-screen"
                     style={{
                       background:
@@ -665,12 +730,16 @@ export function CinematicHero({
                 The real label, shot flat, resting against the frame like a
                 foil sticker on a print ad. It is the nearest object in the
                 scene, so it takes the most parallax; that difference is what
-                stops the photograph reading as a flat panel. Decorative: the
-                wordmark is already set as type two columns to the left. --- */}
+                stops the photograph reading as a flat panel.
+                Top left rather than bottom left: every one of these
+                photographs is dark bokeh in that corner and a busy pile of
+                fruit in the other, and a seal laid over the fruit is clutter
+                where a seal laid over the air is a stamp. Decorative — the
+                wordmark is already set as type in the next column. --- */}
             <div
               ref={sealRef}
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-[6%] left-[1%] z-[4] h-[17%] w-auto aspect-square sm:left-[3%]"
+              className="pointer-events-none absolute top-[3%] left-[0.5%] z-[4] aspect-square h-[13%] w-auto sm:left-[2%]"
               style={{
                 transform: "rotate(-4deg)",
                 willChange: "transform",
@@ -696,11 +765,11 @@ export function CinematicHero({
       </div>
 
       {/* ---------- flavour chips ---------- */}
-      <div className="mx-auto w-full max-w-6xl px-5 pt-2 pb-12 sm:px-8 sm:pt-4 lg:pb-14">
-        <div className="rule-foil mx-auto mb-5 max-w-xs" aria-hidden="true" />
+      <div className="mx-auto w-full max-w-6xl px-5 pt-2 pb-10 sm:px-8 sm:pt-3 lg:pb-12">
+        <div className="rule-foil mx-auto mb-4 max-w-xs" aria-hidden="true" />
         <p
           id="hero-flavours-label"
-          className="mb-4 text-center font-sans text-[0.625rem] tracking-label text-cream-faint uppercase"
+          className="mb-3 text-center font-sans text-[0.625rem] tracking-label text-cream-faint uppercase"
         >
           Seven pressed daily &middot; {juices[0].size}
         </p>
@@ -711,7 +780,7 @@ export function CinematicHero({
           <div
             role="group"
             aria-labelledby="hero-flavours-label"
-            className="flex w-max items-center gap-2 sm:mx-auto sm:w-auto sm:max-w-3xl sm:flex-wrap sm:justify-center sm:gap-2.5"
+            className="flex w-max items-center gap-2 sm:mx-auto sm:w-auto sm:max-w-4xl sm:flex-wrap sm:justify-center sm:gap-2.5"
           >
             {/* The way back. Without it, picking a flavour is a one-way door
                 and the group photograph — the best image of the seven — can
