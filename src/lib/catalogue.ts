@@ -139,7 +139,7 @@ export const products: Product[] = [
     size: "330ml",
     ingredients: ["Orange"],
     allergens: [],
-    image: "classic-orange.jpg",
+    image: "classic-orange.png",
     /* 01-three-bottles-straight-on: body mid-column #dc9e15, base #987704. */
     accent: "#EEAB16",
     accentDeep: "#A2790A",
@@ -158,7 +158,7 @@ export const products: Product[] = [
     size: "330ml",
     ingredients: ["Apple"],
     allergens: [],
-    image: "apple.jpg",
+    image: "apple.png",
     /* Not photographed. Held green, pulled to the value the sampled juices sit at. */
     accent: "#C2D33A",
     accentDeep: "#7E9114",
@@ -176,7 +176,7 @@ export const products: Product[] = [
     size: "330ml",
     ingredients: ["Pineapple"],
     allergens: [],
-    image: "pineapple.jpg",
+    image: "pineapple.png",
     /* Not photographed. A shade lighter and greener than the sampled orange. */
     accent: "#EFC81E",
     accentDeep: "#B98A08",
@@ -195,7 +195,7 @@ export const products: Product[] = [
     size: "330ml",
     ingredients: ["Orange", "Carrot"],
     allergens: [],
-    image: "orange-carrot.jpg",
+    image: "orange-carrot.png",
     /* 02-orange-carrot-held: lit body #c65906, shadowed left edge #aa3f11. */
     accent: "#DC630D",
     accentDeep: "#A83C0B",
@@ -214,7 +214,7 @@ export const products: Product[] = [
     size: "330ml",
     ingredients: ["Watermelon"],
     allergens: [],
-    image: "watermelon.jpg",
+    image: "watermelon.png",
     /* 05-watermelon-pour: #a72031 / #7e0315, white-balanced off the counter. */
     accent: "#E24358",
     accentDeep: "#9A1233",
@@ -232,7 +232,7 @@ export const products: Product[] = [
     size: "330ml",
     ingredients: ["Pomegranate"],
     allergens: [],
-    image: "pomegranate.jpg",
+    image: "pomegranate.png",
     /* 04-orange-pour-kitchen, but that bottle sits in deep shade — the frame
        only gives the depth, so the hue is held and the value pulled down. */
     accent: "#B4173C",
@@ -251,7 +251,7 @@ export const products: Product[] = [
     size: "330ml",
     ingredients: ["Mango"],
     allergens: [],
-    image: "mango.jpg",
+    image: "mango.png",
     /* 03-mango-sunset: transmitted edge #df7a2a, body #916644, sunset grade
        divided out against the near-white sky. */
     accent: "#EFA224",
