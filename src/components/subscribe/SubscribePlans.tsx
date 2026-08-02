@@ -54,7 +54,7 @@ export default function SubscribePlans() {
         >
           <p className="text-sm leading-relaxed text-warn">
             We can&rsquo;t run a weekly drop to{" "}
-            <span className="numeric">{outward}</span> yet.
+            <span className="numeric">{outward}</span>{" "}yet.
           </p>
           <p className="mt-1 text-xs leading-relaxed text-cream-dim">
             The plans below are still here to look at, but the route has to

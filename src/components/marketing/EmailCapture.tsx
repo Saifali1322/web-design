@@ -169,7 +169,7 @@ export default function EmailCapture({
             ) : (
               <>
                 We&rsquo;ve written{" "}
-                <span className="text-cream">{maskEmail(email)}</span> down. Our
+                <span className="text-cream">{maskEmail(email)}</span>{" "}down. Our
                 mailing list isn&rsquo;t switched on yet, so no email is on its
                 way — the fastest way to hear from us today is{" "}
                 <a

@@ -210,7 +210,7 @@ export default function CheckoutButton({
         {blocked === "minimum" ? (
           <span className="text-warn">
             Add{" "}
-            <span className="numeric">{formatPrice(amountToMinimum)}</span> more
+            <span className="numeric">{formatPrice(amountToMinimum)}</span>{" "}more
             to reach the{" "}
             <span className="numeric">
               {formatPrice(DELIVERY.minimumOrder)}

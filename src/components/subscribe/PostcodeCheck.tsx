@@ -110,7 +110,7 @@ export default function PostcodeCheck({
         {status === "in" ? (
           <div className="animate-rise border-l-2 border-fresh bg-fresh/[0.06] py-3 pl-4">
             <p className="text-sm leading-relaxed text-fresh">
-              <span className="numeric font-medium">{outward}</span> is on the
+              <span className="numeric font-medium">{outward}</span>{" "}is on the
               route. Drops go out every {DELIVERY.dropDay}.
             </p>
             {variant === "full" ? (
@@ -136,7 +136,7 @@ export default function PostcodeCheck({
         {status === "out" ? (
           <div className="animate-rise border-l-2 border-warn bg-warn/[0.06] py-3 pl-4">
             <p className="text-sm leading-relaxed text-warn">
-              <span className="numeric font-medium">{outward}</span> isn&rsquo;t
+              <span className="numeric font-medium">{outward}</span>{" "}isn&rsquo;t
               on the route yet.
             </p>
             <p className="mt-1.5 text-xs leading-relaxed text-cream-dim">

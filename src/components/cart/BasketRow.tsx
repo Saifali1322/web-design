@@ -59,7 +59,7 @@ export default function BasketRow({ item }: { item: CartItem }) {
         ) : (
           <p className="mt-1.5 text-xs leading-relaxed text-cream-faint">
             {item.product.tagline} ·{" "}
-            <span className="numeric">{formatPrice(unitPrice)}</span> each
+            <span className="numeric">{formatPrice(unitPrice)}</span>{" "}each
           </p>
         )}
 

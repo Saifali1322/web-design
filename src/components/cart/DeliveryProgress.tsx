@@ -54,7 +54,7 @@ export default function DeliveryProgress({ subtotal }: { subtotal: number }) {
         ) : earned ? (
           <>
             Free delivery unlocked —{" "}
-            <span className="numeric">{formatPrice(deliveryFee)}</span> saved.
+            <span className="numeric">{formatPrice(deliveryFee)}</span>{" "}saved.
           </>
         ) : (
           <>

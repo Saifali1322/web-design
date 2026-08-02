@@ -96,12 +96,12 @@ export default function PostcodeField({
       >
         {status === "in" ? (
           <span className="text-fresh">
-            <span className="numeric">{outward}</span> is on the route — drops
+            <span className="numeric">{outward}</span>{" "}is on the route — drops
             go out every {DELIVERY.dropDay}.
           </span>
         ) : status === "out" ? (
           <span className="text-warn">
-            We don&rsquo;t reach <span className="numeric">{outward}</span> yet.
+            We don&rsquo;t reach <span className="numeric">{outward}</span>{" "}yet.
             {near.length > 0 ? (
               <>
                 {" "}
