@@ -1,21 +1,37 @@
 import Link from "next/link";
 import { LogoLockup } from "@/components/brand/Logo";
-import { DELIVERY, SOCIALS } from "@/lib/catalogue";
+import { DELIVERY, SOCIALS, juices } from "@/lib/catalogue";
 
+/**
+ * The shelf-life figure in the notice below is legally load-bearing, so it is
+ * read off the catalogue rather than typed. Shortening a recipe's `keepsDays`
+ * must never leave a longer, safer-sounding number sitting in the footer of
+ * every page on the site.
+ */
+const JUICE_KEEPS = Math.min(...juices.map((juice) => juice.keepsDays));
+
+/**
+ * Two columns, split by intent rather than by page type: "Order" is everything
+ * that leads to a basket, "Know" is everything somebody reads before they are
+ * willing to fill one. The About and FAQ pages belong firmly in the second —
+ * they exist to answer the questions that stop a first order.
+ */
 const columns = [
   {
     title: "Order",
     links: [
       { href: "/menu", label: "Full Menu" },
+      { href: "/mixer", label: "Build a Blend" },
       { href: "/subscribe", label: "Weekly Drops" },
-      { href: "/delivery", label: "Delivery Areas" },
     ],
   },
   {
     title: "Know",
     links: [
+      { href: "/about", label: "About Us" },
+      { href: "/faq", label: "Questions" },
+      { href: "/delivery", label: "Delivery & Minimums" },
       { href: "/allergens", label: "Allergens" },
-      { href: "/delivery", label: "Minimum Order" },
     ],
   },
 ];
@@ -107,13 +123,17 @@ export default function SiteFooter() {
         {/* Allergen line is a legal requirement for food sold at distance. */}
         <p className="mx-auto max-w-2xl text-center text-xs leading-relaxed text-cream-faint">
           All drinks are freshly made and unpasteurised. Keep refrigerated and
-          drink within 3 days. Made in a kitchen that also handles milk, wheat,
-          soya and nuts, so we cannot guarantee any item is free from traces.
-          Please{" "}
+          drink within {JUICE_KEEPS} days. Made in one kitchen that also handles
+          milk, wheat, soya and nuts, so we cannot guarantee any item is free
+          from traces. Please{" "}
           <Link href="/allergens" className="text-gold underline">
             check the allergen information
           </Link>{" "}
-          or message us before ordering if you have a severe allergy.
+          or message us before ordering if you have a severe allergy. More on{" "}
+          <Link href="/faq#allergens" className="text-gold underline">
+            allergens and food safety
+          </Link>
+          .
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-2 text-[0.65rem] uppercase tracking-label text-cream-faint">
