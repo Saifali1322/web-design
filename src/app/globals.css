@@ -540,6 +540,19 @@
   to { background-position: -120% 0; }
 }
 
+/* The confirmation tick draws itself on. `pathLength="1"` normalises the
+   path so the dash maths is the same whatever the glyph. Under reduced
+   motion the global duration collapse lands it fully drawn, which is the
+   correct still state rather than an invisible one. */
+@keyframes draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+.tick-draw {
+  stroke-dasharray: 1;
+  animation: draw 420ms var(--ease-out-quint) both;
+}
+
 /* --------------------------------------------------------------------- *
  * Scroll reveals
  *
@@ -634,11 +647,24 @@
 }
 
 /* Navigation progress. scaleX on a promoted layer, so the bar costs nothing
-   per frame; the easing is what makes an indeterminate bar feel like it is
-   reporting something rather than looping. */
+   per frame; the deceleration is what makes an indeterminate bar feel like it
+   is reporting something rather than looping. */
 @keyframes nav-progress {
   0% { transform: scaleX(0); }
   28% { transform: scaleX(0.36); }
   62% { transform: scaleX(0.68); }
   100% { transform: scaleX(0.94); }
+}
+.nav-progress {
+  transform: scaleX(0);
+  opacity: 0;
+}
+.nav-progress[data-state="loading"] {
+  opacity: 1;
+  /* Long and heavily decelerated: it should never look like it is about to
+     finish, because it does not know when it will. */
+  animation: nav-progress 9s var(--ease-out-expo) forwards;
+}
+.nav-progress[data-state="done"] {
+  opacity: 1;
 }

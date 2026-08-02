@@ -6,6 +6,8 @@ import SiteHeader from "@/components/chrome/SiteHeader";
 import SiteFooter from "@/components/chrome/SiteFooter";
 import CartDrawer from "@/components/cart/CartDrawer";
 import InteractionLayer from "@/components/ui/InteractionLayer";
+import NavProgress from "@/components/ui/NavProgress";
+import RouteTransition from "@/components/ui/RouteTransition";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -84,10 +86,11 @@ export default function RootLayout({
           >
             Skip to content
           </a>
+          <NavProgress />
           <SiteHeader />
           {/* tabIndex -1 so the skip link has something to land on. */}
           <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
-            {children}
+            <RouteTransition>{children}</RouteTransition>
           </main>
           <SiteFooter />
           <CartDrawer />
