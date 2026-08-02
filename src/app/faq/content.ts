@@ -78,7 +78,7 @@ export const faqGroups: FaqGroup[] = [
   {
     id: "juice",
     title: "The juice itself",
-    note: "What is in it, how it behaves and how long you have.",
+    note: "What is in it, how it behaves, and how long you have.",
     items: [
       {
         q: "Is it pasteurised?",
@@ -100,7 +100,7 @@ export const faqGroups: FaqGroup[] = [
         q: "Why does it have to stay cold?",
         a: [
           "Because there is nothing in it holding it stable at room temperature. Raw juice with no preservative and no heat treatment depends entirely on staying cold.",
-          "It leaves here in a cool bag with ice packs. Put it in the fridge as soon as it arrives and keep it there. A bottle that has spent a warm afternoon in a car or on a desk should not be drunk later, and if something ever reaches you warm, message us the same day — we would rather know.",
+          "It leaves here in a cool bag with ice packs. Put it in the fridge as soon as it arrives and keep it there. A bottle that has spent a warm afternoon in a car or on a desk should not be drunk later, and if something ever reaches you warm, message us the same day. We would rather know.",
         ],
       },
       {
@@ -134,7 +134,7 @@ export const faqGroups: FaqGroup[] = [
       {
         q: "Is any of it vegan?",
         a: [
-          `All ${juices.length} juices — they are fruit and nothing else.`,
+          `All ${juices.length} of them. Fruit, and nothing else.`,
           "Nothing in Fuel Cartel is: every shake is built on milk and whey protein. The bakes contain butter, milk and egg.",
         ],
         links: [{ label: "Full allergen table", href: "/allergens" }],
@@ -173,7 +173,7 @@ export const faqGroups: FaqGroup[] = [
       {
         q: "Can I change or cancel an order after I have placed it?",
         a: [
-          "Up to Thursday night, yes — message us and it is changed, at no charge.",
+          "Up to Thursday night, yes. Message us and it is changed, at no charge.",
           "After Thursday the fruit for your box has already been bought against your order, so get in touch as early as you can and we will work out what is possible.",
         ],
       },
@@ -189,7 +189,7 @@ export const faqGroups: FaqGroup[] = [
   {
     id: "delivery",
     title: "Delivery",
-    note: `${DELIVERY.postcodes.length} outward codes, one route, every ${DELIVERY.dropDay}.`,
+    note: `${DELIVERY.postcodes.length} outward codes, covered in one ${DELIVERY.dropDay} afternoon.`,
     items: [
       {
         q: "Where do you deliver?",
@@ -208,7 +208,7 @@ export const faqGroups: FaqGroup[] = [
       {
         q: "What happens if nobody is in?",
         a: [
-          "Tell us in advance where it can go — a porch, a neighbour, behind a gate — and it is left there in the cool bag.",
+          "Tell us in advance where it can go. A porch, a neighbour, behind a gate, whatever suits: it gets left there in the cool bag.",
           `If we have not been told anything, we ring, knock and call your number. If there is still no answer the box comes back with us and we message you the same afternoon. Raw juice is not something to leave sitting on a doorstep in the sun, so we will not do it.`,
         ],
       },
@@ -229,7 +229,7 @@ export const faqGroups: FaqGroup[] = [
       {
         q: "My postcode is not on the list.",
         a: [
-          "Message us anyway — it goes on the list of places we are trying to reach. A second zone only opens once the first one is genuinely full, because a missed delivery costs more than a new customer is worth.",
+          "Message us anyway. It goes on the list of places we are trying to reach. A second zone only opens once the first one is genuinely full, because a missed delivery costs more than a new customer is worth.",
           "In the meantime, collection is open to anybody.",
         ],
       },
@@ -253,8 +253,8 @@ export const faqGroups: FaqGroup[] = [
       {
         q: "Can I skip a week?",
         a: [
-          `Yes. Message us before that ${DELIVERY.dropDay}'s drop and it is paused; it picks straight back up the week after and nothing is lost.`,
-          "Earlier is better — once Thursday has gone the fruit has been bought — but tell us any time before we set off and we will hold it.",
+          `Yes. Message us before that ${DELIVERY.dropDay}'s drop and we pause the payment as well as the box. You are not charged for a week you did not get juice in, and it starts again on its own the week after.`,
+          "Earlier is better. Once Thursday has gone the fruit for your box has already been bought, so tell us as soon as you know you are away.",
         ],
       },
       {
@@ -289,7 +289,7 @@ export const faqGroups: FaqGroup[] = [
         q: "What is your allergen policy?",
         a: [
           "Every item lists what it contains, and there is a full table covering all fourteen allergens named in UK law.",
-          "That table is a best-effort reading of each recipe and has not yet been checked line by line against what actually goes in the bottle — which the allergen page states plainly at the top rather than in a footnote. If you have an allergy or intolerance of any kind, call or message before ordering. Every time, not just the first time.",
+          "That table is a best-effort reading of each recipe and has not yet been checked line by line against what actually goes in the bottle. The allergen page states that plainly at the top rather than burying it in a footnote. If you have an allergy or intolerance of any kind, call or message before ordering. Every time, not just the first time.",
         ],
         links: [
           { label: "Full allergen matrix", href: "/allergens" },
@@ -309,7 +309,7 @@ export const faqGroups: FaqGroup[] = [
         a: [
           "For most people, yes. But nothing has been done to it to kill bacteria that may be on the fruit, and that matters more for some people than others.",
           "Standard UK food safety advice is that anyone pregnant, very young, over 65, or whose immune system is not working normally should avoid unpasteurised drinks. We would far rather say that here than have you find it out afterwards.",
-          "If you are unsure, ask a pharmacist, GP or midwife — and ask us anything you like about how it is made.",
+          "If you are unsure, ask a pharmacist, GP or midwife. And ask us anything you like about how it is made.",
         ],
       },
     ],
@@ -330,7 +330,7 @@ export const faqGroups: FaqGroup[] = [
       {
         q: "Is there a shop?",
         a: [
-          `No — there is nowhere to walk into. Everything goes out on the ${DELIVERY.dropDay} route, or by collection arranged in advance.`,
+          `No. There is nowhere to walk into. Everything goes out on the ${DELIVERY.dropDay} route, or by collection arranged in advance.`,
         ],
       },
       {

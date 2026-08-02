@@ -2,7 +2,7 @@ import { DELIVERY, juices } from "@/lib/catalogue";
 
 /**
  * The three phrases are verbatim from the packaging and flyers. They are not
- * marketing copy to be rewritten — treat them as fixed.
+ * marketing copy to be rewritten. Treat them as fixed.
  */
 const PHRASES = ["Fresh Ingredients", "Freshly Made", "Made With Love"] as const;
 
@@ -19,8 +19,8 @@ const JUICE_KEEPS = Math.min(...juices.map((juice) => juice.keepsDays));
 /**
  * The marquee is atmosphere. On its own it is the first thing after the hero
  * and it asserts nothing a stranger can check, so four verifiable facts sit
- * underneath it — this is the "what it actually is" beat of the page, and it
- * has to carry weight rather than mood.
+ * underneath it. This is the "what it actually is" beat of the page, and it has
+ * to carry weight rather than mood.
  */
 const FACTS = [
   {
@@ -36,12 +36,12 @@ const FACTS = [
   {
     value: DELIVERY.dropDay,
     label: "Pressed and delivered",
-    note: "Made the same morning it reaches you, not the week before.",
+    note: "Made the same morning it reaches you. Not the week before.",
   },
   {
     value: DELIVERY.city,
     label: "Where we go",
-    note: `${DELIVERY.postcodes.length} outward codes, one route, once a week.`,
+    note: `${DELIVERY.postcodes.length} outward codes, covered in one afternoon.`,
   },
 ] as const;
 
@@ -78,9 +78,9 @@ export function TrustBar() {
           aria-hidden="true"
           className="flex overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_10%,#000_90%,transparent)]"
         >
-          {/* The duplicate track is what makes the loop seamless: the animation
-              translates exactly -50%, so run two lands where run one started.
-              Reduced motion parks it, and the mask keeps the ends soft. */}
+          {/* The duplicate track is what makes the loop join up invisibly: the
+              animation translates exactly -50%, so run two lands where run one
+              started. Reduced motion parks it, and the mask softens the ends. */}
           <div className="animate-marquee flex w-max motion-reduce:animate-none">
             <Run />
             <Run />

@@ -4,7 +4,7 @@ import Reveal from "@/components/ui/Reveal";
 import { DELIVERY, formatPrice } from "@/lib/catalogue";
 
 /**
- * The closing beat: where it goes, what it costs to get it there, and the two
+ * The closing beat. Where it goes, what it costs to get it there, and the two
  * ways to start. It is the last section on the page, so it carries the primary
  * call to action rather than another link into the middle of the site.
  */
@@ -28,7 +28,7 @@ export function DeliveryStrip() {
     {
       label: "Drop day",
       value: DELIVERY.dropDay,
-      note: "One press, one route, one afternoon.",
+      note: "Afternoon, in one run.",
     },
   ];
 
@@ -58,10 +58,12 @@ export function DeliveryStrip() {
             </h2>
 
             <p className="mt-5 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
-              {DELIVERY.city} only, for now. If your outward code is on this
-              list we are already on your street every {DELIVERY.dropDay}. If it
-              is not, we will say so rather than take the order — a box that
-              arrives warm is worse than one that never went out.
+              {DELIVERY.city}{" "}
+              only, for now. If your outward code is on this list, we are
+              already on your street every {DELIVERY.dropDay}{" "}
+              afternoon. If it is not, we will tell you so rather than take the
+              order. A box that arrives warm is worse than one that never went
+              out.
             </p>
 
             <p className="mt-4 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
@@ -87,11 +89,20 @@ export function DeliveryStrip() {
           </Reveal>
 
           <Reveal delay={0.08}>
-            <p className="font-sans text-[0.625rem] tracking-label text-cream-faint uppercase">
-              Postcodes on the route
-            </p>
+            {/* Hand-set: the count as a display figure with the words hung off
+                its baseline, rather than another tracked-out label. */}
+            <div className="flex items-baseline gap-4">
+              <span className="numeric font-display text-5xl leading-none text-gold-bright sm:text-6xl">
+                {DELIVERY.postcodes.length}
+              </span>
+              <p className="font-sans text-[0.625rem] leading-[1.5] tracking-label text-cream-faint uppercase">
+                outward codes
+                <br />
+                on the route
+              </p>
+            </div>
 
-            <ul className="mt-4 flex flex-wrap gap-2">
+            <ul className="mt-6 flex flex-wrap gap-2">
               {DELIVERY.postcodes.map((postcode) => (
                 <li key={postcode}>
                   <span className="numeric inline-flex h-9 items-center rounded-[2px] border border-gold-deep/45 px-3 font-sans text-xs tracking-[0.12em] text-gold uppercase">

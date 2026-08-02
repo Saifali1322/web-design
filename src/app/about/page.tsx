@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "About",
   description: `Juice Cartel is one person in ${DELIVERY.city} with a press, a fridge full of fruit and a ${DELIVERY.dropDay} delivery route. Why the juice only keeps three days, what goes in it, and what we will not do.`,
   openGraph: {
-    title: "About Juice Cartel — one kitchen, one morning, one route",
+    title: "About Juice Cartel: one kitchen, one Sunday morning",
     description: `Made by one person in ${DELIVERY.city}, pressed the morning it goes out and delivered every ${DELIVERY.dropDay}. The reasoning behind the three-day date, the Thursday deadline and the ${DELIVERY.postcodes.length} postcodes.`,
     url: "https://juicecartel.uk/about",
     siteName: "Juice Cartel",
@@ -26,19 +26,19 @@ export const metadata: Metadata = {
 };
 
 /* ---------------------------------------------------------------------------
- * FOUNDER — owner, fill this in.
+ * FOUNDER. Owner, fill this in.
  *
  * A face and a first name is the single strongest trust signal a one-person
  * food business has, and it is the one thing on this page that cannot be
  * written from the product. Both fields are null on purpose: nothing here is
- * invented, and the page reads properly while they stay empty — the portrait
+ * invented, and the page reads properly while they stay empty. The portrait
  * slot simply does not render, rather than showing an apology for itself.
  *
- *   name  — first name is enough. Used in the sign-off.
- *   photo — drop the file into /public/brand and put the path here, e.g.
+ *   name    first name is enough. Used in the sign-off.
+ *   photo   drop the file into /public/brand and put the path here, e.g.
  *           "/brand/founder.jpg". Portrait crop, roughly 4:5. A phone photo in
  *           the kitchen with the bottles behind you beats a studio shot.
- *   role  — caption under the portrait.
+ *   role    caption under the portrait.
  * ------------------------------------------------------------------------ */
 const FOUNDER: { name: string | null; photo: string | null; role: string } = {
   name: null,
@@ -61,7 +61,7 @@ const SPEC = [
 /**
  * A list of refusals is a stronger trust device than a list of promises,
  * because every line is something a customer could catch us breaking. Nothing
- * here is aspirational — each one is already true of the site or the product.
+ * here is aspirational. Each one is already true of the site or the product.
  */
 const REFUSALS = [
   {
@@ -157,8 +157,8 @@ export default function AboutPage() {
             </p>
             <p className="mt-4 text-sm leading-relaxed font-light text-cream-dim sm:text-base">
               The same pair of hands halves the oranges, fills the bottles,
-              sticks the labels on straight, loads the cool bag and drives it to
-              your door. That is not a charming detail — it is the constraint
+              sticks the labels on straight, loads the cool bag and drives it
+              to your door. That is not a charming detail. It is the constraint
               every rule on this site comes out of.
             </p>
           </div>
@@ -206,12 +206,12 @@ export default function AboutPage() {
             <p>
               Ours has {KEEPS} days on it. Nothing happens to the juice between
               the press and the bottle, so nothing has been done to it to make
-              it keep. Every rule on this site follows from that one fact — the
+              it keep. Every rule on this site follows from that one fact. The
               Thursday deadline, the single delivery day, the{" "}
-              {DELIVERY.postcodes.length} postcodes, the{" "}
-              {formatPrice(DELIVERY.minimumOrder)} minimum. None of it is
-              scarcity dressed up as a rule. It is what happens when the thing
-              you sell has seventy-two hours in it.
+              {DELIVERY.postcodes.length}{" "}
+              postcodes, the {formatPrice(DELIVERY.minimumOrder)}{" "}
+              minimum. None of it is scarcity dressed up as a rule. It is what
+              happens when the thing you sell has seventy-two hours in it.
             </p>
           </div>
 
@@ -228,7 +228,7 @@ export default function AboutPage() {
           id="morning"
           heading="The morning it goes out"
           aside={
-            /* The portrait renders only once FOUNDER.photo is set — see the
+            /* The portrait renders only once FOUNDER.photo is set. See the
                note at the top of this file. It lives in the heading rail so
                that adding it later changes nothing about the prose column. */
             FOUNDER.photo ? (
@@ -247,7 +247,7 @@ export default function AboutPage() {
                   />
                 </div>
                 <figcaption className="mt-3 text-xs leading-relaxed text-cream-faint">
-                  {FOUNDER.name ? `${FOUNDER.name} — ` : ""}
+                  {FOUNDER.name ? `${FOUNDER.name} · ` : ""}
                   {FOUNDER.role}
                 </figcaption>
               </figure>
@@ -258,11 +258,13 @@ export default function AboutPage() {
             <p>
               Fruit gets bought against a list, not against a hope. The list
               closes on Thursday, the shopping happens after it, and on{" "}
-              {DELIVERY.dropDay} morning the whole lot goes through the press in
-              one run. Oranges halved on the counter. The jug filled and poured
-              off into bottles one at a time. Caps on by hand. The round black
-              label stuck on square — <em>freshly made</em> arced over the top
-              of it, {juices[0].size} underneath the name.
+              {DELIVERY.dropDay}{" "}
+              morning the whole lot goes through the press in one run. Oranges
+              halved on the counter. The jug filled and poured off into bottles
+              one at a time. Caps on by hand, and the round black label stuck on
+              square, with <em>freshly made</em> arced over the top of it and{" "}
+              {juices[0].size}{" "}
+              underneath the name.
             </p>
             <p>
               By the time the last one is capped the first is already cold. It
@@ -301,7 +303,7 @@ export default function AboutPage() {
                 />
               </div>
               <figcaption className="mt-3 text-xs leading-relaxed text-cream-faint">
-                {FOUNDER.name ? `${FOUNDER.name} — ` : ""}
+                {FOUNDER.name ? `${FOUNDER.name} · ` : ""}
                 {FOUNDER.role}
               </figcaption>
             </figure>
@@ -314,9 +316,10 @@ export default function AboutPage() {
           heading="What we will not do"
           aside={
             <p className="mt-4 max-w-xs text-sm leading-relaxed font-light text-cream-faint">
-              Anyone can list what they stand for. This is the other list — six
-              things we have decided against, each of which you could catch us
-              breaking.
+              Anyone can list what they stand for. This is the other list.{" "}
+              {REFUSALS.length}{" "}
+              things we have decided against, every one of which you could catch
+              us breaking.
             </p>
           }
         >
@@ -344,7 +347,7 @@ export default function AboutPage() {
             <p>
               It is worth being straight about the size of it. There is no shop
               to walk into. There is one delivery day a week, not seven. The
-              menu moves with the fruit — mango comes off when it stops being
+              menu moves with the fruit: mango comes off when it stops being
               worth pressing, and{" "}
               {bakes.length > 0
                 ? bakes[bakes.length - 1].name
@@ -383,9 +386,9 @@ export default function AboutPage() {
                     There is no support desk. The Instagram messages, the
                     Snapchat replies and the phone all reach the person who
                     pressed it. If you want to know what is in something, when
-                    it was made or whether it is safe for you, ask — you will
-                    get an answer from somebody who was standing there when it
-                    went in the bottle.
+                    it was made or whether it is safe for you, just ask. You
+                    will get an answer from somebody who was standing there when
+                    it went in the bottle.
                   </p>
                 </div>
               </div>
