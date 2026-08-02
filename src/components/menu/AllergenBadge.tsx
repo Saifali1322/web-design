@@ -2,7 +2,7 @@ import { allergenLabel, type Allergen } from "@/lib/catalogue";
 
 /**
  * A single allergen pill, used on menu cards. Small and legible rather than
- * decorative — this is food-safety information, not a design flourish.
+ * decorative. This is food-safety information, not a design flourish.
  */
 export default function AllergenBadge({ allergen }: { allergen: Allergen }) {
   return (

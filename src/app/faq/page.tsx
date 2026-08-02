@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Questions",
   description: `How long Juice Cartel keeps, why it is not pasteurised, what delivery across ${DELIVERY.city} costs, how to skip or cancel a weekly drop, and the allergen policy. Answered plainly, including the awkward ones.`,
   openGraph: {
-    title: "Juice Cartel — questions, answered plainly",
+    title: "Juice Cartel: questions, answered plainly",
     description: `Shelf life, cold chain, pricing, delivery areas, skipping and cancelling, allergens and food safety. Everything a first order usually gets stuck on.`,
     url: "https://juicecartel.uk/faq",
     siteName: "Juice Cartel",
@@ -69,7 +69,7 @@ function AnswerLink({ link }: { link: FaqLink }) {
 export default function FaqPage() {
   return (
     <div className="bg-grain">
-      {/* eslint-disable-next-line react/no-danger — generated above from our
+      {/* eslint-disable-next-line react/no-danger. Generated above from our
           own typed content, never from user input. */}
       <script
         type="application/ld+json"
@@ -222,7 +222,7 @@ export default function FaqPage() {
               >
                 {SOCIALS.handle}
               </a>
-              , and you will get a straight answer — including &ldquo;no&rdquo;,
+              , and you will get a straight answer, including &ldquo;no&rdquo;
               if that is the honest one.
             </p>
             <p className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2">
