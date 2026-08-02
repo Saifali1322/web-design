@@ -41,7 +41,7 @@ export default function DeliveryProgress({ subtotal }: { subtotal: number }) {
       : `${formatPrice(subtotal)} of ${formatPrice(freeDeliveryThreshold)} towards free delivery`;
 
   return (
-    <div className="mb-5">
+    <div className="mb-4">
       <p className={`text-sm leading-relaxed ${tone.text}`}>
         {belowMinimum ? (
           <>
@@ -71,7 +71,7 @@ export default function DeliveryProgress({ subtotal }: { subtotal: number }) {
         aria-valuenow={Math.min(subtotal, freeDeliveryThreshold)}
         aria-valuetext={valueText}
         aria-label="Progress towards free delivery"
-        className="relative mt-2.5 h-1.5 w-full overflow-hidden bg-ink-line"
+        className="relative mt-2 h-1.5 w-full overflow-hidden bg-ink-line"
       >
         <div
           className={`h-full transition-[width] duration-700 ease-out ${tone.fill}`}
@@ -88,7 +88,7 @@ export default function DeliveryProgress({ subtotal }: { subtotal: number }) {
 
       <div
         aria-hidden
-        className="mt-1.5 flex items-center justify-between text-[0.625rem] uppercase tracking-label text-cream-faint"
+        className="mt-1 flex items-center justify-between text-[0.625rem] uppercase tracking-label text-cream-faint"
       >
         <span className="numeric">
           {formatPrice(minimumOrder)} min

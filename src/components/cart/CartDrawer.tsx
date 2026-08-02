@@ -134,7 +134,7 @@ export default function CartDrawer() {
         }`}
       >
         {/* ---------- Header ---------- */}
-        <header className="flex items-start justify-between gap-4 px-6 pb-5 pt-7">
+        <header className="flex shrink-0 items-start justify-between gap-4 px-6 pb-5 pt-7">
           <div>
             <p className="text-xs uppercase tracking-label text-gold">
               Juice Cartel
@@ -197,12 +197,20 @@ export default function CartDrawer() {
         {!hydrated ? (
           // One frame or two while localStorage is read. Showing the empty
           // state first would tell returning customers their basket was gone.
-          <div className="flex-1" aria-hidden />
+          <div className="min-h-0 flex-1" aria-hidden />
         ) : empty ? (
           <EmptyBasket onBrowse={closeCart} />
         ) : (
-          <div className="flex-1 overflow-y-auto overscroll-contain px-6">
-            <ul className="divide-y divide-ink-line">
+          // min-h-0 is what actually lets this scroll: without it a flex child
+          // refuses to shrink below its content and the footer is pushed off
+          // the bottom of the drawer instead.
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6">
+            {/* Labelled so a screen reader can jump to the basket itself
+                rather than landing in the ingredient list of a blend. */}
+            <ul
+              aria-label="Items in your basket"
+              className="divide-y divide-ink-line"
+            >
               {items.map((item) => (
                 <BasketRow key={item.key} item={item} />
               ))}
@@ -212,10 +220,14 @@ export default function CartDrawer() {
 
         {/* ---------- Footer ---------- */}
         {hydrated && !empty ? (
-          <div className="border-t border-ink-line bg-ink px-6 pb-7 pt-5">
+          // Capped and scrollable rather than free to grow. The footer gains a
+          // panel in some states (card payment not live, a checkout that went
+          // wrong), and an uncapped one eats the basket it is summarising —
+          // this guarantees the items keep at least a third of the drawer.
+          <div className="max-h-[65svh] shrink-0 overflow-y-auto overscroll-contain border-t border-ink-line bg-ink px-6 pb-6 pt-4">
             <DeliveryProgress subtotal={subtotal} />
 
-            <dl className="space-y-2 text-sm">
+            <dl className="space-y-1.5 text-sm">
               <div className="flex items-baseline justify-between">
                 <dt className="text-cream-dim">Subtotal</dt>
                 <dd className="numeric text-cream">{formatPrice(subtotal)}</dd>
@@ -230,7 +242,7 @@ export default function CartDrawer() {
                   )}
                 </dd>
               </div>
-              <div className="rule-foil my-3 opacity-60" />
+              <div className="rule-foil my-2.5 opacity-60" />
               <div className="flex items-baseline justify-between">
                 <dt className="text-xs uppercase tracking-label text-cream-faint">
                   Total
@@ -241,9 +253,9 @@ export default function CartDrawer() {
               </div>
             </dl>
 
-            <PostcodeField className="mt-5" />
+            <PostcodeField className="mt-4" />
 
-            <div className="mt-5">
+            <div className="mt-4">
               <CheckoutButton
                 postcode={postcode}
                 blocked={

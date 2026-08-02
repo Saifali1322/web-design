@@ -145,8 +145,9 @@ export default function DeliveryPage() {
           >
             Instagram
           </a>{" "}
-          ahead of {DELIVERY.dropDay} and we&rsquo;ll arrange a collection time
-          and place near our kitchen — no minimum order applies to collections.
+          ahead of {DELIVERY.dropDay}{" "}
+          and we&rsquo;ll arrange a collection time and place near our kitchen —
+          no minimum order applies to collections.
         </p>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-dim">
           Or call{" "}

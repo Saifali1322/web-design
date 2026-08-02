@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { DELIVERY, formatPrice, SOCIALS } from "@/lib/catalogue";
 import { useCart } from "@/components/cart/CartProvider";
-import EmailCapture from "@/components/marketing/EmailCapture";
 import { Button } from "@/components/ui/Button";
 
 /**
@@ -138,35 +137,24 @@ export default function CheckoutButton({
     }
   }
 
+  // Deliberately compact: this sits in the drawer's pinned footer, and every
+  // line added here is a line taken off the basket itself. The waitlist form
+  // lives on /subscribe and /delivery, where there is room for it.
   if (status === "unavailable") {
     return (
-      <div className="space-y-4">
-        <div className="border border-gold-dim/60 bg-ink-raised px-4 py-3">
-          <p className="text-sm leading-relaxed text-cream-dim">
-            <span className="text-cream">Card payment isn&rsquo;t live yet.</span>{" "}
-            Everything in your basket is saved — send it to us on Instagram and
-            we&rsquo;ll take it the way we always have.
-          </p>
-          <a
-            href={SOCIALS.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex w-full items-center justify-center border border-gold bg-gold/10 px-4 py-3 text-xs font-medium uppercase tracking-label text-gold-bright transition-colors hover:bg-gold/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
-          >
-            Order via {SOCIALS.handle}
-          </a>
-          <p className="numeric mt-2.5 text-center text-xs text-cream-faint">
-            Your basket: {formatPrice(total)} · {DELIVERY.city} delivery
-          </p>
-        </div>
-
-        <EmailCapture
-          source="basket-unavailable"
-          title="Tell me when card payment opens"
-          blurb="One email the day checkout goes live. Nothing else."
-          cta="Notify me"
-          variant="bare"
-        />
+      <div className="border border-gold-dim/60 bg-ink-raised px-4 py-3.5">
+        <p className="text-sm leading-relaxed text-cream-dim">
+          <span className="text-cream">Card payment isn&rsquo;t live yet.</span>{" "}
+          Your basket is saved — send it over and we&rsquo;ll sort it.
+        </p>
+        <a
+          href={SOCIALS.instagram}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex w-full items-center justify-center border border-gold bg-gold/10 px-4 py-3 text-xs font-medium uppercase tracking-label text-gold-bright transition-colors hover:bg-gold/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+        >
+          Order via {SOCIALS.handle}
+        </a>
       </div>
     );
   }

@@ -102,8 +102,8 @@ export default function PostcodeCheck({
       <div id={statusId} role="status" aria-live="polite" className="mt-3">
         {status === "empty" || status === "typing" ? (
           <p className="text-sm leading-relaxed text-cream-faint">
-            We deliver to {DELIVERY.postcodes.length} {DELIVERY.city} outward
-            codes. Type yours and we&rsquo;ll tell you straight away.
+            We deliver to {DELIVERY.postcodes.length} {DELIVERY.city}{" "}
+            outward codes. Type yours and we&rsquo;ll tell you straight away.
           </p>
         ) : null}
 

@@ -143,7 +143,7 @@ function BlendDetail({ item }: { item: Extract<CartItem, { kind: "blend" }> }) {
 
   return (
     <div className="mt-2">
-      <ul className="flex flex-wrap gap-1.5">
+      <ul aria-label={`What's in ${item.name}`} className="flex flex-wrap gap-1.5">
         {blend.components.map((component) => (
           <li
             key={component.product.id}

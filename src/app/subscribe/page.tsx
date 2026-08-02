@@ -185,8 +185,9 @@ export default function SubscribePage() {
         </h2>
         <p className="mb-5 max-w-2xl text-sm leading-relaxed text-cream-dim">
           One van, one route, once a week. It&rsquo;s{" "}
-          {DELIVERY.postcodes.length} outward codes for now, so it&rsquo;s
-          worth thirty seconds before you pick a plan.
+          {DELIVERY.postcodes.length}{" "}
+          outward codes for now, so it&rsquo;s worth thirty seconds before you
+          pick a plan.
         </p>
         <PostcodeCheck />
       </section>
