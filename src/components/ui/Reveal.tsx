@@ -200,7 +200,13 @@ export function Reveal({
   const resolved: RevealVariant =
     variant ?? (index !== undefined && index % 2 === 1 ? "lift" : "rise");
 
-  const stagger = delay ?? (index !== undefined ? index * 0.07 : 0);
+  /* Compressed, not metronomic. Evenly spaced delays are the thing that makes
+     a staggered grid look machine-timed: the gap between the first and second
+     item should be the largest, and each one after that should close up. The
+     0.72 exponent gives roughly 90ms, 58ms, 48ms, 43ms — a run that settles
+     rather than a metronome that keeps going. */
+  const stagger =
+    delay ?? (index !== undefined ? Math.pow(index, 0.72) * 0.09 : 0);
 
   const style: React.CSSProperties & Record<string, string | number> = {
     "--reveal-distance": `${distance}px`,
@@ -230,7 +236,7 @@ export function Reveal({
 
 export interface RevealGroupProps {
   children: ReactNode;
-  /** Seconds between siblings. Keep it under 0.1 or the tail drags. */
+  /** Base seconds between siblings, before compression. Keep it under 0.12. */
   stagger?: number;
   className?: string;
   as?: "div" | "ul" | "ol";
@@ -255,7 +261,8 @@ export function RevealGroup({
     const next = i++;
     return cloneElement(el, {
       index: next,
-      delay: el.props?.delay ?? next * stagger,
+      // Same compressed curve as the default above, honouring a custom base.
+      delay: el.props?.delay ?? Math.pow(next, 0.72) * stagger,
     });
   });
 

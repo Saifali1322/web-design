@@ -295,6 +295,24 @@
     color: transparent;
   }
 
+  /* The one indulgence on the site: light travelling once across the metal
+     as a foil heading settles, rather than the heading simply fading in.
+     Combine with `.text-foil`.
+
+     It is deliberately the only thing that does this. A signature repeated on
+     every heading stops being a signature and becomes a template — and one
+     considered moment is worth more than five generic ones. Under reduced
+     motion the duration collapses and `both` leaves the gradient parked at
+     its finish position, which is a perfectly good static foil. */
+  .foil-sweep {
+    background-size: 220% 100%;
+    background-position: 62% 0;
+  }
+  [data-reveal="in"] .foil-sweep,
+  [data-reveal="in"].foil-sweep {
+    animation: foil-travel 1500ms var(--ease-out-expo) 260ms both;
+  }
+
   .border-foil {
     border-image: linear-gradient(140deg, #f3da8b, #a97c1e 45%, #f0d68a) 1;
   }
@@ -548,6 +566,13 @@
   to { transform: rotate(360deg); }
 }
 
+/* Light crossing foil. Travels a long way and stops short of the end, so it
+   reads as a glint passing rather than a gradient sliding to a stop. */
+@keyframes foil-travel {
+  from { background-position: 6% 0; }
+  to { background-position: 62% 0; }
+}
+
 @keyframes shimmer {
   from { background-position: 220% 0; }
   to { background-position: -120% 0; }
@@ -598,7 +623,29 @@
   transition: none !important;
 }
 
-/* Entrances, by what is arriving. */
+/* Entrances, by what is arriving.
+ *
+ * Different things also take different lengths of time, which is most of what
+ * stops a page reading as generated. A uniform 900ms fade-up on every block,
+ * evenly staggered, is the single loudest tell there is: real pages have
+ * weight, and a hairline rule and a product card do not fall at the same
+ * speed. Cards are the slowest thing here, rules the quickest. */
+[data-reveal-variant="lift"] {
+  transition-duration: 700ms, 1180ms, 1180ms;
+}
+[data-reveal-variant="settle"] {
+  transition-duration: 500ms, 840ms, 840ms;
+}
+[data-reveal-variant="rule"] {
+  transition-duration: 300ms, 720ms, 720ms;
+}
+[data-reveal-variant="mask"] {
+  transition-duration: 400ms, 1050ms, 1050ms;
+}
+[data-reveal-variant="sweep"] {
+  transition-duration: 560ms, 900ms, 900ms;
+}
+
 [data-reveal="out"][data-reveal-variant="rise"] {
   transform: translate3d(0, var(--reveal-distance, 20px), 0) scale(0.994);
 }
