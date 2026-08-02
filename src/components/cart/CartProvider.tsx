@@ -28,8 +28,19 @@ import {
 export { MAX_LINE_QUANTITY } from "@/components/cart/cartModel";
 export type { CartItem, CartLine } from "@/components/cart/cartModel";
 
+/** A line lifted out of the basket, kept just long enough to put it back. */
+interface RemovedLine {
+  line: CartLine;
+  /** Where it was, so undo restores the order as well as the contents. */
+  index: number;
+  /** Distinguishes two removals of the same line for the undo banner's timer. */
+  at: number;
+}
+
 interface CartState {
   lines: CartLine[];
+  /** Most recent removal, or null. Cleared by anything that isn't an undo. */
+  removed: RemovedLine | null;
 }
 
 type CartAction =
@@ -37,6 +48,8 @@ type CartAction =
   | { type: "addBlend"; line: CartLine }
   | { type: "remove"; key: string }
   | { type: "setQuantity"; key: string; quantity: number }
+  | { type: "undo" }
+  | { type: "dismissUndo" }
   | { type: "clear" }
   | { type: "hydrate"; lines: CartLine[] };
 
@@ -56,10 +69,20 @@ function upsert(lines: CartLine[], incoming: CartLine): CartLine[] {
   );
 }
 
+/** Lifts a line out and remembers where it was, so `undo` can put it back. */
+function lift(state: CartState, key: string): CartState {
+  const index = state.lines.findIndex((l) => lineKey(l) === key);
+  if (index === -1) return state;
+  return {
+    lines: state.lines.filter((_, i) => i !== index),
+    removed: { line: state.lines[index], index, at: Date.now() },
+  };
+}
+
 function reducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "hydrate":
-      return { lines: action.lines };
+      return { lines: action.lines, removed: null };
     case "add":
       return {
         lines: upsert(state.lines, {
@@ -67,25 +90,36 @@ function reducer(state: CartState, action: CartAction): CartState {
           productId: action.productId,
           quantity: clampQuantity(action.quantity ?? 1),
         }),
+        removed: null,
       };
     case "addBlend":
-      return { lines: upsert(state.lines, action.line) };
+      return { lines: upsert(state.lines, action.line), removed: null };
     case "remove":
-      return { lines: state.lines.filter((l) => lineKey(l) !== action.key) };
+      return lift(state, action.key);
     case "setQuantity": {
-      if (action.quantity <= 0) {
-        return { lines: state.lines.filter((l) => lineKey(l) !== action.key) };
-      }
+      // Stepping the last one off a line is a removal like any other, so it
+      // gets the same undo — that down-arrow is the easiest slip in the drawer.
+      if (action.quantity <= 0) return lift(state, action.key);
       return {
         lines: state.lines.map((l) =>
           lineKey(l) === action.key
             ? { ...l, quantity: clampQuantity(action.quantity) }
             : l,
         ),
+        removed: null,
       };
     }
+    case "undo": {
+      if (!state.removed) return state;
+      const { line, index } = state.removed;
+      const lines = [...state.lines];
+      lines.splice(Math.min(index, lines.length), 0, line);
+      return { lines, removed: null };
+    }
+    case "dismissUndo":
+      return state.removed ? { ...state, removed: null } : state;
     case "clear":
-      return { lines: [] };
+      return { lines: [], removed: null };
   }
 }
 
@@ -101,6 +135,12 @@ interface CartContextValue {
   amountToMinimum: number;
   /** How much more is needed for free delivery, in pence. 0 once earned. */
   amountToFreeDelivery: number;
+  /** Delivery saved by clearing the threshold, in pence. 0 until it is. */
+  deliverySaved: number;
+  /** False until localStorage has been read, so nothing flashes empty first. */
+  hydrated: boolean;
+  /** The last line taken out, still restorable. Null once undone or replaced. */
+  lastRemoved: CartItem | null;
   isOpen: boolean;
   add: (productId: string, quantity?: number) => void;
   /** Adds a custom blend. Returns false if the mix broke the rules. */
@@ -112,6 +152,10 @@ interface CartContextValue {
   /** `key` comes from the item, not the product id — blends have no product. */
   remove: (key: string) => void;
   setQuantity: (key: string, quantity: number) => void;
+  /** Puts the last removed line back where it was. */
+  undoRemove: () => void;
+  /** Drops the undo offer without restoring anything. */
+  dismissUndo: () => void;
   clear: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -120,7 +164,7 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, { lines: [] });
+  const [state, dispatch] = useReducer(reducer, { lines: [], removed: null });
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -197,6 +241,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         0,
         DELIVERY.freeDeliveryThreshold - subtotal,
       ),
+      deliverySaved: earnedFreeDelivery ? DELIVERY.deliveryFee : 0,
+      hydrated,
+      // Resolved here rather than in the reducer so an undo offer for a line
+      // that has since left the catalogue simply doesn't appear.
+      lastRemoved: state.removed ? resolveLine(state.removed.line) : null,
       isOpen,
       add: (productId, quantity) => {
         dispatch({ type: "add", productId, quantity });
@@ -212,11 +261,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       remove: (key) => dispatch({ type: "remove", key }),
       setQuantity: (key, quantity) =>
         dispatch({ type: "setQuantity", key, quantity }),
+      undoRemove: () => dispatch({ type: "undo" }),
+      dismissUndo: () => dispatch({ type: "dismissUndo" }),
       clear: () => dispatch({ type: "clear" }),
       openCart: () => setIsOpen(true),
       closeCart: () => setIsOpen(false),
     };
-  }, [state.lines, isOpen]);
+  }, [state.lines, state.removed, hydrated, isOpen]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

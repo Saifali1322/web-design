@@ -355,3 +355,78 @@ export function blendPackSheet(order: PricedOrder): string {
 export function truncateForMetadata(value: string, limit = 500): string {
   return value.length <= limit ? value : `${value.slice(0, limit - 1)}…`;
 }
+
+/* ---------- confirmation page ---------- */
+
+/**
+ * What the confirmation page is allowed to know about a finished order.
+ *
+ * A Checkout Session id travels in the return URL, so it can end up in a
+ * screenshot, a shared link or a browser history someone else can read. This
+ * shape is therefore what a customer needs to recognise their own order and
+ * nothing that would matter if a stranger saw it: no address, no phone number,
+ * no full email, no card details.
+ */
+export interface SessionSummary {
+  /** "one-off" or "subscription", from the metadata we set when creating it. */
+  kind: "one-off" | "subscription";
+  /** Stripe's own payment_status: "paid", "unpaid", "no_payment_required". */
+  paid: boolean;
+  /** Short human reference. The owner can find the session from it in Stripe. */
+  reference: string;
+  /** Total charged in pence, or null if Stripe hasn't settled on one. */
+  total: number | null;
+  currency: string;
+  /** One entry per Checkout line item, delivery included. */
+  items: Array<{ name: string; quantity: number; amount: number | null }>;
+  /** Masked, e.g. "sa••••@gmail.com". Enough to recognise, not to harvest. */
+  email: string | null;
+  /** Formatted delivery postcode we recorded at checkout, if any. */
+  postcode: string | null;
+  /** Subscription tier name, when this was a subscription. */
+  plan: string | null;
+}
+
+/** Two characters, some dots, then the domain — see the note on SessionSummary. */
+function maskEmail(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const at = raw.lastIndexOf("@");
+  if (at < 1) return null;
+  const local = raw.slice(0, at);
+  const head = local.slice(0, local.length > 2 ? 2 : 1);
+  return `${head}${"•".repeat(Math.max(2, Math.min(6, local.length - head.length)))}@${raw.slice(at + 1)}`;
+}
+
+/**
+ * The short reference shown to the customer and quotable back to us. Derived
+ * from the session id rather than generated, so there is no counter to keep
+ * and the owner can always search Stripe for the same string.
+ */
+export const orderReference = (sessionId: string): string =>
+  `JC-${sessionId.slice(-8).toUpperCase()}`;
+
+/** Narrows a retrieved session down to {@link SessionSummary}. */
+export function summariseSession(
+  session: Stripe.Checkout.Session,
+): SessionSummary {
+  const meta = session.metadata ?? {};
+  const lineItems = session.line_items?.data ?? [];
+
+  return {
+    kind: session.mode === "subscription" ? "subscription" : "one-off",
+    paid:
+      session.payment_status === "paid" ||
+      session.payment_status === "no_payment_required",
+    reference: orderReference(session.id),
+    total: session.amount_total,
+    currency: (session.currency ?? "gbp").toUpperCase(),
+    items: lineItems.map((item) => ({
+      name: item.description ?? "Item",
+      quantity: item.quantity ?? 1,
+      amount: item.amount_total,
+    })),
+    email: maskEmail(session.customer_details?.email),
+    postcode: meta.postcode ?? null,
+    plan: meta.tier_name ?? null,
+  };
+}
