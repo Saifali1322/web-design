@@ -173,7 +173,9 @@ export default function SiteFooter() {
             Juice Cartel ·{" "}
             {DELIVERY.city}
           </p>
-          <p>A part of 1K Entrepreneurship</p>
+          {/* EK, not 1K. Settled against the label artwork in
+              public/brand/label.jpg, which reads "EK'S ENTREPRENEURSHIP". */}
+          <p>A part of EK&rsquo;s Entrepreneurship</p>
         </div>
       </div>
     </footer>
