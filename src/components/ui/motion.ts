@@ -25,7 +25,7 @@
  *     pass rather than N forced reflows.
  */
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useSyncExternalStore, type RefObject } from "react";
 
 /* ------------------------------------------------------------------ *
  * Device tier
@@ -83,25 +83,54 @@ function measure(): MotionEnv {
   };
 }
 
-/** Resolves the device tier on mount and follows the reduced-motion switch. */
+/* The tier is a property of the device, not of a component, so it is measured
+   once and shared. This matters: the menu page mounts thirty product cards,
+   and a per-component hook meant thirty copies of the same measurement and
+   sixty media-query listeners for one answer that is identical every time. */
+
+let cached: MotionEnv | null = null;
+const envListeners = new Set<() => void>();
+let mediaBound = false;
+
+function invalidate(): void {
+  cached = null;
+  for (const fn of envListeners) fn();
+}
+
+function subscribeEnv(fn: () => void): () => void {
+  envListeners.add(fn);
+  if (!mediaBound) {
+    mediaBound = true;
+    window
+      .matchMedia("(prefers-reduced-motion: reduce)")
+      .addEventListener("change", invalidate);
+    window
+      .matchMedia("(min-width: 768px)")
+      .addEventListener("change", invalidate);
+  }
+  return () => {
+    envListeners.delete(fn);
+  };
+}
+
+/** Must return a stable reference or useSyncExternalStore loops forever. */
+function getEnvSnapshot(): MotionEnv {
+  if (!cached) cached = measure();
+  return cached;
+}
+
+/** SSR renders the still page; the tier is only knowable on the client. */
+function getServerEnvSnapshot(): MotionEnv {
+  return STILL;
+}
+
+/** Resolves the device tier and follows the reduced-motion switch. */
 export function useMotionEnv(): MotionEnv {
-  const [env, setEnv] = useState<MotionEnv>(STILL);
-
-  useEffect(() => {
-    const apply = () => setEnv(measure());
-    apply();
-
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const wide = window.matchMedia("(min-width: 768px)");
-    mq.addEventListener("change", apply);
-    wide.addEventListener("change", apply);
-    return () => {
-      mq.removeEventListener("change", apply);
-      wide.removeEventListener("change", apply);
-    };
-  }, []);
-
-  return env;
+  return useSyncExternalStore(
+    subscribeEnv,
+    getEnvSnapshot,
+    getServerEnvSnapshot,
+  );
 }
 
 /* ------------------------------------------------------------------ *
