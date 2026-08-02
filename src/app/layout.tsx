@@ -5,6 +5,7 @@ import { CartProvider } from "@/components/cart/CartProvider";
 import SiteHeader from "@/components/chrome/SiteHeader";
 import SiteFooter from "@/components/chrome/SiteFooter";
 import CartDrawer from "@/components/cart/CartDrawer";
+import InteractionLayer from "@/components/ui/InteractionLayer";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -74,10 +75,23 @@ export default function RootLayout({
     >
       <body className="min-h-dvh flex flex-col">
         <CartProvider>
+          {/* First thing in the tab order on every page. Off-screen until it
+              takes focus, then it lands as a real control rather than the
+              usual apologetic grey box. */}
+          <a
+            href="#main"
+            className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-[110] focus-visible:inline-flex focus-visible:h-11 focus-visible:items-center focus-visible:rounded-[2px] focus-visible:border focus-visible:border-gold focus-visible:bg-ink focus-visible:px-5 focus-visible:font-sans focus-visible:text-label focus-visible:tracking-label focus-visible:text-gold focus-visible:uppercase"
+          >
+            Skip to content
+          </a>
           <SiteHeader />
-          <main className="flex-1">{children}</main>
+          {/* tabIndex -1 so the skip link has something to land on. */}
+          <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
+            {children}
+          </main>
           <SiteFooter />
           <CartDrawer />
+          <InteractionLayer />
         </CartProvider>
       </body>
     </html>
