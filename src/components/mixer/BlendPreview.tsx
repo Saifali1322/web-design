@@ -73,7 +73,7 @@ export default function BlendPreview({
               seed={7}
               dropletCount={10}
               arcs={false}
-              title={blend ? `${name} — live preview` : "Empty bottle"}
+              title={blend ? `${name}, live preview` : "Empty bottle"}
             />
           </div>
         </div>
@@ -164,7 +164,16 @@ export default function BlendPreview({
                 {money(blend.pricing.premium)}
               </dd>
             </div>
-            <div className="rule-foil my-3 opacity-60" />
+          </dl>
+
+          {/* The rule sits between the two lists rather than inside one. A
+              <div> is only a legal child of <dl> when it groups a term with
+              its definition, so a bare decorative one invalidates the list
+              and orphans every row in it for a screen reader. The total is
+              its own short list, which is what it is anyway. */}
+          <div aria-hidden="true" className="rule-foil my-3 opacity-60" />
+
+          <dl className="text-sm">
             <div className="flex items-baseline justify-between gap-3">
               <dt className="text-xs uppercase tracking-label text-cream-faint">
                 Per bottle

@@ -77,19 +77,29 @@ export default function MixerPage() {
 
           <dl className="divide-y divide-ink-line border-y border-ink-line lg:mt-2">
             {RULES.map((rule) => (
-              <div key={rule.label} className="py-4">
-                <div className="flex items-baseline justify-between gap-5">
-                  <dt className="text-[0.625rem] uppercase tracking-label text-cream-faint">
-                    {rule.label}
-                  </dt>
-                  <dd className="numeric shrink-0 font-display text-lg leading-none text-gold-bright">
-                    {rule.value}
-                  </dd>
-                </div>
+              /* dt and dd must be direct children of this wrapper: HTML only
+                 allows dl > div > (dt, dd), so nesting the row in a second
+                 div dropped every term out of the list. The flex row is this
+                 element rather than one inside it. */
+              <div
+                key={rule.label}
+                className="flex flex-wrap items-baseline justify-between gap-x-5 py-4"
+              >
+                <dt className="text-[0.625rem] uppercase tracking-label text-cream-faint">
+                  {rule.label}
+                </dt>
+                <dd className="numeric shrink-0 font-display text-lg leading-none text-gold-bright">
+                  {rule.value}
+                </dd>
+                {/* A second <dd>, not a <p>. Inside a <dl>, a grouping <div>
+                    may contain only <dt> and <dd>, and a term is allowed more
+                    than one definition. Wrapping the row in an extra div, or
+                    putting the note in a <p>, drops every term out of the
+                    list for a screen reader. */}
                 {rule.note && (
-                  <p className="mt-2 max-w-xs text-xs leading-relaxed text-cream-faint">
+                  <dd className="mt-2 w-full max-w-xs text-xs leading-relaxed text-cream-faint">
                     {rule.note}
-                  </p>
+                  </dd>
                 )}
               </div>
             ))}

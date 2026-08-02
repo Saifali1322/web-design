@@ -144,12 +144,12 @@ export default function PostcodeCheck({
                 <>
                   We reach{" "}
                   <span className="numeric text-cream">{near.join(", ")}</span>{" "}
-                  — if you work or study in one of those, we can drop there
+                  . If you work or study in one of those, we can drop there
                   instead.
                 </>
               ) : (
                 <>
-                  We only run one van, one route, once a week — {DELIVERY.city}{" "}
+                  We only run one van, one route, once a week. {DELIVERY.city}{" "}
                   only for now.
                 </>
               )}

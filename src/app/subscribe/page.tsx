@@ -12,7 +12,7 @@ import SubscribePlans from "@/components/subscribe/SubscribePlans";
 export const metadata: Metadata = {
   title: "Weekly Subscription",
   description:
-    "Order once, delivered every Sunday. Juice Cartel's weekly subscription brings fresh juices, milkshakes and desserts to your door across Nottingham — swap flavours any week, skip when you're away, cancel anytime.",
+    "Order once, delivered every Sunday. Juice Cartel's weekly subscription brings fresh juices, milkshakes and desserts to your door across Nottingham. Swap flavours any week, skip when you're away, cancel anytime.",
 };
 
 /**
@@ -38,7 +38,7 @@ const steps = [
   {
     n: "01",
     title: "Pick a tier",
-    body: "Choose how much you want dropped each week — from a solo reset to a full household box.",
+    body: "Choose how much you want dropped each week, from a solo reset to a full household box.",
   },
   {
     n: "02",
@@ -93,7 +93,7 @@ const commitments = [
 const faqs = [
   {
     q: "Can I swap flavours?",
-    a: `Yes, any week. Message us on Instagram before ${DELIVERY.dropDay}'s drop with what you'd rather have and we'll swap it in — no extra charge, no admin.`,
+    a: `Yes, any week. Message us on Instagram before ${DELIVERY.dropDay}'s drop with what you'd rather have and we'll swap it in. No extra charge, no admin.`,
   },
   {
     q: "How do I skip a week if I'm away?",
@@ -114,7 +114,7 @@ const faqs = [
   },
   {
     q: "What if I'm not in when you come?",
-    a: "We message you before we set off, so reply there and tell us where to leave it or when you'll be back. It's one van and one driver — it's easy to sort.",
+    a: "We message you before we set off, so reply there and tell us where to leave it or when you'll be back. One van, one driver. It is easy to sort.",
   },
   {
     q: "Do I have to subscribe to order?",
@@ -137,8 +137,8 @@ export default function SubscribePage() {
           One order sets up a standing delivery, every {DELIVERY.dropDay},
           across {DELIVERY.city}. You choose the tier, we handle the pressing,
           the packing and the drop. Swap flavours whenever you like, skip a
-          week if you&rsquo;re away, cancel outright if it&rsquo;s not for you —
-          no contract, no penalty.
+          week if you&rsquo;re away, cancel outright if it&rsquo;s not for
+          you. No contract, no penalty.
         </p>
 
         <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-x-3 gap-y-2">
@@ -186,7 +186,7 @@ export default function SubscribePage() {
         className="mx-auto max-w-5xl px-5 py-10 sm:px-8"
       >
         <h2 id="check-postcode" className="mb-2 font-display text-xl text-cream">
-          First — can we reach you?
+          First, can we reach you?
         </h2>
         <p className="mb-5 max-w-2xl text-sm leading-relaxed text-cream-dim">
           One van, one route, once a week. It&rsquo;s{" "}
@@ -214,7 +214,7 @@ export default function SubscribePage() {
         <SubscribePlans />
         <p className="mt-6 text-xs leading-relaxed text-cream-faint">
           All juices are 330ml, pressed the morning they go out. Delivering to{" "}
-          {DELIVERY.city} postcodes only —{" "}
+          {DELIVERY.city} postcodes only.{" "}
           <Link
             href="/delivery"
             className="text-gold underline underline-offset-2"
@@ -276,7 +276,7 @@ export default function SubscribePage() {
         <p className="mb-8 max-w-2xl text-sm leading-relaxed text-cream-dim">
           One press and one route on a {DELIVERY.dropDay} is far cheaper to run
           than the same bottles going out one at a time all week. That saving is
-          the discount — there is no other trick to it.
+          the discount. There is no other trick to it.
         </p>
 
         {/* Wide content scrolls in its own box rather than pushing the page. */}
@@ -415,7 +415,7 @@ export default function SubscribePage() {
           >
             {SOCIALS.phone}
           </a>{" "}
-          — a real person answers.
+          . A real person answers.
         </p>
       </section>
     </div>

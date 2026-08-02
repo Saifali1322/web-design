@@ -118,7 +118,7 @@ export default function Mixer() {
           </div>
           <p className="mt-2 text-sm leading-relaxed text-cream-dim">
             Then set how many parts of each. {MIN_PARTS} to {MAX_PARTS} parts,
-            whole numbers only — it has to be pourable at the press.
+            whole numbers only. It has to be pourable at the press.
           </p>
 
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -137,7 +137,7 @@ export default function Mixer() {
           {full ? (
             <p className="mt-3 text-xs leading-relaxed text-cream-faint">
               That&rsquo;s {MAX_COMPONENTS}. Take one out to swap it for
-              something else — past three juices nothing tastes of anything.
+              something else. Past three juices nothing tastes of anything.
             </p>
           ) : null}
 
@@ -151,7 +151,7 @@ export default function Mixer() {
             </label>
             <p className="mt-2 text-sm leading-relaxed text-cream-dim">
               We&rsquo;ve named it after what&rsquo;s in it. Call it something
-              else if you like — the name goes on the pack sheet.
+              else if you like. The name goes on the pack sheet.
             </p>
 
             <input
@@ -210,7 +210,7 @@ export default function Mixer() {
             >
               allergens page
             </Link>
-            {" "}— check it before you order if you need to be certain.
+            {". "}Check it before you order if you need to be certain.
           </p>
 
           {/* Keeps the sticky bar from covering the last of the page. */}

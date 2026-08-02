@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: "%s · Juice Cartel",
   },
   description:
-    "Freshly made juices, milkshakes and desserts, delivered across Nottingham. Pressed the morning they go out. Elevate your day, the JC way.",
+    "Freshly made juices, milkshakes and desserts, delivered across Nottingham. Pressed the morning it reaches you, the JC way.",
   keywords: [
     "juice delivery Nottingham",
     "fresh juice Nottingham",

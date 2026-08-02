@@ -586,7 +586,9 @@ export function CinematicHero() {
             style={{ animationDelay: "0.18s" }}
           >
             <span className="text-foil block font-script text-5xl leading-[1.05] sm:text-6xl lg:text-7xl">
-              Elevate your day,
+              Pressed the morning
+              <br />
+              it reaches you,
             </span>
             <span className="text-foil mt-2 block font-display text-[2rem] leading-[1.05] font-medium tracking-[0.1em] sm:text-5xl lg:text-[3.25rem]">
               THE JC WAY
