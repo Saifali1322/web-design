@@ -115,7 +115,11 @@ export function SocialProof() {
       aria-labelledby="proof-heading"
       className="relative border-t border-ink-line py-16 sm:py-20 lg:py-24"
     >
-      <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
+      {/* Narrower than every other section on the page, and shorter. This is
+          the beat where the site admits it has nothing to show yet, and a
+          quieter beat should physically be a quieter shape rather than the
+          same band with less in it. */}
+      <div className="mx-auto w-full max-w-5xl px-5 sm:px-8">
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
             <div>
