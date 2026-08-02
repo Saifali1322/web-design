@@ -193,9 +193,12 @@ export default function SubscribePage() {
       </section>
 
       {/* ---------- Tiers ---------- */}
+      {/* max-w-5xl like every other section: three cards fit comfortably, and
+          a single left edge down the page is most of what "considered" looks
+          like. */}
       <section
         aria-labelledby="tiers"
-        className="mx-auto max-w-6xl px-5 py-10 sm:px-8"
+        className="mx-auto max-w-5xl px-5 py-10 sm:px-8"
       >
         <h2
           id="tiers"
@@ -359,9 +362,12 @@ export default function SubscribePage() {
       </section>
 
       {/* ---------- FAQ ---------- */}
+      {/* Section width matches the rest of the page so the left edge holds;
+          the list inside keeps a 3xl measure, because a 1024px-wide line of
+          body copy is a chore to read. */}
       <section
         aria-labelledby="faq"
-        className="mx-auto max-w-3xl px-5 pb-24 pt-10 sm:px-8"
+        className="mx-auto max-w-5xl px-5 pb-24 pt-10 sm:px-8"
       >
         <h2
           id="faq"
@@ -369,7 +375,7 @@ export default function SubscribePage() {
         >
           Questions, answered honestly
         </h2>
-        <div className="flex flex-col divide-y divide-ink-line border-y border-ink-line">
+        <div className="flex max-w-3xl flex-col divide-y divide-ink-line border-y border-ink-line">
           {faqs.map((item) => (
             <details key={item.q} className="group py-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-cream marker:content-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
@@ -387,7 +393,7 @@ export default function SubscribePage() {
             </details>
           ))}
         </div>
-        <p className="mt-6 text-sm text-cream-dim">
+        <p className="mt-6 max-w-3xl text-sm text-cream-dim">
           Anything else, message{" "}
           <a
             href={SOCIALS.instagram}

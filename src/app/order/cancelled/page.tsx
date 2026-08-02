@@ -88,11 +88,15 @@ export default function OrderCancelledPage() {
               </div>
             </div>
 
+            {/* sm:flex-1 rather than width alone — two full-width buttons in a
+                flex row still size to their labels, and a pair of unequal
+                slabs is the sort of thing that reads as unfinished. */}
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Button
                 variant="primary"
                 size="lg"
                 fullWidth
+                className="sm:flex-1"
                 onClick={openCart}
               >
                 Pick up where you left off
@@ -102,6 +106,7 @@ export default function OrderCancelledPage() {
                 variant="secondary"
                 size="lg"
                 fullWidth
+                className="sm:flex-1"
               >
                 Add something else
               </ButtonLink>
