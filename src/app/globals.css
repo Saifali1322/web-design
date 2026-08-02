@@ -145,6 +145,13 @@
     text-size-adjust: 100%;
     /* Overscroll past the top or bottom shows ink, not the browser's white. */
     background-color: var(--color-ink);
+    /* Deliberately NOT `overflow-x: clip` here. It looks like the tidy fix for
+     * the document reporting a wider scrollWidth than viewport, but any
+     * overflow value other than visible on <html> makes it the scrollport for
+     * every sticky descendant — and this site's header, and the allergen
+     * table's frozen first column, are sticky. Measured: it silently killed
+     * both. `overflow-x: hidden` on body already stops the page actually
+     * panning; see the note there. */
     /* Firefox and Chromium 121+. The webkit rules below cover Safari. */
     scrollbar-width: thin;
     scrollbar-color: var(--color-gold-deep) var(--color-ink-raised);
@@ -184,6 +191,17 @@
   ::selection {
     background: var(--color-gold);
     color: var(--color-ink);
+  }
+
+  /* Underlines, wherever one is drawn. The browser default sits on the
+     baseline and cuts through every descender; dropping it clear of them and
+     holding it to a hairline is the difference between a link that was set
+     and one that was left. Applies to any underlined link on the site,
+     including ones in components this file never sees. */
+  a {
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+    text-decoration-skip-ink: auto;
   }
 
   /* Focus ring.
