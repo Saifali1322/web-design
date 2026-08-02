@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SpinIt from "@/components/bottle3d/SpinIt";
 import BottleArt from "@/components/hero/BottleArt";
 import { useCart } from "@/components/cart/CartProvider";
@@ -12,6 +12,7 @@ import {
   type Product,
 } from "@/lib/catalogue";
 import { Button } from "./Button";
+import { useMotionEnv, useParallax } from "./motion";
 
 /* -------------------------------------------------------------------------
  * FoilImage
@@ -49,6 +50,8 @@ export interface FoilImageProps {
   uid: string;
   /** Varies condensation between cards so a grid does not look stamped. */
   seed?: number;
+  /** Total scroll-linked travel in px. 0, or a low-power device, disables it. */
+  parallax?: number;
 }
 
 export function FoilImage({
@@ -62,10 +65,20 @@ export function FoilImage({
   imageClassName = "",
   uid,
   seed = 1,
+  parallax = 0,
 }: FoilImageProps) {
   const [status, setStatus] = useState<"pending" | "loaded" | "failed">(
     "pending",
   );
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const env = useMotionEnv();
+
+  /* The subject drifts against its frame as the card crosses the viewport.
+     The transform is written straight to the node by the shared document
+     scroll engine — no state, no per-card loop, and nothing at all on a
+     phone or a four-core machine. The wrapper is inset past the frame at top
+     and bottom so the travel never exposes a seam. */
+  useParallax(mediaRef, parallax, env.parallaxEnabled && parallax > 0);
 
   return (
     <div className={`relative overflow-hidden bg-ink-card ${className}`}>
@@ -84,47 +97,80 @@ export function FoilImage({
         aria-hidden="true"
         className="absolute inset-0 bg-[linear-gradient(112deg,transparent_26%,rgba(243,218,139,0.08)_45%,transparent_63%)]"
       />
-      {/* Until a photograph exists, show the actual product — the bottle art
-          filled with this juice's own colour — not a ghosted logo. A 20%
-          opacity mark reads as a broken image slot, which is exactly what a
-          grid of them looked like while /public/products was empty. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 flex items-end justify-center"
-      >
-        <BottleArt
-          uid={`card-${uid}`}
-          accent={accent}
-          accentDeep={accentDeep}
-          height="86%"
-          width="auto"
-          seed={seed}
-          dropletCount={8}
-          labelDetail="mark"
-          arcs={false}
-          className="drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
-        />
-      </div>
 
-      {status !== "failed" && (
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          sizes={sizes}
-          priority={priority}
-          onLoad={() => setStatus("loaded")}
-          onError={() => setStatus("failed")}
-          className={`object-cover transition-opacity duration-1000 ease-out ${
-            status === "loaded" ? "opacity-100" : "opacity-0"
-          } ${imageClassName}`}
-        />
-      )}
+      {/* The subject. Everything that should move together on hover and on
+          scroll is inside this one wrapper — before, the photograph scaled
+          and the drawn bottle behind it stayed put, which read as two images
+          rather than one. */}
+      <div
+        ref={mediaRef}
+        className="absolute inset-x-0 -top-[3%] -bottom-[3%] [transition:scale_1200ms_var(--ease-out-quint)] group-hover:scale-[1.045]"
+      >
+        {/* Until a photograph exists, show the actual product — the bottle art
+            filled with this juice's own colour — not a ghosted logo. A 20%
+            opacity mark reads as a broken image slot, which is exactly what a
+            grid of them looked like while /public/products was empty. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 flex items-end justify-center"
+        >
+          <BottleArt
+            uid={`card-${uid}`}
+            accent={accent}
+            accentDeep={accentDeep}
+            height="86%"
+            width="auto"
+            seed={seed}
+            dropletCount={8}
+            labelDetail="mark"
+            arcs={false}
+            className="drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+          />
+        </div>
+
+        {status !== "failed" && (
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            sizes={sizes}
+            priority={priority}
+            onLoad={() => setStatus("loaded")}
+            onError={() => setStatus("failed")}
+            className={`object-cover transition-opacity duration-1000 ease-out ${
+              status === "loaded" ? "opacity-100" : "opacity-0"
+            } ${imageClassName}`}
+          />
+        )}
+      </div>
     </div>
   );
 }
 
 /* ---------------------------------------------------------------------- */
+
+/** Confirmation mark — draws itself on rather than appearing. */
+function Tick() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className="-ml-1 h-3.5 w-3.5 shrink-0"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M3 8.4 6.4 12 13 4.6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        pathLength={1}
+        className="tick-draw"
+      />
+    </svg>
+  );
+}
 
 export interface ProductCardProps {
   product: Product;
@@ -151,7 +197,12 @@ export function ProductCard({
 
   return (
     <article
-      className={`group relative flex h-full flex-col rounded-[2px] border border-ink-line bg-ink-card transition-colors duration-500 hover:border-gold-deep/70 focus-within:border-gold-deep/70 ${className}`}
+      /* Lifts with light rather than by growing: it rises 3px, the border
+         warms and a gold bloom appears beneath it. Scaling a card up on hover
+         enlarges its type along with it, and blurry type is the thing that
+         actually reads as cheap. focus-within gives a keyboard user exactly
+         the same treatment as a mouse. */
+      className={`group card-motion relative flex h-full flex-col rounded-[2px] border border-ink-line bg-ink-card hover:-translate-y-[3px] hover:border-gold-deep/70 hover:shadow-raise focus-within:-translate-y-[3px] focus-within:border-gold-deep/70 focus-within:shadow-raise ${className}`}
     >
       <div className="relative">
         <FoilImage
@@ -162,13 +213,13 @@ export function ProductCard({
           priority={priority}
           sizes="(max-width: 639px) 92vw, (max-width: 1023px) 44vw, 360px"
           className="aspect-[4/5] rounded-t-[2px]"
-          imageClassName="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
           uid={product.id}
           seed={product.id.length * 7 + product.name.length}
+          parallax={12}
         />
 
         {/* Category, set as a label rather than a badge — no pills. */}
-        <span className="pointer-events-none absolute left-0 top-4 bg-ink/80 py-1.5 pl-4 pr-3 font-sans text-[0.625rem] tracking-label text-gold uppercase backdrop-blur-sm">
+        <span className="pointer-events-none absolute left-0 top-4 bg-ink/80 py-1.5 pl-4 pr-3 font-sans text-2xs tracking-label text-gold uppercase backdrop-blur-sm">
           {categoryLabel[product.category]}
         </span>
 
@@ -182,12 +233,12 @@ export function ProductCard({
         {(product.seasonal || product.bestseller) && (
           <div className="pointer-events-none absolute bottom-0 right-0 flex">
             {product.seasonal && (
-              <span className="bg-ink/85 px-3 py-1.5 font-sans text-[0.625rem] tracking-label text-cream-dim uppercase backdrop-blur-sm">
+              <span className="bg-ink/85 px-3 py-1.5 font-sans text-2xs tracking-label text-cream-dim uppercase backdrop-blur-sm">
                 Seasonal
               </span>
             )}
             {product.bestseller && (
-              <span className="bg-ink/85 px-3 py-1.5 font-sans text-[0.625rem] tracking-label text-gold-bright uppercase backdrop-blur-sm">
+              <span className="bg-ink/85 px-3 py-1.5 font-sans text-2xs tracking-label text-gold-bright uppercase backdrop-blur-sm">
                 Bestseller
               </span>
             )}
@@ -214,20 +265,23 @@ export function ProductCard({
         {/* `size` is a spec line, not a volume — it reads "330ml" on a juice,
             "35g+ protein" on a shake and "Single tub" on a bake, so it is
             shown verbatim rather than assumed to be a measure. */}
-        <p className="numeric text-[0.6875rem] tracking-[0.1em] text-cream-faint uppercase">
+        <p className="numeric text-label tracking-[0.1em] text-cream-faint uppercase">
           {product.size} · Keeps {product.keepsDays} days chilled
         </p>
 
         {/* Allergens are a legal requirement at the point of order, not a
             detail to bury on a product page. */}
-        <p className="mt-1.5 min-h-[1.1rem] text-[0.6875rem] leading-relaxed text-cream-faint">
+        <p className="mt-1.5 min-h-[1.1rem] text-label leading-relaxed text-cream-faint">
           {allergens ? `Contains ${allergens.toLowerCase()}` : "No declared allergens"}
         </p>
 
         <div className="mt-5 flex-1" />
 
+        {/* Confirmation is a state change on the control that was pressed: it
+            fills with foil for two seconds and the tick draws on. A toast
+            somewhere else on the page makes people hunt for what happened. */}
         <Button
-          variant="secondary"
+          variant={justAdded ? "primary" : "secondary"}
           size="md"
           fullWidth
           onClick={() => {
@@ -235,7 +289,14 @@ export function ProductCard({
             setJustAdded(true);
           }}
         >
-          {justAdded ? "Added" : "Add to basket"}
+          {justAdded ? (
+            <>
+              <Tick />
+              Added
+            </>
+          ) : (
+            "Add to basket"
+          )}
         </Button>
 
         <span aria-live="polite" className="sr-only">

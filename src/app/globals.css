@@ -6,6 +6,11 @@
  * This is a deliberately single-theme design. The identity is gold foil on
  * near-black across every existing asset (labels, flyers, logo); a light mode
  * would not be the same brand, so the palette is committed rather than themed.
+ *
+ * Everything below is the shared vocabulary: colour, type scale, easing,
+ * duration, elevation. Components should reach for these rather than invent
+ * one-off values — the tell of a cheap site is nine slightly different label
+ * sizes, not the absence of effects.
  */
 
 @theme {
@@ -19,12 +24,20 @@
   --color-gold: #d4a63c;
   --color-gold-bright: #f3da8b;
   --color-gold-deep: #8a6015;
+  /* Border tone. Too dark to set type in — see `.text-gold-dim` in the
+     utilities layer, which redirects the text use to `--color-gold-label`. */
   --color-gold-dim: #6b5220;
+  /* The dimmest gold that still clears AA on every ground we use (4.69:1 on
+     ink-card, the worst case). Use this for small gold labels. */
+  --color-gold-label: #a07a2c;
 
   /* Type */
   --color-cream: #f7f1e4;
   --color-cream-dim: #b8ad99;
-  --color-cream-faint: #7d7466;
+  /* Was #7d7466, which failed AA on all three grounds (4.02:1 on ink-card)
+     and accounted for 363 of the 376 contrast failures on the site. This
+     lifts it to 4.97:1 at the worst case while keeping the same warm hue. */
+  --color-cream-faint: #8d8374;
 
   /* Semantic */
   --color-fresh: #7fbf5a;
@@ -34,38 +47,225 @@
   --font-script: var(--font-parisienne), cursive;
   --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
 
+  /* --------------------------------------------------------------------- *
+   * Type scale
+   *
+   * One scale, with line-height and tracking paired to every step. Display
+   * sizes are fluid so a 4xl heading is not the same 36px on a 390px phone
+   * as on a 1440px desktop, and they tighten as they grow — Playfair is a
+   * Didone and wants negative tracking and a short leading at display size,
+   * which is most of the difference between "set" and "defaulted".
+   * --------------------------------------------------------------------- */
+
+  /* Micro labels. The site had nine hand-picked sizes between 0.5625rem and
+     0.7rem; these are the two steps they collapse onto. */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 1.45;
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1.45;
+
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.65;
+  --text-base: 1rem;
+  --text-base--line-height: 1.7;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.6;
+
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.4;
+  --text-xl--letter-spacing: -0.005em;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.26;
+  --text-2xl--letter-spacing: -0.01em;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 1.18;
+  --text-3xl--letter-spacing: -0.014em;
+
+  --text-4xl: clamp(2.1rem, 1.62rem + 2vw, 2.6rem);
+  --text-4xl--line-height: 1.1;
+  --text-4xl--letter-spacing: -0.018em;
+  --text-5xl: clamp(2.6rem, 1.9rem + 2.9vw, 3.4rem);
+  --text-5xl--line-height: 1.06;
+  --text-5xl--letter-spacing: -0.021em;
+  --text-6xl: clamp(3.1rem, 2.2rem + 3.8vw, 4.2rem);
+  --text-6xl--line-height: 1.02;
+  --text-6xl--letter-spacing: -0.024em;
+  --text-7xl: clamp(3.6rem, 2.3rem + 5.4vw, 5.2rem);
+  --text-7xl--line-height: 0.98;
+  --text-7xl--letter-spacing: -0.027em;
+
+  /* --------------------------------------------------------------------- *
+   * Motion
+   *
+   * Four curves, and nothing else. `out-quint` is the workhorse (it is what
+   * the hero and the cart drawer already use); `out-expo` is for arrivals,
+   * where the long tail is what makes a thing feel weighty; `out-back` is
+   * the only curve allowed to overshoot, and only on small objects.
+   * --------------------------------------------------------------------- */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.42, 0.64, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* Durations. Press is deliberately far shorter than release: a control has
+     to feel like it answers instantly and relaxes slowly. */
+  --dur-press: 90ms;
+  --dur-quick: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 560ms;
+  --dur-entrance: 980ms;
+  --dur-entrance-fade: 620ms;
+
+  /* Elevation. Gold sites lift with light, not with a bigger grey blur. */
   --shadow-gold: 0 0 60px -15px rgba(212, 166, 60, 0.45);
   --shadow-lift: 0 24px 60px -30px rgba(0, 0, 0, 0.95);
+  --shadow-raise:
+    0 32px 64px -34px rgba(0, 0, 0, 0.98),
+    0 0 48px -22px rgba(212, 166, 60, 0.32);
+
+  /* Rhythm. Sections share one vertical step so the page has a pulse. */
+  --space-section: clamp(3.5rem, 2.6rem + 3.8vw, 6.5rem);
+  --space-section-tight: clamp(2.5rem, 2rem + 2.2vw, 4rem);
+
+  /* Line length. 66ch is the readable maximum for this face at body size. */
+  --measure: 66ch;
+  --measure-tight: 52ch;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* The header is sticky; without this an in-page anchor lands underneath
+       it and the heading you asked for is the one thing you cannot see. */
+    scroll-padding-top: 5.25rem;
     -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Overscroll past the top or bottom shows ink, not the browser's white. */
+    background-color: var(--color-ink);
+    /* Firefox and Chromium 121+. The webkit rules below cover Safari. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gold-deep) var(--color-ink-raised);
   }
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
+
   body {
     background-color: var(--color-ink);
     color: var(--color-cream);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    /* A long unbroken string (an email, a postcode paste) must wrap rather
+       than push the page sideways. */
+    overflow-wrap: break-word;
   }
+
+  /* Headings balance, body copy avoids orphans. Two lines of CSS that do more
+     for perceived typesetting quality than any amount of tracking fiddling. */
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+
   ::selection {
     background: var(--color-gold);
     color: var(--color-ink);
   }
+
+  /* Focus ring.
+   *
+   * Built from an outline *and* a two-stop box-shadow on purpose. Several
+   * inputs in the app set `focus:outline-none` and rely on a border colour
+   * change, which is not enough on its own — the shadow survives that and
+   * keeps the ring visible everywhere. The inner ink stop fills the outline
+   * offset so the ring still reads when the focused control is itself gold. */
   :focus-visible {
-    outline: 2px solid var(--color-gold);
-    outline-offset: 3px;
-    border-radius: 2px;
+    outline: 2px solid var(--color-gold-bright);
+    outline-offset: 2px;
+    box-shadow:
+      0 0 0 2px var(--color-ink),
+      0 0 0 5px rgba(243, 218, 139, 0.3);
+  }
+  /* Deliberately no border-radius here: the outline already follows the
+     element's own corners, and forcing one squares off anything round. */
+
+  input, textarea, select {
+    caret-color: var(--color-gold);
+  }
+
+  ::placeholder {
+    color: var(--color-cream-faint);
+    opacity: 1;
+  }
+
+  li::marker {
+    color: var(--color-gold-deep);
+  }
+
+  /* Anchored headings clear the sticky header too. */
+  :target {
+    scroll-margin-top: 5.25rem;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink-raised);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-gold-deep);
+    border: 2px solid var(--color-ink-raised);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold);
+  }
+  ::-webkit-scrollbar-corner {
+    background: var(--color-ink-raised);
+  }
+
+  /* ------------------------------------------------------------------- *
+   * Reduced motion
+   *
+   * The rule is not "turn the animations off and hope". Every entrance on
+   * this site starts from a hidden state, so switching motion off has to
+   * also force the *finished* state, or the page reads as broken and empty.
+   * That is what the second block does, and it is why reduced motion here
+   * produces a still, complete, fully composed site.
+   * ------------------------------------------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    /* Land every scroll reveal, route arrival and drawn rule in its end
+       state regardless of whether JavaScript ever ran. */
+    [data-reveal] {
+      opacity: 1 !important;
+      transform: none !important;
+      clip-path: none !important;
+    }
+    .route-enter,
+    .route-enter-flat {
+      animation: none !important;
+    }
+    /* The pending spinner is the one exception. It is 14px, it does not
+       travel, and an indicator that has stopped moving reads as a hung
+       request — which is worse than the motion it avoids. */
+    [data-spinner] {
+      animation: spin 1.1s linear infinite !important;
+    }
   }
 }
 
@@ -106,6 +306,21 @@
     letter-spacing: 0.22em;
   }
 
+  /* Warm glow from the top of a section — plus real grain.
+   *
+   * The grain is not decoration. A wide, very dark gradient banks visibly on
+   * an 8-bit panel, and a 64px tile of 4-bit noise is the standard fix; it
+   * also happens to be what stops a black page looking like a black
+   * rectangle. It is a static bitmap on a static element, so it costs one
+   * paint and never re-rasterises. */
+  /* Warm glow from the top of a section.
+   *
+   * This carried a tiled noise layer for a while, to break up the banding a
+   * very dark wide gradient shows on an 8-bit panel. It came out: the class
+   * is applied to width-constrained sections on several pages as well as to
+   * full-page wrappers, and any texture confined to a narrow box draws its
+   * own edges. Grain here needs to be one viewport-wide layer or nothing,
+   * and nothing is the honest trade for now. */
   .bg-grain {
     background-image:
       radial-gradient(
@@ -118,7 +333,189 @@
   .numeric {
     font-variant-numeric: tabular-nums;
   }
+
+  /* `gold-dim` is a border tone — as type it lands at 2.52:1. The handful of
+     call sites that set text in it live in other components, so the fix is
+     here: the *text* utility resolves to the readable gold, the border
+     utility is untouched. */
+  .text-gold-dim {
+    color: var(--color-gold-label);
+  }
+
+  /* Nine micro sizes, eyeballed one at a time, collapsed onto the two real
+     steps of the scale. These overrides exist because the call sites are
+     spread across components owned elsewhere; as they move to `text-2xs` and
+     `text-label` the rules below can be deleted one by one. */
+  .text-\[0\.5625rem\],
+  .text-\[0\.6rem\],
+  .text-\[0\.62rem\],
+  .text-\[0\.625rem\] {
+    font-size: var(--text-2xs);
+  }
+  .text-\[0\.65rem\],
+  .text-\[0\.68rem\],
+  .text-\[0\.6875rem\],
+  .text-\[0\.7rem\] {
+    font-size: var(--text-label);
+  }
+
+  /* ------------------------------------------------------------------- *
+   * Rhythm
+   * ------------------------------------------------------------------- */
+  .section-y {
+    padding-block: var(--space-section);
+  }
+  .section-y-tight {
+    padding-block: var(--space-section-tight);
+  }
+  .measure {
+    max-width: var(--measure);
+  }
+  .measure-tight {
+    max-width: var(--measure-tight);
+  }
+  /* Vertical rhythm inside a block of prose, without a margin on every child. */
+  .stack > * + * {
+    margin-top: 1.1em;
+  }
+
+  /* ------------------------------------------------------------------- *
+   * Micro-interactions
+   * ------------------------------------------------------------------- */
+
+  /* Interaction motion.
+   *
+   * These own the whole `transition` declaration for the elements they are
+   * put on, which is why the components using them carry no `transition-*`
+   * Tailwind class: the shorthand and the utilities would each reset the
+   * other's longhands and whichever landed later in the cascade would win.
+   * One class, one source of truth, and the freedom to give each property
+   * its own duration — which is the actual point.
+   *
+   * The asymmetry is what sells a press. The control answers in 90ms and
+   * relaxes over 560ms, because that is what a physical control does. */
+  .btn-motion {
+    transition-property:
+      background-position, background-color, border-color, color, box-shadow,
+      scale, filter, opacity;
+    /* The foil slide is deliberately the slow one — it is light travelling
+       across metal, not a state change. */
+    transition-duration:
+      900ms, var(--dur-base), var(--dur-base), var(--dur-base), var(--dur-base),
+      var(--dur-slow), var(--dur-base), var(--dur-base);
+    transition-timing-function: var(--ease-out-quint);
+  }
+  .btn-motion:active {
+    scale: 0.972;
+    filter: brightness(1.06);
+    transition-duration: var(--dur-press);
+  }
+
+  /* A card is heavier than a button: it moves further and slower, and it
+     lifts rather than shrinking. Pressing one barely moves it at all. */
+  .card-motion {
+    transition-property: border-color, box-shadow, translate, scale, background-color;
+    transition-duration: var(--dur-slow);
+    transition-timing-function: var(--ease-out-quint);
+  }
+  .card-motion:active {
+    scale: 0.994;
+    transition-duration: var(--dur-press);
+  }
+
+  /* Standalone press, for elements that carry no other transition utility. */
+  .press {
+    transition-property: scale, filter;
+    transition-duration: var(--dur-slow);
+    transition-timing-function: var(--ease-out-quint);
+  }
+  .press:active {
+    scale: 0.972;
+    transition-duration: var(--dur-press);
+  }
+
+  /* Specular highlight that tracks the pointer. The component writes --px /
+     --py straight onto the node on pointermove — no React state, no frame
+     loop — and this only ever renders on devices that actually have a
+     pointer. */
+  @media (hover: hover) and (pointer: fine) {
+    .spec::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      /* Between the fill and the label, never over the type. Relies on the
+         host carrying `isolate`. */
+      z-index: -1;
+      background: radial-gradient(
+        7rem circle at var(--px, 50%) var(--py, 50%),
+        rgba(255, 255, 255, 0.34),
+        transparent 60%
+      );
+      opacity: 0;
+      transition: opacity var(--dur-base) var(--ease-out-quint);
+    }
+    .spec:hover::after {
+      opacity: 1;
+    }
+    /* On dark variants the same light has to be gold, not white, or it reads
+       as a grey smudge on black. */
+    .spec-gold::after {
+      background: radial-gradient(
+        8rem circle at var(--px, 50%) var(--py, 50%),
+        rgba(212, 166, 60, 0.16),
+        transparent 62%
+      );
+    }
+  }
+
+  /* Considered underline: sits clear of the descenders, and draws in from
+     the left rather than blinking on. */
+  .link-quiet {
+    background-image: linear-gradient(
+      currentColor,
+      currentColor
+    );
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition:
+      background-size var(--dur-base) var(--ease-out-quint),
+      color var(--dur-base) var(--ease-out-quint);
+    padding-bottom: 0.12em;
+  }
+  .link-quiet:hover,
+  .link-quiet:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* Skeleton shimmer for anything that can be slow. */
+  .shimmer {
+    background:
+      linear-gradient(
+        100deg,
+        transparent 20%,
+        rgba(243, 218, 139, 0.07) 42%,
+        rgba(243, 218, 139, 0.12) 50%,
+        rgba(243, 218, 139, 0.07) 58%,
+        transparent 80%
+      )
+      0 0 / 220% 100% no-repeat;
+    animation: shimmer 1.9s var(--ease-in-out-quart) infinite;
+  }
+
+  /* Only paint the parts of a long list that are actually near the viewport.
+     Cheap win on the allergen table and the full menu grid. */
+  .contain-list {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
+  }
 }
+
+/* ===================================================================== *
+ * Keyframes
+ * ===================================================================== */
 
 /* Marquee used on the trust bar — pauses for reduced-motion users. */
 @keyframes marquee {
@@ -134,5 +531,143 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-rise {
-  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise 0.7s var(--ease-out-quint) both;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  from { background-position: 220% 0; }
+  to { background-position: -120% 0; }
+}
+
+/* The confirmation tick draws itself on. `pathLength="1"` normalises the
+   path so the dash maths is the same whatever the glyph. Under reduced
+   motion the global duration collapse lands it fully drawn, which is the
+   correct still state rather than an invisible one. */
+@keyframes draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+.tick-draw {
+  stroke-dasharray: 1;
+  animation: draw 420ms var(--ease-out-quint) both;
+}
+
+/* --------------------------------------------------------------------- *
+ * Scroll reveals
+ *
+ * The state lives in a data attribute so the whole vocabulary is here in
+ * the design system rather than in inline styles, and so the reduced-motion
+ * and no-JavaScript answers can be pure CSS.
+ *
+ * Opacity resolves faster than transform on purpose. Things that fade in
+ * and settle at the same instant read as a CSS transition; things that are
+ * visible while they are still coming to rest read as weight.
+ * --------------------------------------------------------------------- */
+[data-reveal] {
+  transition-property: opacity, transform, clip-path;
+  transition-duration:
+    var(--dur-entrance-fade),
+    var(--dur-entrance),
+    var(--dur-entrance);
+  transition-timing-function: var(--ease-out-expo);
+}
+[data-reveal="in"] {
+  opacity: 1;
+  transform: none;
+  clip-path: none;
+}
+[data-reveal="out"] {
+  opacity: 0;
+}
+/* Instant mode: shown with no transition at all (reduced motion, no IO). */
+[data-reveal-instant] {
+  transition: none !important;
+}
+
+/* Entrances, by what is arriving. */
+[data-reveal="out"][data-reveal-variant="rise"] {
+  transform: translate3d(0, var(--reveal-distance, 20px), 0) scale(0.994);
+}
+[data-reveal="out"][data-reveal-variant="fade"] {
+  transform: none;
+}
+/* Type: drops in slightly oversized and settles down to weight. */
+[data-reveal="out"][data-reveal-variant="settle"] {
+  transform: translate3d(0, calc(var(--reveal-distance, 20px) * 0.5), 0)
+    scale(1.014);
+}
+/* Cards: further, slower, and from smaller — they should feel heavier. */
+[data-reveal="out"][data-reveal-variant="lift"] {
+  transform: translate3d(0, calc(var(--reveal-distance, 20px) * 1.5), 0)
+    scale(0.965);
+}
+[data-reveal="out"][data-reveal-variant="sweep"] {
+  transform: translate3d(calc(var(--reveal-distance, 20px) * -1.5), 0, 0);
+}
+/* Rules draw themselves rather than fading. */
+[data-reveal="out"][data-reveal-variant="rule"] {
+  opacity: 1;
+  transform: scaleX(0);
+}
+[data-reveal-variant="rule"] {
+  transform-origin: 50% 50%;
+}
+/* Masked wipe, for images and single lines of display type. */
+[data-reveal="out"][data-reveal-variant="mask"] {
+  opacity: 1;
+  clip-path: inset(0 0 100% 0);
+}
+
+/* --------------------------------------------------------------------- *
+ * Route transitions
+ *
+ * `route-in` moves the arriving page; `route-in-flat` only fades it. The
+ * flat variant is not a fallback for weak devices — it is what any page
+ * containing `position: fixed` chrome gets, because an animating transform
+ * on an ancestor re-parents fixed children and the mixer's bottom bar would
+ * ride up the page for the length of the animation. RouteTransition picks
+ * between them by looking for fixed descendants.
+ * --------------------------------------------------------------------- */
+@keyframes route-in {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes route-in-flat {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* `backwards` rather than `both`: once the arrival is over the element must
+   hold no transform at all, or it stays a containing block for good. */
+.route-enter {
+  animation: route-in var(--dur-slow) var(--ease-out-expo) backwards;
+}
+.route-enter-flat {
+  animation: route-in-flat var(--dur-base) var(--ease-out-quint) backwards;
+}
+
+/* Navigation progress. scaleX on a promoted layer, so the bar costs nothing
+   per frame; the deceleration is what makes an indeterminate bar feel like it
+   is reporting something rather than looping. */
+@keyframes nav-progress {
+  0% { transform: scaleX(0); }
+  28% { transform: scaleX(0.36); }
+  62% { transform: scaleX(0.68); }
+  100% { transform: scaleX(0.94); }
+}
+.nav-progress {
+  transform: scaleX(0);
+  opacity: 0;
+}
+.nav-progress[data-state="loading"] {
+  opacity: 1;
+  /* Long and heavily decelerated: it should never look like it is about to
+     finish, because it does not know when it will. */
+  animation: nav-progress 9s var(--ease-out-expo) forwards;
+}
+.nav-progress[data-state="done"] {
+  opacity: 1;
 }

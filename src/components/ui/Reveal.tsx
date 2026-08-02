@@ -1,20 +1,151 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+import { prefersReducedMotion } from "./motion";
 
 /**
- * Scroll reveal. Deliberately small: one observer per element, disconnected
- * the moment it fires, no scroll listeners.
+ * Scroll reveal.
  *
- * Two escape hatches matter here:
- *  - prefers-reduced-motion: content is shown immediately, no transition.
+ * Two things changed from the original blunt fade-up.
+ *
+ * First, entrances vary by what is arriving. A heading, a card, a hairline
+ * rule and a paragraph are not the same object and should not enter the same
+ * way — a card is heavy and comes further from below, a heading settles down
+ * onto its baseline from slightly oversize, a rule draws itself rather than
+ * fading. `variant` picks; the actual transforms live in globals.css so the
+ * vocabulary is in the design system rather than scattered in inline styles.
+ *
+ * Second, the observers are shared. There is one IntersectionObserver and one
+ * rAF-throttled scroll backstop for the entire document no matter how many
+ * reveals are mounted — the previous version added a scroll listener and an
+ * observer per instance, which on the menu page meant about thirty of each.
+ *
+ * The escape hatches that mattered still matter:
+ *  - prefers-reduced-motion: content is shown immediately, no transition, no
+ *    stagger. globals.css also forces the finished state in CSS, so the page
+ *    is composed even if this component never runs.
  *  - no JavaScript: the hidden state is a class, so pages that use Reveal
  *    should ship the <noscript> rule in `revealNoScriptCss` (see page.tsx),
  *    otherwise a scripting-disabled browser would see empty sections.
  */
 
 export const revealNoScriptCss =
-  "[data-reveal]{opacity:1!important;transform:none!important}";
+  "[data-reveal]{opacity:1!important;transform:none!important;clip-path:none!important}";
+
+export type RevealVariant =
+  | "rise"
+  | "fade"
+  | "settle"
+  | "lift"
+  | "sweep"
+  | "rule"
+  | "mask";
+
+/* ------------------------------------------------------------------ *
+ * Shared observation — one observer and one backstop for the document
+ * ------------------------------------------------------------------ */
+
+type Show = () => void;
+
+const waiting = new Map<Element, Show>();
+let observer: IntersectionObserver | null = null;
+let bound = false;
+let checkFrame: number | null = null;
+
+/** Collect first, then fire: `show` deletes from the map we are iterating. */
+function fire(targets: Element[]): void {
+  for (const el of targets) {
+    const show = waiting.get(el);
+    if (!show) continue;
+    unwatch(el);
+    show();
+  }
+}
+
+function runCheck(): void {
+  checkFrame = null;
+  if (waiting.size === 0) return;
+  const vh = window.innerHeight;
+  const due: Element[] = [];
+  /* Read every box before showing anything, so a page full of reveals costs
+     one layout pass rather than one per element. */
+  for (const el of waiting.keys()) {
+    if (el.getBoundingClientRect().top < vh) due.push(el);
+  }
+  fire(due);
+}
+
+function scheduleCheck(): void {
+  if (checkFrame !== null) return;
+  checkFrame = requestAnimationFrame(runCheck);
+}
+
+function bindBackstop(): void {
+  if (bound) return;
+  bound = true;
+  /* IntersectionObserver only reports when the intersecting flag *changes*,
+     so an element that moves from below the fold to above it inside a single
+     frame — a restored scroll position, an in-page anchor, a very fast flick
+     — can be skipped entirely and would then sit at opacity 0 for good. */
+  window.addEventListener("scroll", scheduleCheck, { passive: true });
+  window.addEventListener("resize", scheduleCheck, { passive: true });
+}
+
+function unbindBackstop(): void {
+  if (!bound) return;
+  bound = false;
+  window.removeEventListener("scroll", scheduleCheck);
+  window.removeEventListener("resize", scheduleCheck);
+  observer?.disconnect();
+  observer = null;
+  if (checkFrame !== null) cancelAnimationFrame(checkFrame);
+  checkFrame = null;
+}
+
+function unwatch(el: Element): void {
+  waiting.delete(el);
+  observer?.unobserve(el);
+  if (waiting.size === 0) unbindBackstop();
+}
+
+function watch(el: Element, show: Show): () => void {
+  if (!observer) {
+    observer = new IntersectionObserver(
+      (records) => {
+        const due: Element[] = [];
+        for (const record of records) {
+          // Reveal on entry, but also if the element is already level with or
+          // above the viewport — otherwise anything scrolled past between
+          // observer frames never gets a second chance.
+          const rootBottom = record.rootBounds?.bottom ?? window.innerHeight;
+          const alreadyPassed = record.boundingClientRect.top < rootBottom;
+          if (record.isIntersecting || alreadyPassed) due.push(record.target);
+        }
+        fire(due);
+      },
+      // threshold 0 so a single overlapping pixel counts; a tall section must
+      // not have to get 8% of its own height on screen before it appears.
+      { threshold: 0, rootMargin: "0px 0px -40px 0px" },
+    );
+  }
+  waiting.set(el, show);
+  observer.observe(el);
+  bindBackstop();
+  return () => unwatch(el);
+}
+
+/* ------------------------------------------------------------------ *
+ * Reveal
+ * ------------------------------------------------------------------ */
 
 export interface RevealProps {
   children: ReactNode;
@@ -22,17 +153,23 @@ export interface RevealProps {
   delay?: number;
   /** Distance travelled on the way in, in pixels. */
   distance?: number;
+  /** How this thing should arrive. See the variants in globals.css. */
+  variant?: RevealVariant;
   /** Renders an <li> instead of a <div> so lists stay valid. */
-  as?: "div" | "li";
+  as?: "div" | "li" | "span" | "section";
   className?: string;
+  /** Set by RevealGroup to stagger and vary a run of siblings. */
+  index?: number;
 }
 
 export function Reveal({
   children,
-  delay = 0,
+  delay,
   distance = 20,
+  variant,
   as = "div",
   className = "",
+  index,
 }: RevealProps) {
   const nodeRef = useRef<HTMLElement | null>(null);
   const [shown, setShown] = useState(false);
@@ -43,103 +180,89 @@ export function Reveal({
     const node = nodeRef.current;
     if (!node) return;
 
-    const reduced =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (reduced || typeof IntersectionObserver === "undefined") {
+    if (prefersReducedMotion() || typeof IntersectionObserver === "undefined") {
       setInstant(true);
       setShown(true);
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          // Reveal on entry, but also if the element is already level with or
-          // above the viewport. Without that second case anything scrolled
-          // past between observer frames — a flicked phone, a deep link, a
-          // restored scroll position — would stay at opacity 0 forever, since
-          // the observer disconnects and never gets another chance.
-          const rootBottom = entry.rootBounds?.bottom ?? window.innerHeight;
-          const alreadyPassed = entry.boundingClientRect.top < rootBottom;
-          if (!entry.isIntersecting && !alreadyPassed) continue;
-          setShown(true);
-          observer.disconnect();
-        }
-      },
-      // threshold 0 so a single overlapping pixel counts; a tall section must
-      // not have to get 8% of its own height on screen before it appears.
-      { threshold: 0, rootMargin: "0px 0px -40px 0px" },
-    );
-
-    observer.observe(node);
-
-    // Backstop. IntersectionObserver only reports when the intersecting flag
-    // *changes*, so an element that moves from below the fold to above it
-    // within a single frame — a restored scroll position, an in-page anchor,
-    // a very fast flick — can be skipped entirely and would then stay at
-    // opacity 0 for good. This passive check costs nothing and unbinds itself
-    // the moment the element is shown.
-    let done = false;
-    const stop = () => {
-      done = true;
-      observer.disconnect();
-      window.removeEventListener("scroll", check);
-      window.removeEventListener("resize", check);
-    };
-    function check() {
-      if (done) return;
-      // Top edge has reached the bottom of the viewport: it is either on
-      // screen or already above it. Either way it must be visible.
-      if (node!.getBoundingClientRect().top < window.innerHeight) {
-        setShown(true);
-        stop();
-      }
-    }
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check, { passive: true });
-
-    return stop;
+    return watch(node, () => setShown(true));
   }, []);
 
   const setRef = (node: HTMLElement | null) => {
     nodeRef.current = node;
   };
 
-  const classes = [
-    instant
-      ? ""
-      : "transition-[opacity,transform] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-    // Offset is driven by the inline `transform` below, not a translate
-    // utility — Tailwind v4 writes those to the separate `translate`
-    // property, which this transition does not list.
-    shown ? "opacity-100" : "opacity-0",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  /* A run of siblings alternates between two closely related entrances, so a
+     grid never arrives as one rubber-stamped wave. The pair is chosen to
+     differ in weight, not direction — alternating left/right would read as a
+     gimmick, alternating how far and how heavily reads as hand-placed. */
+  const resolved: RevealVariant =
+    variant ?? (index !== undefined && index % 2 === 1 ? "lift" : "rise");
 
-  const style = {
-    // The global reduced-motion rule zeroes durations but not delays, so the
-    // stagger has to be dropped here or the content just arrives late.
-    transitionDelay: delay && !instant ? `${delay}s` : undefined,
-    transform: shown ? undefined : `translateY(${distance}px)`,
+  const stagger = delay ?? (index !== undefined ? index * 0.07 : 0);
+
+  const style: React.CSSProperties & Record<string, string | number> = {
+    "--reveal-distance": `${distance}px`,
+  };
+  // The global reduced-motion rule zeroes durations but not delays, so the
+  // stagger has to be dropped here or the content just arrives late.
+  if (stagger && !instant) style.transitionDelay = `${stagger}s`;
+
+  const props = {
+    ref: setRef,
+    "data-reveal": shown ? "in" : "out",
+    "data-reveal-variant": resolved,
+    ...(instant ? { "data-reveal-instant": "" } : null),
+    className: className || undefined,
+    style,
   };
 
-  if (as === "li") {
-    return (
-      <li ref={setRef} data-reveal={shown ? "in" : "out"} className={classes} style={style}>
-        {children}
-      </li>
-    );
-  }
+  if (as === "li") return <li {...props}>{children}</li>;
+  if (as === "span") return <span {...props}>{children}</span>;
+  if (as === "section") return <section {...props}>{children}</section>;
+  return <div {...props}>{children}</div>;
+}
 
-  return (
-    <div ref={setRef} data-reveal={shown ? "in" : "out"} className={classes} style={style}>
-      {children}
-    </div>
-  );
+/* ------------------------------------------------------------------ *
+ * RevealGroup
+ * ------------------------------------------------------------------ */
+
+export interface RevealGroupProps {
+  children: ReactNode;
+  /** Seconds between siblings. Keep it under 0.1 or the tail drags. */
+  stagger?: number;
+  className?: string;
+  as?: "div" | "ul" | "ol";
+}
+
+/**
+ * Wraps a run of Reveals and hands each one its position, so they stagger and
+ * alternate without every call site having to hand-type a delay. Children
+ * that already set `delay` or `variant` keep what they were given.
+ */
+export function RevealGroup({
+  children,
+  stagger = 0.07,
+  className = "",
+  as = "div",
+}: RevealGroupProps) {
+  let i = 0;
+  const indexed = Children.map(children, (child) => {
+    if (!isValidElement(child)) return child;
+    const el = child as ReactElement<RevealProps>;
+    if (el.props?.index !== undefined) return child;
+    const next = i++;
+    return cloneElement(el, {
+      index: next,
+      delay: el.props?.delay ?? next * stagger,
+    });
+  });
+
+  const props = { className: className || undefined };
+  if (as === "ul") return <ul {...props}>{indexed}</ul>;
+  if (as === "ol") return <ol {...props}>{indexed}</ol>;
+  return <div {...props}>{indexed}</div>;
 }
 
 export default Reveal;
