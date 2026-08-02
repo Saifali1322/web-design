@@ -12,7 +12,7 @@ export function SubscriptionTeaser() {
   return (
     <section
       aria-labelledby="subscribe-heading"
-      className="relative isolate overflow-hidden border-t border-ink-line py-20 sm:py-28 lg:py-32"
+      className="relative isolate overflow-hidden border-t border-ink-line py-24 sm:py-32 lg:py-36"
     >
       <div
         aria-hidden="true"
@@ -43,25 +43,25 @@ export function SubscriptionTeaser() {
               less than buying it bottle by bottle.
             </p>
 
-            {/* The discount is the obvious question and the honest answer is
-                an operational one, not a marketing one. Saying where the money
-                comes from is more persuasive than the number itself. */}
+            {/* The discount is the obvious question, and the honest answer is
+                an operational one rather than a marketing one. Saying where the
+                money comes from is more persuasive than the number itself. */}
             <p className="mt-4 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
               <span className="text-cream">
                 That saving is not a discount we swallow.
               </span>{" "}
               Knowing exactly how many bottles are going out before the fruit
-              gets bought means nothing is pressed on spec and nothing is thrown
-              away. The box genuinely costs less to make, so it costs less to
-              buy.
+              gets bought means nothing is pressed on spec and nothing goes in
+              the bin. The box costs less to make. That is the entire reason it
+              costs less to buy.
             </p>
 
             <ul className="mt-7 space-y-3">
               {[
                 `Free delivery across ${DELIVERY.city}, every week`,
                 "Change flavours any week, up to Thursday",
-                "Skip a week if you are away",
-                "No contract, no notice, no cancellation fee",
+                "Skip a week if you are away, and skip the payment with it",
+                "No contract, no notice period, no cancellation fee",
               ].map((point) => (
                 <li
                   key={point}
@@ -147,8 +147,8 @@ export function SubscriptionTeaser() {
               <p className="mt-6 text-sm leading-relaxed font-light text-cream-faint">
                 Struck-through prices are the same items bought one at a time
                 off the menu, not an invented list price. Payment is taken
-                weekly by card ahead of the {DELIVERY.dropDay} run, and you can
-                stop it at any point before the next one.{" "}
+                weekly by card ahead of the {DELIVERY.dropDay}{" "}
+                run, and you can stop it at any point before the next one.{" "}
                 <Link
                   href="/faq#subscription"
                   className="text-gold underline underline-offset-4 transition-colors hover:text-gold-bright"

@@ -43,8 +43,11 @@ function TailNote({
   children: ReactNode;
 }) {
   return (
-    <li className="flex sm:col-span-2">
-      <div className="flex w-full flex-col justify-center border border-dashed border-gold-deep/50 bg-ink-card/60 px-6 py-7 sm:px-8">
+    /* self-end, not stretch: a note is not a card, and a note stretched to
+       card height is four lines of type floating in 500px of nothing. It sits
+       on the bottom edge of the row instead. */
+    <li className="flex sm:col-span-2 sm:self-end">
+      <div className="flex w-full flex-col border border-dashed border-gold-deep/50 bg-ink-card/60 px-6 py-7 sm:px-8">
         <h4 className="font-display text-lg text-gold-bright sm:text-xl">
           {title}
         </h4>

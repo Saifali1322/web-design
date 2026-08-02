@@ -7,7 +7,7 @@ import { useCart } from "@/components/cart/CartProvider";
 
 /**
  * Ordered as the buying decision runs: what there is, how to make it yours,
- * how to get it every week, whether we can reach you — then the two pages
+ * how to get it every week, whether we can reach you, and then the two pages
  * somebody reads when they are deciding whether to trust a kitchen they have
  * never been to.
  *
@@ -49,7 +49,7 @@ export default function SiteHeader() {
         <Link
           href="/"
           className="shrink-0"
-          aria-label="Juice Cartel — home"
+          aria-label="Juice Cartel, home"
           onClick={() => setMenuOpen(false)}
         >
           <LogoInline />

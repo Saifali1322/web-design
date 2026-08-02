@@ -6,15 +6,14 @@ const KEEPS = Math.min(...juices.map((juice) => juice.keepsDays));
 
 /**
  * Four steps, not three. The old sequence stopped at the doorstep, which left
- * the shelf life to be discovered in the small print — and the shelf life is
- * the whole argument of the page above. Ending on it closes the loop: the
- * three-day date is presented as the last step of the process rather than a
- * caveat about it.
+ * the shelf life sitting in the small print. The shelf life is the whole
+ * argument of the page above, so ending on it closes the loop: the three-day
+ * date is the last step of the process rather than a caveat about it.
  */
 const STEPS = [
   {
     title: "Order by Thursday",
-    body: "Build a box any time before Thursday night. Swap flavours as often as you like until then — nothing is fixed until the press list closes and the fruit gets bought against it.",
+    body: "Build a box any time before Thursday night, and swap flavours as often as you like until then. Nothing is fixed until the press list closes and the fruit gets bought against it.",
   },
   {
     title: `Pressed ${DELIVERY.dropDay} morning`,
@@ -26,7 +25,7 @@ const STEPS = [
   },
   {
     title: `Drunk inside ${KEEPS} days`,
-    body: `Keep it in the fridge and finish it within ${KEEPS} days. That is not caution — it is what raw juice with nothing added to it actually does.`,
+    body: `Keep it in the fridge and finish it within ${KEEPS} days. That is not caution. It is what raw juice with nothing added to it actually does.`,
   },
 ] as const;
 
@@ -34,15 +33,14 @@ export function HowItWorks() {
   return (
     <section
       aria-labelledby="how-heading"
-      className="relative border-t border-ink-line bg-ink-raised py-20 sm:py-28 lg:py-32"
+      className="relative border-t border-ink-line bg-ink-raised py-20 sm:py-24 lg:py-28"
     >
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
         <Reveal>
           <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr] lg:items-end lg:gap-16">
             <div>
-              <p className="flex items-center gap-3 font-sans text-[0.6875rem] tracking-label text-gold uppercase">
-                <span className="h-px w-8 bg-gold/60" />
-                The routine
+              <p className="font-sans text-[0.6875rem] tracking-label text-cream-faint uppercase">
+                Thursday to Sunday, every week
               </p>
               <h2
                 id="how-heading"
@@ -53,15 +51,16 @@ export function HowItWorks() {
             </div>
             <p className="max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim lg:pb-1">
               <span className="font-script text-2xl text-gold/90">
-                One press, one route.
+                It all happens in a day.
               </span>{" "}
-              Everything is made on the same morning it goes out, which is why
-              the week has a deadline in it.
+              Nothing is pressed before the list closes and nothing is held back
+              for the week after, which is why there is a deadline in the middle
+              of it.
             </p>
           </div>
         </Reveal>
 
-        <ol className="mt-14 grid gap-10 sm:mt-16 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-12 lg:grid-cols-4 lg:gap-0">
+        <ol className="mt-14 grid gap-10 sm:mt-16 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-12 lg:grid-cols-[1.2fr_1fr_0.95fr_0.95fr] lg:gap-0">
           {STEPS.map((step, index) => (
             <Reveal
               as="li"
@@ -69,7 +68,7 @@ export function HowItWorks() {
               delay={index * 0.09}
               className="relative border-l border-ink-line pl-7 lg:border-t lg:border-l-0 lg:px-7 lg:pt-8 lg:first:pl-0 lg:last:pr-0"
             >
-              {/* The tick that sits on the rule — the rule turns from a
+              {/* The tick that sits on the rule. The rule itself turns from a
                   vertical spine on phones into a horizontal one on desktop. */}
               <span
                 aria-hidden="true"
@@ -99,10 +98,11 @@ export function HowItWorks() {
               <span className="text-cream">
                 The Thursday deadline is the reason the juice is any good.
               </span>{" "}
-              If orders could land on Saturday night we would have to press
-              against a guess, and pressing against a guess means bottles
-              sitting in a fridge hoping somebody wants them. Knowing the number
-              first is what keeps the fruit fresh and the waste at nothing.
+              If orders could land on Saturday night we would be pressing
+              against a guess. Pressing against a guess means bottles sitting in
+              a fridge hoping somebody wants them, and then going in the bin on
+              Wednesday. Knowing the number first is what keeps the waste at
+              nothing.
             </p>
 
             <Link

@@ -19,11 +19,20 @@ const SINGLE_INGREDIENT = juices.filter(
 
 const KEEPS = Math.min(...juices.map((juice) => juice.keepsDays));
 
-const POINTS = [
-  {
-    title: "Whole fruit, not concentrate",
-    body: "Oranges, watermelons and pomegranates go through the press the morning your order goes out. Nothing is reconstituted from a drum, and nothing is topped up with water or cheap apple juice to make it go further.",
-  },
+/** The juices that are not one ingredient, named rather than glossed over. */
+const BLENDED = juices.filter((juice) => juice.ingredients.length > 1);
+
+/**
+ * The lead point carries the argument; the two under it are the supporting
+ * evidence. They were three equal columns, which is the shape a system reaches
+ * for when it has three of something and no opinion about which matters most.
+ */
+const LEAD = {
+  title: "Whole fruit, not concentrate",
+  body: "Oranges, watermelons and pomegranates go through the press on the morning your order goes out. Nothing is reconstituted from a drum. Nothing is topped up with water or cheap apple juice to make it go further.",
+};
+
+const SUPPORT = [
   {
     title: "No heat, no high pressure",
     body: "Juice that keeps for a month has been pasteurised or put under high pressure. Both are done to make it last, and both change what ends up in the bottle. We would rather do neither and accept that it has to be drunk this week.",
@@ -38,14 +47,17 @@ const STATS = [
   {
     value: `${SINGLE_INGREDIENT}/${juices.length}`,
     label: "Juices made from a single ingredient",
+    width: "sm:col-span-4",
   },
   {
     value: `${KEEPS} days`,
     label: "Shelf life, refrigerated, and that is the honest number",
+    width: "sm:col-span-4",
   },
   {
     value: "0",
     label: "Preservatives, added sugar, added water or concentrate",
+    width: "sm:col-span-3",
   },
 ] as const;
 
@@ -60,63 +72,96 @@ export function Difference() {
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_65%_50%_at_80%_0%,rgba(212,166,60,0.10),transparent_70%)]"
       />
 
+      {/* The heading lives in the wider shell and everything under it in the
+          narrower one, so from 1280px up the title hangs a clear 64px into the
+          left margin. Below that the two containers resolve to the same width
+          and the hang closes itself, which is why it cannot push the page
+          sideways at any viewport. */}
+      <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
+        <Reveal>
+          <h2
+            id="difference-heading"
+            className="text-foil font-display text-3xl leading-[1.05] font-medium tracking-[0.06em] sm:text-4xl lg:text-5xl"
+          >
+            NOTHING WAS
+            <br />
+            DONE TO IT
+          </h2>
+        </Reveal>
+      </div>
+
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
         <Reveal>
-          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-end lg:gap-16">
-            <div>
-              <p className="flex items-center gap-3 font-sans text-[0.6875rem] tracking-label text-gold uppercase">
-                <span className="h-px w-8 bg-gold/60" />
-                The difference
-              </p>
-              <h2
-                id="difference-heading"
-                className="text-foil mt-4 font-display text-3xl leading-[1.05] font-medium tracking-[0.06em] sm:text-4xl lg:text-5xl"
-              >
-                NOTHING WAS
-                <br />
-                DONE TO IT
-              </h2>
-            </div>
-
-            <p className="max-w-xl text-[0.9375rem] leading-relaxed font-light text-cream-dim lg:pb-2">
-              Most chilled juice with a date three weeks out has been heated, or
-              put under enough pressure to kill everything living in it, so it
-              can survive a warehouse. That is a perfectly sensible way to run a
-              drink company.{" "}
-              <span className="text-cream">
-                It is just a different product from this one.
-              </span>{" "}
-              Ours has {KEEPS} days on it because it went through a press and
-              then straight into a bottle.
-            </p>
-          </div>
+          <p className="mt-7 max-w-xl text-[0.9375rem] leading-relaxed font-light text-cream-dim lg:ml-auto lg:mt-8">
+            Most chilled juice with a date three weeks out has been heated, or
+            put under enough pressure to kill everything living in it, so it can
+            survive a warehouse. That is a perfectly sensible way to run a drink
+            company.{" "}
+            <span className="text-cream">
+              It is just a different product from this one.
+            </span>{" "}
+            Ours has {KEEPS}{" "}
+            days on it because it went through a press and then straight into a
+            bottle.
+          </p>
         </Reveal>
 
-        <div className="rule-foil mt-10 mb-12 sm:mt-12 sm:mb-14" />
+        {/* 60/40, not thirds. The lead point is the argument; the two beside it
+            are the evidence, and they are set smaller because that is what they
+            are. */}
+        <div className="mt-14 grid gap-x-16 gap-y-10 sm:mt-16 lg:grid-cols-[1.35fr_1fr]">
+          <Reveal>
+            <h3 className="font-display text-2xl leading-snug tracking-[0.02em] text-cream sm:text-[1.75rem]">
+              {LEAD.title}
+            </h3>
+            <p className="mt-5 max-w-xl text-base leading-relaxed font-light text-cream-dim">
+              {LEAD.body}
+            </p>
 
-        <ul className="grid gap-10 sm:gap-12 lg:grid-cols-3 lg:gap-14">
-          {POINTS.map((point, index) => (
-            <Reveal as="li" key={point.title} delay={index * 0.09}>
-              <h3 className="flex items-start gap-3 font-display text-xl leading-snug tracking-[0.02em] text-cream sm:text-[1.375rem]">
-                <span
-                  aria-hidden="true"
-                  className="mt-[0.6rem] h-1.5 w-1.5 shrink-0 rotate-45 bg-gold"
-                />
-                {point.title}
-              </h3>
-              <p className="mt-4 pl-[1.125rem] text-sm leading-relaxed font-light text-cream-dim">
-                {point.body}
+            {/* A margin note, set where a margin note goes: hard against the
+                left edge of the column, small, and too specific to have been
+                generated. It is the footnote to the 6/7 in the strip below. */}
+            {BLENDED.length > 0 && (
+              <p className="mt-8 max-w-xs border-l border-gold-deep pl-4 text-sm leading-relaxed font-light text-cream-faint">
+                {BLENDED.length === 1 ? "The odd one out is" : "The odd ones out are"}{" "}
+                {BLENDED.map((j) => j.name).join(" and ")}. The second
+                ingredient is{" "}
+                {BLENDED[0].ingredients.slice(1).join(" and ").toLowerCase()},
+                and that is the whole list.
               </p>
-            </Reveal>
-          ))}
-        </ul>
+            )}
+          </Reveal>
+
+          <ul className="divide-y divide-ink-line border-t border-ink-line lg:mt-2">
+            {SUPPORT.map((point, index) => (
+              <Reveal as="li" key={point.title} delay={0.06 + index * 0.08}>
+                <div className="py-6">
+                  <h3 className="flex items-start gap-3 font-display text-lg leading-snug tracking-[0.02em] text-cream">
+                    <span
+                      aria-hidden="true"
+                      className="mt-[0.55rem] h-1.5 w-1.5 shrink-0 rotate-45 bg-gold"
+                    />
+                    {point.title}
+                  </h3>
+                  <p className="mt-2.5 pl-[1.125rem] text-sm leading-relaxed font-light text-cream-dim">
+                    {point.body}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </ul>
+        </div>
 
         {/* The three claims above, restated as numbers anyone can check against
-            the menu. Counted, not written — see the constants at the top. */}
+            the menu. Counted, not written. Eleven columns rather than twelve,
+            so the three cells cannot land on a tidy third each. */}
         <Reveal delay={0.05}>
-          <dl className="mt-16 grid gap-px border border-ink-line bg-ink-line sm:mt-20 sm:grid-cols-3">
+          <dl className="mt-16 grid gap-px border-y border-ink-line bg-ink-line sm:mt-20 sm:grid-cols-11">
             {STATS.map((stat) => (
-              <div key={stat.label} className="bg-ink-card px-6 py-8 sm:px-7 sm:py-10">
+              <div
+                key={stat.label}
+                className={`bg-ink-card px-6 py-8 sm:px-7 sm:py-10 ${stat.width}`}
+              >
                 <dt className="sr-only">{stat.label}</dt>
                 <dd>
                   <span className="numeric text-foil block font-display text-4xl leading-none font-medium sm:text-[2.75rem]">
@@ -135,11 +180,9 @@ export function Difference() {
         </Reveal>
 
         <Reveal delay={0.08}>
-          {/* max-w-3xl, not 2xl: at the narrower measure the trailing link
-              broke across two lines mid-phrase. */}
-          <p className="mt-8 max-w-3xl text-sm leading-relaxed font-light text-cream-faint">
-            If it separates in the fridge, that is the pulp settling out — not
-            the juice turning. Give it a shake.{" "}
+          <p className="mt-7 max-w-lg text-sm leading-relaxed font-light text-cream-faint lg:ml-auto lg:text-right">
+            If it separates in the fridge that is the pulp settling out, not the
+            juice turning. Give it a shake.{" "}
             <Link
               href="/faq#juice"
               className="text-gold underline underline-offset-4 transition-colors hover:text-gold-bright"

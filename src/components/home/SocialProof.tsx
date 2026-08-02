@@ -3,18 +3,18 @@ import Reveal from "@/components/ui/Reveal";
 import { SOCIALS } from "@/lib/catalogue";
 
 /* ---------------------------------------------------------------------------
- * REVIEWS — real quotes only.
+ * REVIEWS. Real quotes only.
  *
  * This array is deliberately empty. It previously held three invented
  * testimonials with invented names, which on a food business is not a design
- * placeholder — it is a false trust signal, and the one thing a small kitchen
+ * placeholder. It is a false trust signal, and the one thing a small kitchen
  * cannot afford to be caught doing.
  *
  * TO FILL IT: paste real messages (Instagram, Snapchat, TikTok comments,
  * WhatsApp) that the customer has agreed to have published, and the section
  * below switches from the empty state to the quote grid on its own. Keep the
  * shape: one concrete detail, one reason they came back. Attribution is a
- * first name plus initial and an outward postcode — credible without
+ * first name plus initial and an outward postcode: credible without
  * identifying anyone.
  * ------------------------------------------------------------------------ */
 interface Review {
@@ -34,9 +34,9 @@ const CHANNELS = [
 ] as const;
 
 /**
- * Absence of reviews is a fact, so it is stated rather than papered over. The
- * three things below are the proof that does exist and that a stranger can go
- * and check for themselves in under a minute — which is more than a wall of
+ * Absence of reviews is a fact, so it is stated rather than papered over. What
+ * is below is the proof that does exist: three things a stranger can go and
+ * check for themselves in under a minute, which is more than a wall of
  * five-star cards would give them.
  */
 function Checkable() {
@@ -47,8 +47,8 @@ function Checkable() {
           Everything, as it is pressed
         </h4>
         <p className="mt-2 text-sm leading-relaxed font-light text-cream-dim">
-          The bottles, the fruit, the kitchen and the Sunday run get posted the
-          day they happen. Dated, public, and not tidied up afterwards.
+          The bottles, the fruit, the kitchen and the Sunday run all get posted
+          the day they happen. Dated and public, and not tidied up afterwards.
         </p>
         <ul className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
           {CHANNELS.map((channel) => (
@@ -64,7 +64,7 @@ function Checkable() {
                   className="h-1 w-1 rotate-45 bg-gold-deep transition-colors duration-300 group-hover:bg-gold-bright"
                 />
                 {channel.label}
-                <span className="sr-only"> — {SOCIALS.handle}</span>
+                <span className="sr-only">, {SOCIALS.handle}</span>
               </a>
             </li>
           ))}
@@ -92,8 +92,8 @@ function Checkable() {
           Who actually makes it
         </h4>
         <p className="mt-2 text-sm leading-relaxed font-light text-cream-dim">
-          One kitchen in Nottingham, one delivery route, and a shelf life short
-          enough that none of it could be faked at scale.
+          A home kitchen in Nottingham with one delivery route, and a shelf
+          life short enough that none of it could be faked at scale.
         </p>
         <Link
           href="/about"
@@ -113,14 +113,13 @@ export function SocialProof() {
   return (
     <section
       aria-labelledby="proof-heading"
-      className="relative border-t border-ink-line py-20 sm:py-28 lg:py-32"
+      className="relative border-t border-ink-line py-16 sm:py-20 lg:py-24"
     >
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
             <div>
-              <p className="flex items-center gap-3 font-sans text-[0.6875rem] tracking-label text-gold uppercase">
-                <span className="h-px w-8 bg-gold/60" />
+              <p className="font-sans text-[0.6875rem] tracking-label text-cream-faint uppercase">
                 Regulars
               </p>
               <h2
@@ -171,7 +170,7 @@ export function SocialProof() {
           /* items-start, not stretch: the statement is short and the list of
              checkable things is long, and a panel stretched to match the taller
              column would just be a box with 200px of nothing at the bottom. */
-          <div className="grid items-start gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
+          <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
             <Reveal>
               <div className="border border-ink-line bg-ink-card p-7 sm:p-9">
                 <h3 className="font-display text-2xl leading-tight text-cream sm:text-[1.75rem]">
@@ -180,9 +179,9 @@ export function SocialProof() {
 
                 <div className="mt-5 space-y-4 text-sm leading-relaxed font-light text-cream-dim sm:text-[0.9375rem]">
                   <p>
-                    No quotes, no stars, no counter ticking up. Not because
-                    nobody has said anything — because we are not going to write
-                    them ourselves.
+                    No quotes. No stars, and no counter ticking up. Not because
+                    nobody has said anything, but because we are not going to
+                    write them ourselves.
                   </p>
                   <p>
                     A testimonial from a customer who does not exist is the
@@ -207,7 +206,7 @@ export function SocialProof() {
               </div>
             </Reveal>
 
-            <Reveal delay={0.08}>
+            <Reveal delay={0.08} className="lg:mt-10">
               <p className="font-sans text-[0.625rem] tracking-label text-cream-faint uppercase">
                 What you can check instead
               </p>
@@ -241,7 +240,7 @@ export function SocialProof() {
                         className="h-1 w-1 rotate-45 bg-gold-deep transition-colors duration-300 group-hover:bg-gold-bright"
                       />
                       {channel.label}
-                      <span className="sr-only"> — {SOCIALS.handle}</span>
+                      <span className="sr-only">, {SOCIALS.handle}</span>
                     </a>
                   </li>
                 ))}
