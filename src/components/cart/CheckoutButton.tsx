@@ -129,8 +129,9 @@ export default function CheckoutButton({
       window.location.assign(payload.url);
     } catch {
       setRecovery({
-        message:
+        message: reassure(
           "We couldn't reach the checkout. Check your connection — your basket is safe either way.",
+        ),
         action: { label: "Try again", run: () => void handleCheckout() },
       });
       setStatus("ready");
@@ -235,6 +236,19 @@ export default function CheckoutButton({
 /* ------------------------------------------------------------------ */
 
 /**
+ * The one sentence anybody actually wants after a payment button misbehaves.
+ *
+ * It is appended to whatever the server said rather than replacing it, because
+ * the server's message explains what to do and this one explains what it cost
+ * — which, on a checkout that never started, is nothing. Only added where it
+ * is unambiguously true: a Session that was never created cannot have taken
+ * any money.
+ */
+function reassure(message: string): string {
+  return /charged/i.test(message) ? message : `${message} Nothing has been charged.`;
+}
+
+/**
  * Turns a failed checkout into something to press.
  *
  * The codes here are exactly the ones `/api/checkout` returns; anything else
@@ -296,8 +310,7 @@ function recoveryFor(
 
     default:
       return {
-        message:
-          payload.error ?? "Something went wrong. Nothing has been charged.",
+        message: reassure(payload.error ?? "Something went wrong."),
         action: retry,
       };
   }

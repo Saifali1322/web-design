@@ -19,6 +19,14 @@ import { useDeliveryPostcode } from "@/components/subscribe/postcode";
 
 type Status = "idle" | "postcode" | "loading" | "error";
 
+/**
+ * Signing up for a recurring charge and seeing an error is a special kind of
+ * alarming, so every failure says what it cost. A Checkout Session that was
+ * never created cannot have started a subscription or taken a payment.
+ */
+const reassure = (message: string): string =>
+  /charged/i.test(message) ? message : `${message} Nothing has been charged.`;
+
 interface SubscribeResponse {
   url?: string;
   error?: string;
@@ -89,13 +97,13 @@ export default function SubscribeButton({
       }
 
       setStatus("error");
-      setError(
-        data?.error ?? "We couldn't start that. Nothing has been charged.",
-      );
+      setError(reassure(data?.error ?? "We couldn't start that."));
     } catch {
       setStatus("error");
       setError(
-        "We couldn't reach the checkout. Check your connection and try again.",
+        reassure(
+          "We couldn't reach the checkout. Check your connection and try again.",
+        ),
       );
     }
   };
