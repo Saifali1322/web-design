@@ -313,18 +313,21 @@
    * also happens to be what stops a black page looking like a black
    * rectangle. It is a static bitmap on a static element, so it costs one
    * paint and never re-rasterises. */
+  /* Warm glow from the top of a section.
+   *
+   * This carried a tiled noise layer for a while, to break up the banding a
+   * very dark wide gradient shows on an 8-bit panel. It came out: the class
+   * is applied to width-constrained sections on several pages as well as to
+   * full-page wrappers, and any texture confined to a narrow box draws its
+   * own edges. Grain here needs to be one viewport-wide layer or nothing,
+   * and nothing is the honest trade for now. */
   .bg-grain {
     background-image:
-      url("data:image/png;base64,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"),
       radial-gradient(
         ellipse 80% 60% at 50% -10%,
         rgba(212, 166, 60, 0.13),
         transparent 70%
       );
-    background-size: 64px 64px, auto;
-    background-repeat: repeat, no-repeat;
-    /* Low enough to read as texture rather than dirt. */
-    background-blend-mode: overlay, normal;
   }
 
   .numeric {
