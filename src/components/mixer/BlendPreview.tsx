@@ -79,9 +79,13 @@ export default function BlendPreview({
         </div>
 
         <div className="min-w-0 flex-1 lg:mt-6 lg:text-center">
-          <p className="text-xs uppercase tracking-label text-gold">
+          {/* A heading, not styled text. This panel sits before the picker in
+              the DOM, so its "How that price is worked out" h3 was the first
+              heading after the page h1 and the order jumped h1 → h3. Naming
+              the panel is both the honest markup and the fix. */}
+          <h2 className="text-xs uppercase tracking-label text-gold">
             Your blend
-          </p>
+          </h2>
           <p className="mt-1.5 break-words font-display text-xl leading-tight text-cream lg:text-2xl">
             {blend ? name : "Nothing in it yet"}
           </p>

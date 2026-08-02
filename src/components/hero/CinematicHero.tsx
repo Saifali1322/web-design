@@ -798,13 +798,16 @@ export function CinematicHero() {
                         height: "7%",
                       }}
                     />
-                    <button
-                      type="button"
-                      /* The flavour chips below are the accessible control;
-                         these are a mouse affordance, kept out of the tab
-                         order so the same seven names are not announced
-                         twice. */
-                      tabIndex={-1}
+                    {/* A div, not a button. The flavour chips below are the
+                        accessible control, so these orbit bottles are a mouse
+                        affordance only and must not reach assistive tech. But
+                        `aria-hidden` on a <button> is a contradiction: the
+                        element stays clickable and, in some browsers, still
+                        focusable, so a keyboard or screen-reader user can land
+                        on a control that claims not to exist. Removing the
+                        button role removes the contradiction rather than
+                        papering over it with tabIndex. */}
+                    <div
                       aria-hidden="true"
                       onClick={() => select(i)}
                       className="block h-full w-full cursor-pointer"
@@ -818,7 +821,7 @@ export function CinematicHero() {
                         dropletCount={env.lowPower ? 0 : 5}
                         labelDetail="mark"
                       />
-                    </button>
+                    </div>
                   </div>
                 ))}
 
