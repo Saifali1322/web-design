@@ -168,9 +168,12 @@ export function SocialProof() {
             ))}
           </ul>
         ) : (
-          <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
+          /* items-start, not stretch: the statement is short and the list of
+             checkable things is long, and a panel stretched to match the taller
+             column would just be a box with 200px of nothing at the bottom. */
+          <div className="grid items-start gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
             <Reveal>
-              <div className="h-full border border-ink-line bg-ink-card p-7 sm:p-9">
+              <div className="border border-ink-line bg-ink-card p-7 sm:p-9">
                 <h3 className="font-display text-2xl leading-tight text-cream sm:text-[1.75rem]">
                   There is nothing here yet
                 </h3>

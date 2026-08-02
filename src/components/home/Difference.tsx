@@ -135,7 +135,9 @@ export function Difference() {
         </Reveal>
 
         <Reveal delay={0.08}>
-          <p className="mt-8 max-w-2xl text-sm leading-relaxed font-light text-cream-faint">
+          {/* max-w-3xl, not 2xl: at the narrower measure the trailing link
+              broke across two lines mid-phrase. */}
+          <p className="mt-8 max-w-3xl text-sm leading-relaxed font-light text-cream-faint">
             If it separates in the fridge, that is the pulp settling out — not
             the juice turning. Give it a shake.{" "}
             <Link

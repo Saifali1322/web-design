@@ -104,7 +104,11 @@ export function DeliveryStrip() {
             <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-7 border-t border-ink-line pt-8 sm:grid-cols-4">
               {facts.map((fact) => (
                 <div key={fact.label}>
-                  <dt className="font-sans text-[0.5625rem] tracking-label text-cream-faint uppercase sm:text-[0.625rem]">
+                  {/* "Free delivery over" wraps to two lines at this column
+                      width while its neighbours do not, which drops its number
+                      out of line with the rest of the row. Reserving two lines
+                      keeps the four figures on one baseline. */}
+                  <dt className="font-sans text-[0.5625rem] tracking-label text-cream-faint uppercase sm:min-h-[1.9rem] sm:text-[0.625rem]">
                     {fact.label}
                   </dt>
                   <dd>

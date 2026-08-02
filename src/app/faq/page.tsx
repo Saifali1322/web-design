@@ -76,35 +76,45 @@ export default function FaqPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd()) }}
       />
 
-      <section className="mx-auto max-w-4xl px-5 pt-14 pb-10 sm:px-8 sm:pt-20">
-        <p className="tracking-label text-xs uppercase text-gold">Questions</p>
-        <h1 className="mt-4 font-display text-4xl leading-[1.08] text-foil sm:text-5xl">
-          The things that stop a first order
-        </h1>
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-cream sm:text-lg">
-          Buying food from a kitchen you have never been to is a reasonable
-          thing to hesitate over. These are the questions that actually get
-          asked, including the ones with an awkward answer.
-        </p>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-cream-dim sm:text-base">
-          If yours is not here, message{" "}
-          <a
-            href={SOCIALS.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gold underline underline-offset-4"
-          >
-            {SOCIALS.handle}
-          </a>{" "}
-          or call{" "}
-          <a
-            href={`tel:${SOCIALS.phone}`}
-            className="text-gold underline underline-offset-4"
-          >
-            {SOCIALS.phone}
-          </a>
-          . A real person answers, and it is the same person who pressed it.
-        </p>
+      {/* Same max-w-6xl shell as the grid below, so the heading, the jump list
+          and the questions all share one left edge. */}
+      <section className="mx-auto grid max-w-6xl gap-x-14 gap-y-8 px-5 pt-14 pb-12 sm:px-8 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+        <div>
+          <p className="flex items-center gap-3 font-sans text-[0.6875rem] tracking-label text-gold uppercase">
+            <span className="h-px w-8 bg-gold/60" />
+            Questions
+          </p>
+          <h1 className="mt-5 font-display text-[2.5rem] leading-[1.06] text-foil sm:text-5xl">
+            The things that stop a first order
+          </h1>
+        </div>
+
+        <div className="lg:pb-2">
+          <p className="text-base leading-relaxed text-cream sm:text-lg">
+            Buying food from a kitchen you have never been to is a reasonable
+            thing to hesitate over. These are the questions that actually get
+            asked, including the ones with an awkward answer.
+          </p>
+          <p className="mt-4 text-sm leading-relaxed font-light text-cream-dim sm:text-base">
+            If yours is not here, message{" "}
+            <a
+              href={SOCIALS.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gold underline underline-offset-4"
+            >
+              {SOCIALS.handle}
+            </a>{" "}
+            or call{" "}
+            <a
+              href={`tel:${SOCIALS.phone}`}
+              className="text-gold underline underline-offset-4"
+            >
+              {SOCIALS.phone}
+            </a>
+            . A real person answers, and it is the same person who pressed it.
+          </p>
+        </div>
       </section>
 
       <div className="mx-auto max-w-6xl px-5 sm:px-8">

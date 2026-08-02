@@ -7,23 +7,23 @@ import { useCart } from "@/components/cart/CartProvider";
 
 /**
  * Ordered as the buying decision runs: what there is, how to make it yours,
- * how to get it regularly, who is behind it, whether we reach you.
+ * how to get it every week, whether we can reach you — then the two pages
+ * somebody reads when they are deciding whether to trust a kitchen they have
+ * never been to.
  *
- * The FAQ is deliberately not up here. Six items plus the logo and the basket
- * overflows the bar between the md breakpoint and about 860px, and the
- * questions people need are already linked from the sections that raise them,
- * from the footer, and from the mobile menu, where the space is free.
+ * The bar opens at lg rather than md. Six items at this letter-spacing need
+ * about 880px alongside the logo and the basket; at md they were fitting only
+ * by wrapping "Build a Blend" and "Weekly Drops" onto two lines each, which
+ * looked like a mistake. Tablets get the same sheet as phones instead.
  */
 const nav = [
   { href: "/menu", label: "Menu" },
   { href: "/mixer", label: "Build a Blend" },
   { href: "/subscribe", label: "Weekly Drops" },
-  { href: "/about", label: "About" },
   { href: "/delivery", label: "Delivery" },
+  { href: "/about", label: "About" },
+  { href: "/faq", label: "Questions" },
 ];
-
-/** The mobile sheet is a vertical list, so it can afford the extra links. */
-const mobileNav = [...nav, { href: "/faq", label: "Questions" }];
 
 export default function SiteHeader() {
   const { count, openCart } = useCart();
@@ -56,14 +56,14 @@ export default function SiteHeader() {
         </Link>
 
         <nav
-          className="hidden items-center gap-6 md:flex lg:gap-9"
+          className="hidden items-center gap-6 lg:flex xl:gap-8"
           aria-label="Main navigation"
         >
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-[0.68rem] font-medium uppercase tracking-label text-cream-dim transition-colors hover:text-gold"
+              className="whitespace-nowrap text-[0.68rem] font-medium uppercase tracking-label text-cream-dim transition-colors hover:text-gold"
             >
               {item.label}
             </Link>
@@ -99,7 +99,7 @@ export default function SiteHeader() {
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex h-9 w-9 items-center justify-center border border-ink-line text-cream-dim transition-colors hover:border-gold-dim hover:text-gold md:hidden"
+            className="flex h-9 w-9 items-center justify-center border border-ink-line text-cream-dim transition-colors hover:border-gold-dim hover:text-gold lg:hidden"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
@@ -123,11 +123,11 @@ export default function SiteHeader() {
 
       {menuOpen && (
         <nav
-          className="border-t border-ink-line bg-ink md:hidden"
+          className="border-t border-ink-line bg-ink lg:hidden"
           aria-label="Mobile navigation"
         >
           <ul className="flex flex-col px-5 py-2">
-            {mobileNav.map((item) => (
+            {nav.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}

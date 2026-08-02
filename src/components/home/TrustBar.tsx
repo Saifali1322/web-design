@@ -89,10 +89,14 @@ export function TrustBar() {
       </div>
 
       {/* gap-px over the line colour draws the hairline grid without four
-          separate border rules that would double up at the joins. */}
+          separate border rules that would double up at the joins.
+
+          The cell padding matches the page gutter (px-5 / sm:px-8) rather than
+          being chosen for the cell, so the first fact's text sits on the same
+          left edge as every section below it instead of eight pixels off. */}
       <dl className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-px bg-ink-line sm:grid-cols-4">
         {FACTS.map((fact) => (
-          <div key={fact.label} className="bg-ink-raised px-5 py-7 sm:px-6 sm:py-9">
+          <div key={fact.label} className="bg-ink-raised px-5 py-7 sm:px-8 sm:py-9">
             <dt className="font-sans text-[0.5625rem] tracking-label text-cream-faint uppercase sm:text-[0.625rem]">
               {fact.label}
             </dt>

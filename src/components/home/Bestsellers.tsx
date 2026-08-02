@@ -15,14 +15,19 @@ const NOUN: Record<Category, [string, string]> = {
   bake: ["bake", "bakes"],
 };
 
-function menuSummary(): string {
-  const parts = COUNT_ORDER.map((category) => {
-    const n = products.filter((p) => p.category === category).length;
-    return `${n} ${NOUN[category][n === 1 ? 0 : 1]}`;
-  }).filter((part) => !part.startsWith("0 "));
-
+/** "a, b and c" — never "a and b and c". */
+function listSentence(parts: string[]): string {
   if (parts.length <= 1) return parts[0] ?? "";
   return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
+
+function menuSummary(): string {
+  return listSentence(
+    COUNT_ORDER.map((category) => {
+      const n = products.filter((p) => p.category === category).length;
+      return `${n} ${NOUN[category][n === 1 ? 0 : 1]}`;
+    }).filter((part) => !part.startsWith("0 ")),
+  );
 }
 
 export function Bestsellers() {
@@ -41,29 +46,23 @@ export function Bestsellers() {
       className="relative border-t border-ink-line py-20 sm:py-28 lg:py-32"
     >
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
-        {/* Header sits on a baseline with the link, not stacked and centred. */}
+        {/* One link to the menu per section, and it belongs at the bottom
+            where somebody has actually looked at the cards — not twice, with
+            two different labels for the same destination. */}
         <Reveal>
-          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
-            <div>
-              <p className="flex items-center gap-3 font-sans text-[0.6875rem] tracking-label text-gold uppercase">
-                <span className="h-px w-8 bg-gold/60" />
-                The shortlist
-              </p>
-              <h2
-                id="bestsellers-heading"
-                className="text-foil mt-4 font-display text-3xl leading-none font-medium tracking-[0.06em] sm:text-4xl lg:text-5xl"
-              >
-                BESTSELLERS
-              </h2>
-              <p className="mt-3 font-script text-2xl leading-none text-gold/85 sm:text-3xl">
-                the ones that go first
-              </p>
-            </div>
-
-            <ButtonLink href="/menu" variant="ghost" size="sm" className="-mb-1">
-              See the full menu
-            </ButtonLink>
-          </div>
+          <p className="flex items-center gap-3 font-sans text-[0.6875rem] tracking-label text-gold uppercase">
+            <span className="h-px w-8 bg-gold/60" />
+            The shortlist
+          </p>
+          <h2
+            id="bestsellers-heading"
+            className="text-foil mt-4 font-display text-3xl leading-none font-medium tracking-[0.06em] sm:text-4xl lg:text-5xl"
+          >
+            BESTSELLERS
+          </h2>
+          <p className="mt-3 font-script text-2xl leading-none text-gold/85 sm:text-3xl">
+            the ones that go first
+          </p>
         </Reveal>
 
         {/* "Bestseller" is a claim, so it gets defined rather than left as a
@@ -74,7 +73,7 @@ export function Bestsellers() {
             Not a badge handed out at random. These are the{" "}
             {bestsellers.length} that go first every week — the ones the press
             list gets built around before anything else is added to it, across{" "}
-            {categories.join(" and ")}.
+            {listSentence(categories)}.
           </p>
         </Reveal>
 
