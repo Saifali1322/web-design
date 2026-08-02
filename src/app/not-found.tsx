@@ -35,9 +35,10 @@ export default function NotFound() {
           <BottleMark className="h-14 w-auto text-gold-deep" />
         </Reveal>
 
-        {/* Set as display type, not as an error code. */}
+        {/* Set as display type, not as an error code — and the one place on
+            the page where light actually crosses the foil. */}
         <Reveal variant="settle" delay={0.08} className="mt-8">
-          <p className="numeric font-display text-6xl text-foil sm:text-7xl">
+          <p className="numeric font-display text-6xl text-foil foil-sweep sm:text-7xl">
             404
           </p>
         </Reveal>

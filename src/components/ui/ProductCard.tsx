@@ -92,10 +92,16 @@ export function FoilImage({
           background: `radial-gradient(118% 88% at 50% 12%, ${accent}40 0%, ${accentDeep}26 46%, transparent 72%), linear-gradient(163deg, #191510 0%, #0c0a08 58%, #120f0b 100%)`,
         }}
       />
-      {/* A single sheet of light across the slot, like foil catching a lamp. */}
+      {/* A single sheet of light across the slot, like foil catching a lamp.
+          It was already here and static; now it travels once as you approach,
+          slowly and only the length of the card. That is the whole hover
+          effect that is particular to this brand — the light on the metal
+          shifts because you moved, not because a component library has a
+          shine preset. Reduced motion collapses the transition and the sheet
+          simply sits where it always did. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(112deg,transparent_26%,rgba(243,218,139,0.08)_45%,transparent_63%)]"
+        className="absolute inset-0 bg-[linear-gradient(112deg,transparent_26%,rgba(243,218,139,0.08)_45%,transparent_63%)] bg-[length:260%_100%] bg-[position:74%_0] [transition:background-position_1400ms_var(--ease-out-expo)] group-hover:bg-[position:26%_0]"
       />
 
       {/* The subject. Everything that should move together on hover and on
