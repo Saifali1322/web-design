@@ -2,10 +2,12 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -123,6 +125,16 @@ function reducer(state: CartState, action: CartAction): CartState {
   }
 }
 
+export interface AddOptions {
+  /**
+   * Hold the drawer back this many milliseconds. The line is added to the
+   * basket immediately either way — this only delays the slide-over, so that
+   * the fly-to-basket bottle can land on a header the drawer would otherwise
+   * have covered before it got there. Omit, or 0, to open at once.
+   */
+  openAfterMs?: number;
+}
+
 interface CartContextValue {
   items: CartItem[];
   count: number;
@@ -142,12 +154,13 @@ interface CartContextValue {
   /** The last line taken out, still restorable. Null once undone or replaced. */
   lastRemoved: CartItem | null;
   isOpen: boolean;
-  add: (productId: string, quantity?: number) => void;
+  add: (productId: string, quantity?: number, options?: AddOptions) => void;
   /** Adds a custom blend. Returns false if the mix broke the rules. */
   addBlend: (
     components: ReadonlyArray<BlendComponent>,
     name: string,
     quantity?: number,
+    options?: AddOptions,
   ) => boolean;
   /** `key` comes from the item, not the product id — blends have no product. */
   remove: (key: string) => void;
@@ -199,6 +212,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [state.lines, hydrated]);
 
+  /* Opening the drawer is the one thing an add is allowed to defer, so the
+     bottle thrown at the basket by `flyToBasket` can land on a header that is
+     still visible. One timer, replaced rather than stacked: three quick adds
+     should open the drawer once, after the last bottle lands. */
+  const openTimer = useRef<number | null>(null);
+  const revealCart = useCallback((delay: number) => {
+    if (openTimer.current !== null) window.clearTimeout(openTimer.current);
+    if (!(delay > 0)) {
+      openTimer.current = null;
+      setIsOpen(true);
+      return;
+    }
+    openTimer.current = window.setTimeout(() => {
+      openTimer.current = null;
+      setIsOpen(true);
+    }, delay);
+  }, []);
+
+  // A pending open must not survive the provider — it would slide a drawer in
+  // over whatever came next.
+  useEffect(
+    () => () => {
+      if (openTimer.current !== null) window.clearTimeout(openTimer.current);
+    },
+    [],
+  );
+
   // Close the drawer on Escape.
   useEffect(() => {
     if (!isOpen) return;
@@ -247,15 +287,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // that has since left the catalogue simply doesn't appear.
       lastRemoved: state.removed ? resolveLine(state.removed.line) : null,
       isOpen,
-      add: (productId, quantity) => {
+      add: (productId, quantity, options) => {
         dispatch({ type: "add", productId, quantity });
-        setIsOpen(true);
+        revealCart(options?.openAfterMs ?? 0);
       },
-      addBlend: (components, name, quantity) => {
+      addBlend: (components, name, quantity, options) => {
         const line = blendLine(components, name, quantity);
         if (!line) return false;
         dispatch({ type: "addBlend", line });
-        setIsOpen(true);
+        revealCart(options?.openAfterMs ?? 0);
         return true;
       },
       remove: (key) => dispatch({ type: "remove", key }),
@@ -267,7 +307,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       openCart: () => setIsOpen(true),
       closeCart: () => setIsOpen(false),
     };
-  }, [state.lines, state.removed, hydrated, isOpen]);
+  }, [state.lines, state.removed, hydrated, isOpen, revealCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { formatPrice, juices } from "@/lib/catalogue";
 import {
@@ -12,7 +12,7 @@ import {
   MIN_PARTS,
   type BlendComponent,
 } from "@/lib/blend";
-import { useCart } from "@/components/cart/CartProvider";
+import { useAddToBasket } from "@/components/cart/useAddToBasket";
 import { Button } from "@/components/ui/Button";
 import BlendPreview from "@/components/mixer/BlendPreview";
 import JuiceTile from "@/components/mixer/JuiceTile";
@@ -34,7 +34,7 @@ const OPENING_BLEND: BlendComponent[] = [
 ];
 
 export default function Mixer() {
-  const { addBlend } = useCart();
+  const { addCustomBlend } = useAddToBasket();
   const [picked, setPicked] = useState<BlendComponent[]>(OPENING_BLEND);
   /** null until the customer types — the field follows the mix until then. */
   const [customName, setCustomName] = useState<string | null>(null);
@@ -71,11 +71,15 @@ export default function Mixer() {
     );
   }
 
-  function handleAdd() {
+  function handleAdd(event: MouseEvent<HTMLButtonElement>) {
     if (!blend) return;
-    const added = addBlend(
+    // The flying bottle carries the blend's own mixed colour, so what leaves
+    // the button is visibly the thing in the preview panel.
+    const added = addCustomBlend(
+      event.currentTarget,
       blend.components.map((c) => ({ juiceId: c.product.id, parts: c.parts })),
       name,
+      blend,
     );
     if (!added) {
       setError("We couldn't add that blend. Change something and try again.");
