@@ -164,8 +164,14 @@ export function CountUp({
     };
   }, [value, format, prefix, suffix, suffixSingular, duration]);
 
+  /* `relative` is load-bearing, not decoration. `sr-only` is absolutely
+     positioned, so without a positioned ancestor it is laid out against the
+     nearest one there is — which, for the figure inside the subscription
+     savings table, is outside that table's `overflow-x-auto` box. It escaped
+     the scroll container and added 155px to the document's width at 390px.
+     Containing it here fixes every call site at once. */
   return (
-    <span className={className}>
+    <span className={`relative ${className ?? ""}`}>
       <span ref={ref} aria-hidden="true">
         {final}
       </span>

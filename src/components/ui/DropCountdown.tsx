@@ -109,7 +109,10 @@ export function DropCountdown({ className = "" }: DropCountdownProps) {
 
   return (
     <div
-      className={`inline-block border border-ink-line bg-ink-card px-5 py-4 ${className}`}
+      // `relative` contains the sr-only line below, which is absolutely
+      // positioned and would otherwise be laid out against whatever ancestor
+      // happens to be positioned — see the same note in CountUp.
+      className={`relative inline-block border border-ink-line bg-ink-card px-5 py-4 ${className}`}
     >
       <p className="text-label tracking-label text-gold uppercase">{label}</p>
       {/* The figures are hidden from assistive technology and the same fact is
