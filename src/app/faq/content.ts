@@ -91,7 +91,7 @@ export const faqGroups: FaqGroup[] = [
       {
         q: "How long does it keep?",
         a: [
-          `Juices keep ${JUICE_KEEPS} days refrigerated. The protein shakes keep ${FUEL_KEEPS}. The bakes keep ${bakeKeeps}.`,
+          `Juices keep ${JUICE_KEEPS} days refrigerated. The protein shakes keep up to ${FUEL_KEEPS * 24} hours. The bakes keep ${bakeKeeps}.`,
           `Every item shows its own figure on its card, and the number is the shortest honest one rather than the most convenient. The clock starts the morning it is made, which for a ${DELIVERY.dropDay} delivery is the same day it reaches you.`,
         ],
         links: [{ label: "Every item, with its date", href: "/menu" }],
@@ -181,6 +181,26 @@ export const faqGroups: FaqGroup[] = [
         q: "How do I pay?",
         a: [
           "By card at the checkout, handled by Stripe. Card details never touch this site, and Stripe emails you a receipt within a minute or two of paying.",
+        ],
+      },
+      {
+        q: "Can I adjust what's in a protein shake?",
+        a: [
+          "Yes. Message us what you'd rather have in it and we'll work out what's possible.",
+          "Swapping something in for something on the list is free. Adding an extra ingredient on top may carry a small charge, which we'll always tell you before it's made.",
+        ],
+      },
+      {
+        q: "Can I order for an event?",
+        a: [
+          "Yes. Birthdays, gym meets, corporate orders, whatever it is — message us ahead of time with the date and roughly what you need.",
+          "The same rule applies as everywhere else on the site: nothing is pressed until it's been ordered, so the earlier you give us the date, the more certain we can be.",
+        ],
+      },
+      {
+        q: "How do I serve a Cartel Bake?",
+        a: [
+          "Straight from the fridge is fine, but 30 to 45 seconds in the microwave first is worth doing — it brings the texture back to something closer to fresh.",
         ],
       },
     ],

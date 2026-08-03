@@ -42,9 +42,26 @@ export const metadata: Metadata = {
  * ------------------------------------------------------------------------ */
 const FOUNDER: { name: string | null; photo: string | null; role: string } = {
   name: null,
-  photo: null,
+  photo: "/brand/founder.jpg",
   role: `Presses it, drives it, answers the phone · ${DELIVERY.city}`,
 };
+
+/**
+ * The founder's own words, supplied directly rather than written from the
+ * product like the rest of the page. Reproduced close to verbatim — light
+ * paragraph breaks for the page, nothing rewritten, nothing cut. This is the
+ * one place a personal voice belongs; smoothing it into the site's usual
+ * register would be exactly the kind of generic founder-page copy the rest
+ * of this page argues against.
+ */
+const STORY = [
+  `I've always had an entrepreneurial mindset from a young age. Whether it was reselling tracksuits, trainers, limited-edition Prime bottles or taking advantage of the Jordan hype, I was always looking for ways to build something of my own and learn about business.`,
+  `As time went on, I realised those opportunities were mostly built around trends. They were great while they lasted, but eventually the hype would die down. That's when I decided I wanted to create something that could grow long-term — a brand with its own identity, loyal customers and a future.`,
+  `That's how Juice Cartel was born.`,
+  `What started with fresh juices has grown into a business offering premium protein shakes, handcrafted desserts and fresh drinks, all made using quality ingredients and prepared fresh on the same day they're delivered. Every new product and every improvement is part of a bigger vision to keep building the brand.`,
+  `None of this would be possible without Allah. I'm always grateful to Allah for giving me the opportunity to pursue this journey and for blessing me with a family that's supported me every step of the way. I'm also thankful for my friends and every single customer who has backed Juice Cartel from day one. Your support genuinely means a lot and continues to motivate me to keep growing.`,
+  `This is only the beginning of the Juice Cartel journey, and I'm excited to see where it goes. Thank you for being part of it.`,
+] as const;
 
 /** Counted off the catalogue so the spec strip cannot drift from the menu. */
 const KEEPS = Math.min(...juices.map((juice) => juice.keepsDays));
@@ -193,6 +210,81 @@ export default function AboutPage() {
           </dl>
         </section>
 
+        {/* ---------- my story ----------
+             The founder's own words. Placed before the operational argument
+             below, because "why" the site's rules exist only lands once you
+             know why the business exists in the first place. The portrait
+             lives here rather than in "the morning it goes out" — it is a
+             photo of a person telling their own story, not a photo pinned to
+             a description of a Sunday routine. */}
+        <Section
+          id="story"
+          heading="My story"
+          aside={
+            FOUNDER.photo ? (
+              <figure className="mt-6 hidden lg:block">
+                <div className="relative aspect-[4/5] overflow-hidden border border-ink-line bg-ink-card">
+                  <Image
+                    src={FOUNDER.photo}
+                    alt={
+                      FOUNDER.name
+                        ? `${FOUNDER.name}, who makes Juice Cartel`
+                        : "The person who makes Juice Cartel"
+                    }
+                    fill
+                    sizes="240px"
+                    className="object-cover"
+                  />
+                </div>
+                <figcaption className="mt-3 text-xs leading-relaxed text-cream-faint">
+                  {FOUNDER.name ? `${FOUNDER.name} · ` : ""}
+                  {FOUNDER.role}
+                </figcaption>
+              </figure>
+            ) : null
+          }
+        >
+          <div className="max-w-2xl space-y-4 text-sm leading-relaxed text-cream-dim sm:text-base">
+            {STORY.map((paragraph, i) => (
+              <p
+                key={i}
+                className={
+                  /* "That's how Juice Cartel was born." earns its own beat —
+                     a one-line paragraph reads as a pause in speech, not a
+                     formatting accident, and the line deserves it. */
+                  paragraph.length < 40
+                    ? "font-display text-lg text-cream sm:text-xl"
+                    : undefined
+                }
+              >
+                {paragraph}
+              </p>
+            ))}
+          </div>
+
+          {FOUNDER.photo && (
+            <figure className="mt-8 lg:hidden">
+              <div className="relative aspect-[4/5] max-w-xs overflow-hidden border border-ink-line bg-ink-card">
+                <Image
+                  src={FOUNDER.photo}
+                  alt={
+                    FOUNDER.name
+                      ? `${FOUNDER.name}, who makes Juice Cartel`
+                      : "The person who makes Juice Cartel"
+                  }
+                  fill
+                  sizes="320px"
+                  className="object-cover"
+                />
+              </div>
+              <figcaption className="mt-3 text-xs leading-relaxed text-cream-faint">
+                {FOUNDER.name ? `${FOUNDER.name} · ` : ""}
+                {FOUNDER.role}
+              </figcaption>
+            </figure>
+          )}
+        </Section>
+
         {/* ---------- the argument ---------- */}
         <Section id="why" heading="The short date is the point">
           <div className="max-w-2xl space-y-4 text-sm leading-relaxed text-cream-dim sm:text-base">
@@ -224,36 +316,7 @@ export default function AboutPage() {
         </Section>
 
         {/* ---------- the morning ---------- */}
-        <Section
-          id="morning"
-          heading="The morning it goes out"
-          aside={
-            /* The portrait renders only once FOUNDER.photo is set. See the
-               note at the top of this file. It lives in the heading rail so
-               that adding it later changes nothing about the prose column. */
-            FOUNDER.photo ? (
-              <figure className="mt-6 hidden lg:block">
-                <div className="relative aspect-[4/5] overflow-hidden border border-ink-line bg-ink-card">
-                  <Image
-                    src={FOUNDER.photo}
-                    alt={
-                      FOUNDER.name
-                        ? `${FOUNDER.name}, who makes Juice Cartel`
-                        : "The person who makes Juice Cartel"
-                    }
-                    fill
-                    sizes="240px"
-                    className="object-cover"
-                  />
-                </div>
-                <figcaption className="mt-3 text-xs leading-relaxed text-cream-faint">
-                  {FOUNDER.name ? `${FOUNDER.name} · ` : ""}
-                  {FOUNDER.role}
-                </figcaption>
-              </figure>
-            ) : null
-          }
-        >
+        <Section id="morning" heading="The morning it goes out">
           <div className="max-w-2xl space-y-4 text-sm leading-relaxed text-cream-dim sm:text-base">
             <p>
               Fruit gets bought against a list, not against a hope. The list
@@ -286,28 +349,6 @@ export default function AboutPage() {
               juice, and no amount of housekeeping makes that untrue.
             </p>
           </div>
-
-          {FOUNDER.photo && (
-            <figure className="mt-8 lg:hidden">
-              <div className="relative aspect-[4/5] max-w-xs overflow-hidden border border-ink-line bg-ink-card">
-                <Image
-                  src={FOUNDER.photo}
-                  alt={
-                    FOUNDER.name
-                      ? `${FOUNDER.name}, who makes Juice Cartel`
-                      : "The person who makes Juice Cartel"
-                  }
-                  fill
-                  sizes="320px"
-                  className="object-cover"
-                />
-              </div>
-              <figcaption className="mt-3 text-xs leading-relaxed text-cream-faint">
-                {FOUNDER.name ? `${FOUNDER.name} · ` : ""}
-                {FOUNDER.role}
-              </figcaption>
-            </figure>
-          )}
         </Section>
 
         {/* ---------- refusals ---------- */}

@@ -64,7 +64,11 @@ export interface OrderPolicies {
 
 export const ORDER_POLICY: OrderPolicies = {
   leadTime: null,
-  changeWindow: null,
+  /* Matches the answer already published on /faq under "Can I change or
+     cancel an order after I have placed it?" — set from there rather than
+     independently, so the two can never say different things. */
+  changeWindow:
+    "You can change or cancel any time up to Thursday night, at no charge. After that the fruit for your box has already been bought against it, so get in touch as early as you can and we'll work out what's possible.",
   refunds: null,
   subscriptionCutoff: null,
   supportHours: null,
