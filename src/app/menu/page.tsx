@@ -8,6 +8,7 @@ import {
   type Category,
 } from "@/lib/catalogue";
 import MenuGrid from "@/components/menu/MenuGrid";
+import MenuSpotlight from "@/components/menu/MenuSpotlight";
 
 export const metadata: Metadata = {
   title: "Menu",
@@ -139,7 +140,15 @@ export default function MenuPage() {
         </dl>
       </div>
 
-      <section className="mx-auto max-w-7xl px-5 pt-14 pb-24 sm:px-8">
+      <section className="mx-auto max-w-6xl px-5 pt-14 sm:px-8">
+        <MenuSpotlight juices={products.filter((p) => p.category === "juice")} />
+      </section>
+
+      <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
+        <div className="rule-foil my-14" />
+      </div>
+
+      <section className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
         <MenuGrid products={products} />
       </section>
     </div>
