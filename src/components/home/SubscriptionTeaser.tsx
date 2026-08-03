@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
+import DropCountdown from "@/components/ui/DropCountdown";
 import Reveal from "@/components/ui/Reveal";
 import { DELIVERY, formatPrice, subscriptionTiers } from "@/lib/catalogue";
 
@@ -36,6 +37,10 @@ export function SubscriptionTeaser() {
                 WITHOUT ASKING
               </span>
             </h2>
+
+            {/* Directly under the heading that promises "Every Sunday": the
+                claim, then how long it actually is until the next one. */}
+            <DropCountdown className="mt-7" />
 
             <p className="mt-6 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
               Pick a size, pick your flavours, and the same box turns up every{" "}

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { installCursor } from "./cursor";
 import { installSpecularTracking } from "./motion";
 
 /**
@@ -62,6 +63,7 @@ export function InteractionLayer() {
   const pathname = usePathname();
 
   useEffect(() => installSpecularTracking(), []);
+  useEffect(() => installCursor(), []);
 
   useEffect(() => {
     /* Whether a region overflows depends on the width it ended up with, so

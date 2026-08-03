@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LogoInline } from "@/components/brand/Logo";
 import { useCart } from "@/components/cart/CartProvider";
+import { BASKET_TARGET_ATTR } from "@/components/ui/flyToBasket";
 
 /**
  * Ordered as the buying decision runs: what there is, how to make it yours,
@@ -74,6 +75,11 @@ export default function SiteHeader() {
           <button
             type="button"
             onClick={openCart}
+            /* Where every add-to-basket flight lands, and what bounces when it
+               gets there. See components/ui/flyToBasket.ts — the animation
+               finds this by attribute rather than by a ref threaded through
+               the tree, so any button on any page can throw a bottle at it. */
+            {...{ [BASKET_TARGET_ATTR]: "" }}
             className="relative flex items-center gap-2 border border-gold-dim/60 px-3.5 py-2 text-[0.68rem] font-medium uppercase tracking-label text-gold transition-colors hover:border-gold hover:bg-gold/10"
             aria-label={`Open basket, ${count} ${count === 1 ? "item" : "items"}`}
           >

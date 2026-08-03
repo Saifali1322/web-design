@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import SpinIt from "@/components/bottle3d/SpinIt";
 import BottleArt, { VB_W, VB_H } from "@/components/hero/BottleArt";
-import { useCart } from "@/components/cart/CartProvider";
+import { useAddToBasket } from "@/components/cart/useAddToBasket";
 import {
   allergenLabel,
   categoryLabel,
@@ -200,7 +200,7 @@ export function ProductCard({
   priority = false,
   className = "",
 }: ProductCardProps) {
-  const { add } = useCart();
+  const { addProduct } = useAddToBasket();
   const [justAdded, setJustAdded] = useState(false);
 
   useEffect(() => {
@@ -300,8 +300,10 @@ export function ProductCard({
           variant={justAdded ? "primary" : "secondary"}
           size="md"
           fullWidth
-          onClick={() => {
-            add(product.id);
+          onClick={(event) => {
+            // The button itself is the launch point, so the bottle leaves from
+            // where the finger actually was rather than from the card's corner.
+            addProduct(event.currentTarget, product.id, product);
             setJustAdded(true);
           }}
         >

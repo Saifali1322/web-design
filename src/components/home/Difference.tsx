@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CountUp from "@/components/ui/CountUp";
 import Reveal from "@/components/ui/Reveal";
 import { juices } from "@/lib/catalogue";
 
@@ -43,23 +44,40 @@ const SUPPORT = [
   },
 ] as const;
 
-const STATS = [
+/**
+ * `count` is the figure that runs up as the band arrives; the suffix is the
+ * fixed part of the cell — the denominator, the unit — so the only thing
+ * moving is the number actually being claimed. The last cell's figure is zero
+ * and the point of it is that it is zero; counting up to nothing is the one
+ * thing that would undercut it, so CountUp leaves a zero alone.
+ */
+const STATS: ReadonlyArray<{
+  count: number;
+  suffix: string;
+  suffixSingular?: string;
+  label: string;
+  width: string;
+}> = [
   {
-    value: `${SINGLE_INGREDIENT}/${juices.length}`,
+    count: SINGLE_INGREDIENT,
+    suffix: `/${juices.length}`,
     label: "Juices made from a single ingredient",
     width: "sm:col-span-4",
   },
   {
-    value: `${KEEPS} days`,
+    count: KEEPS,
+    suffix: " days",
+    suffixSingular: " day",
     label: "Shelf life, refrigerated, and that is the honest number",
     width: "sm:col-span-4",
   },
   {
-    value: "0",
+    count: 0,
+    suffix: "",
     label: "Preservatives, added sugar, added water or concentrate",
     width: "sm:col-span-3",
   },
-] as const;
+];
 
 export function Difference() {
   return (
@@ -164,9 +182,12 @@ export function Difference() {
               >
                 <dt className="sr-only">{stat.label}</dt>
                 <dd>
-                  <span className="numeric text-foil block font-display text-4xl leading-none font-medium sm:text-[2.75rem]">
-                    {stat.value}
-                  </span>
+                  <CountUp
+                    value={stat.count}
+                    suffix={stat.suffix}
+                    suffixSingular={stat.suffixSingular}
+                    className="numeric text-foil block font-display text-4xl leading-none font-medium sm:text-[2.75rem]"
+                  />
                   <span
                     aria-hidden="true"
                     className="mt-4 block max-w-[22ch] text-[0.8125rem] leading-relaxed font-light text-cream-dim"

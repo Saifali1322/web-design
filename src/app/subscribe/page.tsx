@@ -6,6 +6,8 @@ import {
   SOCIALS,
   subscriptionTiers,
 } from "@/lib/catalogue";
+import CountUp from "@/components/ui/CountUp";
+import DropCountdown from "@/components/ui/DropCountdown";
 import PostcodeCheck from "@/components/subscribe/PostcodeCheck";
 import SubscribePlans from "@/components/subscribe/SubscribePlans";
 
@@ -140,6 +142,8 @@ export default function SubscribePage() {
           week if you&rsquo;re away, cancel outright if it&rsquo;s not for
           you. No contract, no penalty.
         </p>
+
+        <DropCountdown className="mt-8 text-left" />
 
         <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-x-3 gap-y-2">
           {promises.map((promise) => (
@@ -320,8 +324,18 @@ export default function SubscribePage() {
                   <td className="numeric py-4 pr-4 text-cream">
                     {formatPrice(tier.price)}
                   </td>
+                  {/* The one column anybody actually reads this table for, so
+                      it is the one that runs up as the table arrives. Set to
+                      two decimals rather than through formatPrice: every other
+                      figure in the table already has them, and a bare "£2"
+                      among "£13.50" and "£11.50" read as a typo even before
+                      it had to hold its width while counting. */}
                   <td className="numeric py-4 text-fresh">
-                    {formatPrice(tier.listPrice - tier.price)} / week
+                    <CountUp
+                      value={tier.listPrice - tier.price}
+                      format="money"
+                      suffix=" / week"
+                    />
                   </td>
                 </tr>
               ))}
