@@ -115,7 +115,13 @@ export default function SpinViewerModal({
         aria-labelledby={titleId}
         className="animate-rise relative flex h-[94dvh] w-full max-w-[460px] flex-col border border-ink-line bg-ink-raised shadow-lift sm:h-[min(88dvh,780px)]"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-ink-line px-5 py-4">
+        {/* Plain divs, not <header>/<footer>. Neither element is scoped by an
+            ancestor with role="dialog", so inside the modal they map to a
+            SECOND banner and a SECOND contentinfo landmark alongside the
+            page's own — three axe violations that only appear while the
+            viewer is open, which is why they had gone unnoticed. There is no
+            landmark worth having here anyway; the dialog is the landmark. */}
+        <div className="flex items-start justify-between gap-4 border-b border-ink-line px-5 py-4">
           <div className="min-w-0">
             <p className="tracking-label text-[0.625rem] uppercase text-gold">
               {product.size} · Cold pressed
@@ -143,7 +149,7 @@ export default function SpinViewerModal({
               />
             </svg>
           </button>
-        </header>
+        </div>
 
         {/* The stage. `min-h-0` is what lets the flex child actually shrink so
             the canvas can own the leftover height instead of overflowing. */}
@@ -155,11 +161,12 @@ export default function SpinViewerModal({
             accent={product.accent}
             accentDeep={product.accentDeep}
             name={product.name}
+            productId={product.id}
             seed={product.id.length + product.name.charCodeAt(0)}
           />
         </div>
 
-        <footer className="flex items-center gap-4 px-5 py-4">
+        <div className="flex items-center gap-4 px-5 py-4">
           <div className="min-w-0 flex-1">
             <p className="numeric font-display text-xl text-gold">
               {formatPrice(product.price)}
@@ -178,7 +185,7 @@ export default function SpinViewerModal({
           >
             {added ? "Added" : "Add to basket"}
           </Button>
-        </footer>
+        </div>
 
         <span aria-live="polite" className="sr-only">
           {added ? `${product.name} added to your basket` : ""}

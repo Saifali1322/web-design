@@ -57,6 +57,14 @@ import {
   makeSurfaceTexture,
 } from "./bottleTextures";
 
+/**
+ * Linear multiplier on the juice's albedo, so the lit result lands on the
+ * colour the photograph actually shows. Calibrated by rendering all seven
+ * bottles and measuring the body against the sampled value — see the note on
+ * `liquidMat.color` below.
+ */
+const JUICE_ALBEDO = 0.45;
+
 /* ------------------------------------------------------------------ *
  * Profile queries
  * ------------------------------------------------------------------ */
@@ -217,6 +225,16 @@ export interface BottleBuildOptions {
 export interface BottleBuild {
   /** Spin this on Y. Already centred on the origin. */
   group: Group;
+  /**
+   * Swaps the drawn label for the photographed one, once it has decoded.
+   *
+   * The bottle is built synchronously so the first frame is never waiting on
+   * the network, which means the real sticker — a file, and therefore a
+   * promise — can only arrive afterwards. Ownership of `tex` transfers here:
+   * it goes on the build's disposal list and the texture it replaces is freed
+   * immediately.
+   */
+  useLabelTexture(tex: Texture): void;
   dispose(): void;
 }
 
@@ -312,6 +330,18 @@ export function buildBottle(opts: BottleBuildOptions): BottleBuild {
     envMapIntensity: 0.6,
     side: FrontSide,
   });
+  /* The map is an ALBEDO; the colour it was sampled from is a LIT RESULT.
+     The four directional lights in the scene were tuned for glass and a
+     moulded cap, both of which live on their speculars — pointed at a broad
+     diffuse surface they total well over unity, and ACES answers that by
+     rolling everything towards white. Measured against the photographs the
+     juice was coming back up to 2.5x too green and 18x too blue: not a tint,
+     a wash. Scaling the albedo is the same thing as dimming the lights on
+     this one surface, and dropping back under the tone curve's shoulder is
+     what returns the saturation. `setScalar` writes the working (linear)
+     space directly — `setHex` would put the number through sRGB decode first
+     and dim it roughly twice as far as intended. */
+  liquidMat.color.setScalar(JUICE_ALBEDO);
   materials.push(liquidMat);
   group.add(new Mesh(liquidGeo, liquidMat));
 
@@ -468,6 +498,20 @@ export function buildBottle(opts: BottleBuildOptions): BottleBuild {
 
   return {
     group,
+
+    useLabelTexture(tex: Texture) {
+      const previous = labelMat.map;
+      labelMat.map = track(tex);
+      labelMat.needsUpdate = true;
+      if (previous) {
+        /* Drop it from the disposal list as well as from the GPU — leaving a
+           disposed texture there would double-free on unmount. */
+        const i = textures.indexOf(previous);
+        if (i >= 0) textures.splice(i, 1);
+        previous.dispose();
+      }
+    },
+
     dispose() {
       for (const g of geometries) g.dispose();
       for (const m of materials) m.dispose();
