@@ -117,7 +117,16 @@ function unwatch(el: Element): void {
   if (waiting.size === 0) unbindBackstop();
 }
 
-function watch(el: Element, show: Show): () => void {
+/**
+ * Run `show` once, when `el` first reaches the viewport.
+ *
+ * Exported because CountUp needs exactly the same "is it on screen yet"
+ * answer, and a second observer with its own thresholds and its own scroll
+ * backstop would be two subtly different definitions of "in view" on the same
+ * page. Anything else that wants the same trigger should use this rather than
+ * start a third.
+ */
+export function watch(el: Element, show: Show): () => void {
   if (!observer) {
     observer = new IntersectionObserver(
       (records) => {
