@@ -69,20 +69,41 @@ function ProductItem({ product }: { product: Product }) {
       <ProductCard product={product} />
 
       <div className="-mt-px flex flex-col gap-3 border border-t-0 border-ink-line bg-ink-raised px-5 py-4">
-        <h4 className="text-[0.62rem] uppercase tracking-label text-gold-dim">
-          More about this one
-        </h4>
+        {/* Allergens stay outside the disclosure and visible by default —
+            this is food-safety information, not marketing copy, and it must
+            not cost a click to see. Only the description and ingredient
+            list, which is what actually made this grid read as a long
+            scroll of prose instead of a fast shop grid, collapse.
 
-        <p className="text-sm leading-relaxed text-cream-dim">
-          {product.description}
-        </p>
-
-        <p className="text-xs leading-relaxed text-cream-faint">
-          <span className="text-cream-dim">Ingredients: </span>
-          {product.ingredients.join(", ")}
-        </p>
-
+            Native <details>, matching the FAQ page's own pattern exactly
+            rather than a second bespoke toggle: keyboard-operable and
+            announced to assistive tech with no ARIA wiring, and nothing to
+            break under prefers-reduced-motion because nothing here animates
+            beyond the FAQ's own chevron rotation. */}
         <AllergenBadgeList allergens={product.allergens} />
+
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[0.62rem] uppercase tracking-label text-gold-dim marker:content-none">
+            More about this one
+            <span
+              aria-hidden="true"
+              className="shrink-0 text-sm leading-none text-gold transition-transform duration-300 group-open:rotate-45"
+            >
+              +
+            </span>
+          </summary>
+
+          <div className="mt-3 flex flex-col gap-3">
+            <p className="text-sm leading-relaxed text-cream-dim">
+              {product.description}
+            </p>
+
+            <p className="text-xs leading-relaxed text-cream-faint">
+              <span className="text-cream-dim">Ingredients: </span>
+              {product.ingredients.join(", ")}
+            </p>
+          </div>
+        </details>
       </div>
     </li>
   );
