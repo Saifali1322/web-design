@@ -7,6 +7,7 @@ import {
   subscriptionTiers,
 } from "@/lib/catalogue";
 import CountUp from "@/components/ui/CountUp";
+import DropCountdown from "@/components/ui/DropCountdown";
 import PostcodeCheck from "@/components/subscribe/PostcodeCheck";
 import SubscribePlans from "@/components/subscribe/SubscribePlans";
 
@@ -141,6 +142,8 @@ export default function SubscribePage() {
           week if you&rsquo;re away, cancel outright if it&rsquo;s not for
           you. No contract, no penalty.
         </p>
+
+        <DropCountdown className="mt-8 text-left" />
 
         <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-x-3 gap-y-2">
           {promises.map((promise) => (
