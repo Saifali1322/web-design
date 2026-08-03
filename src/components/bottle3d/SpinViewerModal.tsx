@@ -155,6 +155,7 @@ export default function SpinViewerModal({
             accent={product.accent}
             accentDeep={product.accentDeep}
             name={product.name}
+            productId={product.id}
             seed={product.id.length + product.name.charCodeAt(0)}
           />
         </div>

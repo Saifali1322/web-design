@@ -19,6 +19,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useId, useState } from "react";
 import BottleArt, { VB_H, VB_W } from "@/components/hero/BottleArt";
+import { PHOTO_ASSETS } from "./photoAssets";
 
 const BottleScene = dynamic(() => import("./BottleScene"), {
   ssr: false,
@@ -30,6 +31,11 @@ export interface Bottle3DViewerProps {
   accentDeep: string;
   /** Product name, used to build the canvas's accessible name. */
   name: string;
+  /**
+   * Catalogue id. When the product has a hero shot, its label, its juice
+   * colours and its fruit all come out of that photograph instead.
+   */
+  productId?: string;
   /** Varies the condensation between flavours. */
   seed?: number;
   /** False keeps the poster only — nothing WebGL is created. */
@@ -41,6 +47,7 @@ export default function Bottle3DViewer({
   accent,
   accentDeep,
   name,
+  productId,
   seed = 1,
   active = true,
   className = "",
@@ -53,6 +60,16 @@ export default function Bottle3DViewer({
   const onUnsupported = useCallback(() => setFailed(true), []);
 
   const live = active && !failed;
+
+  /* The photograph wins over the catalogue's hand-picked hexes wherever there
+     is one, and it feeds the SVG poster as well as the model — the two are
+     cross-faded into each other, so a poster in one set of colours dissolving
+     into a bottle in another would announce the swap. `PHOTO_ASSETS` is a
+     module constant, which is what keeps `fruit`'s identity stable across
+     renders; the scene tears down and rebuilds if it changes. */
+  const photo = productId ? PHOTO_ASSETS[productId] : undefined;
+  const juice = photo?.accent ?? accent;
+  const juiceDeep = photo?.accentDeep ?? accentDeep;
 
   return (
     <div className={`relative h-full w-full ${className}`}>
@@ -72,8 +89,8 @@ export default function Bottle3DViewer({
         <div className="h-[92%]" style={{ aspectRatio: `${VB_W} / ${VB_H}` }}>
           <BottleArt
             uid={`b3d-${uid}`}
-            accent={accent}
-            accentDeep={accentDeep}
+            accent={juice}
+            accentDeep={juiceDeep}
             seed={seed}
             dropletCount={12}
             labelDetail="full"
@@ -92,10 +109,12 @@ export default function Bottle3DViewer({
           }`}
         >
           <BottleScene
-            accent={accent}
-            accentDeep={accentDeep}
+            accent={juice}
+            accentDeep={juiceDeep}
             seed={seed}
             label={`${name} bottle in 3D. Drag to spin it, or use the left and right arrow keys.`}
+            labelSrc={photo?.label}
+            fruit={photo?.fruit}
             onReady={onReady}
             onUnsupported={onUnsupported}
           />

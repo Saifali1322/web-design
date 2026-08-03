@@ -26,9 +26,11 @@ import { useEffect, useRef } from "react";
 import {
   ACESFilmicToneMapping,
   CanvasTexture,
+  CircleGeometry,
   DirectionalLight,
   DoubleSide,
   Mesh,
+  MeshBasicMaterial,
   MeshLambertMaterial,
   PMREMGenerator,
   PerspectiveCamera,
@@ -44,7 +46,8 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 
 import { BOTTLE_HEIGHT } from "./bottleProfile";
 import { buildBottle } from "./buildBottle";
-import { loadImageTexture } from "./loadImageTexture";
+import { buildFruitField, type FruitField } from "./fruitField";
+import { loadImageTexture, loadImageTextures } from "./loadImageTexture";
 import type { PhotoFruit } from "./photoAssets";
 
 /** Seconds of no input before the bottle starts turning by itself. */
@@ -101,20 +104,97 @@ export interface BottleSceneProps {
 /** Warm studio backdrop. Opaque on purpose — see the note in the effect. */
 function makeBackdrop(): CanvasTexture {
   const c = document.createElement("canvas");
-  c.width = 256;
-  c.height = 256;
+  c.width = 512;
+  c.height = 512;
   const ctx = c.getContext("2d");
   if (!ctx) throw new Error("2d context unavailable");
   /* Not pure black. The empty glass above the juice can only show what is
      behind it, so a black ground turns the whole shoulder into a silhouette
      with nothing to refract. A lifted warm core gives it something to bend. */
-  const g = ctx.createRadialGradient(128, 96, 6, 128, 128, 210);
+  const g = ctx.createRadialGradient(256, 192, 12, 256, 256, 420);
   g.addColorStop(0, "#7a5f34");
   g.addColorStop(0.22, "#3a2d1b");
   g.addColorStop(0.55, "#16120c");
   g.addColorStop(1, "#050403");
   ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 512, 512);
+
+  /* Bokeh, straight off the product shots: every one of the seven frames has
+     the same field of out-of-focus warm lights behind the bottle, with a few
+     stray colours in it. Drawing it here rather than leaving the backdrop a
+     clean gradient is most of what makes the WebGL bottle read as the same
+     photograph as the cards on the menu — and because the glass refracts
+     whatever is behind it, the shoulder picks the discs up for free.
+     Deterministic, so it never shimmers between opens. */
+  const BOKEH = [
+    [0.12, 0.34, 46, "rgba(240,182,84,0.30)"],
+    [0.29, 0.14, 30, "rgba(255,214,140,0.22)"],
+    [0.72, 0.2, 38, "rgba(236,168,70,0.24)"],
+    [0.86, 0.32, 26, "rgba(150,196,120,0.16)"],
+    [0.9, 0.13, 20, "rgba(212,120,110,0.16)"],
+    [0.62, 0.08, 22, "rgba(255,228,168,0.18)"],
+    [0.06, 0.12, 24, "rgba(255,206,120,0.2)"],
+    [0.79, 0.44, 18, "rgba(120,150,210,0.12)"],
+    [0.2, 0.52, 16, "rgba(255,196,110,0.12)"],
+  ] as const;
+  for (const [x, y, r, fill] of BOKEH) {
+    const b = ctx.createRadialGradient(x * 512, y * 512, 0, x * 512, y * 512, r);
+    b.addColorStop(0, fill);
+    b.addColorStop(0.62, fill.replace(/[\d.]+\)$/, "0.10)"));
+    b.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = b;
+    ctx.fillRect(x * 512 - r, y * 512 - r, r * 2, r * 2);
+  }
+
+  /* The slate the bottle is standing on. A flat band rather than a modelled
+     plinth: the camera is barely above the bottle's waist, so the table is a
+     horizon, and a horizon is a gradient. */
+  const slate = ctx.createLinearGradient(0, 372, 0, 512);
+  slate.addColorStop(0, "rgba(3,3,3,0)");
+  slate.addColorStop(0.28, "rgba(6,6,7,0.72)");
+  slate.addColorStop(1, "rgba(2,2,3,0.94)");
+  ctx.fillStyle = slate;
+  ctx.fillRect(0, 372, 512, 140);
+
+  const tex = new CanvasTexture(c);
+  tex.colorSpace = SRGBColorSpace;
+  return tex;
+}
+
+/**
+ * The bottle's shadow and reflection on the slate.
+ *
+ * Without it the model floats: the photographs all stand the bottle on a
+ * plinth with a hard contact shadow and a wet sheen running out from the
+ * base, and that contact is most of what makes a product shot look placed
+ * rather than pasted. A disc that fades to nothing at its rim, rather than a
+ * table with an edge, because a visible table edge would need the rest of the
+ * room to go with it.
+ */
+function makeGroundTexture(): CanvasTexture {
+  const c = document.createElement("canvas");
+  c.width = 256;
+  c.height = 256;
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("2d context unavailable");
+
+  /* Sheen first — a broad warm pool picking up the strip lights. */
+  const sheen = ctx.createRadialGradient(128, 128, 10, 128, 128, 128);
+  sheen.addColorStop(0, "rgba(96,74,42,0.55)");
+  sheen.addColorStop(0.42, "rgba(38,30,19,0.42)");
+  sheen.addColorStop(0.78, "rgba(10,9,7,0.2)");
+  sheen.addColorStop(1, "rgba(4,4,4,0)");
+  ctx.fillStyle = sheen;
   ctx.fillRect(0, 0, 256, 256);
+
+  /* Contact shadow: tight, dark, and sitting exactly under the foot. */
+  const shadow = ctx.createRadialGradient(128, 128, 4, 128, 128, 52);
+  shadow.addColorStop(0, "rgba(0,0,0,0.92)");
+  shadow.addColorStop(0.55, "rgba(0,0,0,0.68)");
+  shadow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = shadow;
+  ctx.fillRect(0, 0, 256, 256);
+
   const tex = new CanvasTexture(c);
   tex.colorSpace = SRGBColorSpace;
   return tex;
@@ -201,6 +281,8 @@ export default function BottleScene({
   accentDeep,
   seed,
   label,
+  labelSrc,
+  fruit,
   onReady,
   onUnsupported,
   className = "",
@@ -281,6 +363,9 @@ export default function BottleScene({
     const camera = new PerspectiveCamera(30, 1, 0.1, 100);
 
     let backdrop: CanvasTexture | null = null;
+    let groundTex: CanvasTexture | null = null;
+    let groundGeo: CircleGeometry | null = null;
+    let groundMat: MeshBasicMaterial | null = null;
     let envRT: WebGLRenderTarget | null = null;
     let bottle: ReturnType<typeof buildBottle> | null = null;
 
@@ -306,10 +391,29 @@ export default function BottleScene({
         anisotropy: renderer.capabilities.getMaxAnisotropy(),
       });
       scene.add(bottle.group);
+
+      /* Ground, sitting a hair under the bottle's foot. Transparent, so it
+         never reaches the transmission buffer and the glass never tries to
+         refract the floor it is standing on. */
+      groundTex = makeGroundTexture();
+      groundGeo = new CircleGeometry(3.1, lowPower ? 32 : 56);
+      groundGeo.rotateX(-Math.PI / 2);
+      groundMat = new MeshBasicMaterial({
+        map: groundTex,
+        transparent: true,
+        depthWrite: false,
+      });
+      const ground = new Mesh(groundGeo, groundMat);
+      ground.position.y = -BOTTLE_HEIGHT / 2 - 0.01;
+      ground.renderOrder = -1;
+      scene.add(ground);
     } catch {
       bottle?.dispose();
       envRT?.dispose();
       backdrop?.dispose();
+      groundTex?.dispose();
+      groundGeo?.dispose();
+      groundMat?.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
       canvas.remove();
@@ -332,6 +436,13 @@ export default function BottleScene({
     bounce.position.set(2.8, -2.6, 2.4);
     scene.add(key, rimGold, rimCool, bounce);
 
+    /* --- fruit -----------------------------------------------------------
+       Loaded, not built: the cutouts are files. The field is created only
+       once they resolve, so a slow connection costs the fruit and nothing
+       else, and the bottle is interactive throughout. */
+    let field: FruitField | null = null;
+    let disposed = false;
+
     /* --- framing --------------------------------------------------------- */
     let radPerPx = 0.008;
 
@@ -351,6 +462,16 @@ export default function BottleScene({
       camera.position.set(0, 1.25, Math.max(distV, distH));
       camera.lookAt(0, 0.05, 0);
       camera.updateProjectionMatrix();
+
+      /* The fruit is laid out against the frame rather than in world units,
+         so it has to be re-placed whenever the frame changes shape. */
+      field?.setFrame(
+        camera.position.y,
+        camera.position.z,
+        0.05,
+        Math.tan(vFov / 2),
+        camera.aspect,
+      );
 
       /* One full turn per ~1.4 container widths of drag. */
       radPerPx = (Math.PI * 2) / (w * 1.4);
@@ -472,15 +593,21 @@ export default function BottleScene({
     /* --- loop ------------------------------------------------------------ */
     let raf: number | null = null;
     let last = performance.now();
+    let elapsed = 0;
     let visible = document.visibilityState === "visible";
     let onScreen = true;
     let announced = false;
+    /* The photographed label is a file; the drawn one is not. Nothing is
+       announced until one of them has settled, so the poster holds the frame
+       instead of cross-fading to a bottle that is about to change. */
+    let labelSettled = !labelSrc;
 
     const draw = (now: number) => {
       /* Clamped: a long GC pause or a missed visibility event would otherwise
          teleport the bottle a third of a turn on the next frame. */
       const dt = Math.min((now - last) / 1000, 1 / 20);
       last = now;
+      elapsed += dt;
 
       if (!dragging) {
         if (Math.abs(spin.velocity) > REST) {
@@ -501,11 +628,20 @@ export default function BottleScene({
         }
       }
 
+      if (field) {
+        /* Ambient motion, so it stops dead under reduced motion — the fruit
+           then simply sits in its resting composition, which is a picture in
+           its own right rather than a viewer with something missing. Dragging
+           the bottle is a direct action and stays available either way. */
+        field.update(elapsed, reduced);
+        if (!reduced) dirty = true;
+      }
+
       if (dirty) {
         dirty = false;
         if (bottle) bottle.group.rotation.y = spin.angle;
         renderer.render(scene, camera);
-        if (!announced) {
+        if (!announced && labelSettled) {
           announced = true;
           readyRef.current?.();
         }
@@ -564,6 +700,50 @@ export default function BottleScene({
       ro.observe(host);
     }
 
+    /* --- photographed assets ---------------------------------------------
+       Both loads are fire-and-forget and both check `disposed` on arrival:
+       the modal can be shut inside the time a texture takes to decode, and a
+       texture handed to a torn-down scene has to free itself rather than
+       leak. */
+    const anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    let labelTimer: number | null = null;
+    if (labelSrc) {
+      labelTimer = window.setTimeout(() => {
+        labelSettled = true;
+        dirty = true;
+      }, LABEL_GRACE);
+
+      void loadImageTexture(labelSrc, anisotropy).then((tex) => {
+        if (disposed) {
+          tex?.dispose();
+          return;
+        }
+        if (tex) bottle?.useLabelTexture(tex);
+        labelSettled = true;
+        dirty = true;
+        start();
+      });
+    }
+
+    if (fruit && fruit.length) {
+      void loadImageTextures(
+        fruit.map((f) => f.src),
+        anisotropy,
+      ).then((textures) => {
+        if (disposed) {
+          for (const t of textures) t?.dispose();
+          return;
+        }
+        field = buildFruitField(fruit, textures);
+        scene.add(field.group);
+        frame(); // places the pieces against the current framing
+        field.update(elapsed, reduced);
+        dirty = true;
+        start();
+      });
+    }
+
     start();
 
     /* --- teardown --------------------------------------------------------
@@ -575,7 +755,12 @@ export default function BottleScene({
        ~16 context ceiling. It also takes the renderer's internal transmission
        render target with it, which is not reachable from the public API. */
     return () => {
+      /* Set first: an image still in flight resolves into a scene that no
+         longer exists, and this is the flag that tells it to free itself
+         instead of attaching to the wreckage. */
+      disposed = true;
       stop();
+      if (labelTimer !== null) window.clearTimeout(labelTimer);
       io?.disconnect();
       ro?.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
@@ -592,18 +777,22 @@ export default function BottleScene({
       rimCool.dispose();
       bounce.dispose();
 
+      field?.dispose();
       bottle?.dispose();
       scene.environment = null;
       scene.background = null;
       envRT?.dispose();
       backdrop?.dispose();
+      groundTex?.dispose();
+      groundGeo?.dispose();
+      groundMat?.dispose();
       scene.clear();
 
       renderer.dispose();
       renderer.forceContextLoss();
       canvas.remove();
     };
-  }, [accent, accentDeep, seed]);
+  }, [accent, accentDeep, seed, labelSrc, fruit]);
 
   return (
     <div

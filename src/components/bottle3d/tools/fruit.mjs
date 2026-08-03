@@ -40,9 +40,9 @@
 export const FRUIT_CUTS = {
   "classic-orange": [
     { x: 658, y: 858, r: 100, place: { x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
-    { x: 150, y: 690, r: 62, place: { x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
+    { x: 148, y: 686, r: 56, place: { x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
     { x: 858, y: 546, r: 68, place: { x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
-    { x: 445, y: 918, r: 76, place: { x: 0.72, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 } },
+    { x: 450, y: 912, r: 68, place: { x: 0.72, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 } },
   ],
   apple: [
     { x: 654, y: 866, r: 108, place: { x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
@@ -210,6 +210,12 @@ export function cutFruit(s, cut) {
   }
   for (let k = 0; k < solid.length; k++) if (!outside[k]) solid[k] = 1;
 
+  /* One last pass for the loose satellites — the scatter of berries and seeds
+     the stylist threw across the plinth. They survive everything above,
+     because they are genuinely bright and genuinely coloured; what they are
+     not is attached to the fruit. */
+  const single = centralComponent(solid, size, cut.r * 0.4);
+
   /* Feather: a box blur of the hard mask, remapped so the soft edge lands
      *inside* the silhouette and eats the last of the slate rather than
      leaving a rim of it. */
@@ -224,7 +230,7 @@ export function cutFruit(s, cut) {
         for (let a = -R; a <= R; a++) {
           const ii = i + a;
           if (ii < 0 || ii >= size) continue;
-          sum += solid[jj * size + ii];
+          sum += single[jj * size + ii];
           n++;
         }
       }

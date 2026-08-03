@@ -57,6 +57,14 @@ import {
   makeSurfaceTexture,
 } from "./bottleTextures";
 
+/**
+ * Linear multiplier on the juice's albedo, so the lit result lands on the
+ * colour the photograph actually shows. Calibrated by rendering all seven
+ * bottles and measuring the body against the sampled value — see the note on
+ * `liquidMat.color` below.
+ */
+const JUICE_ALBEDO = 0.45;
+
 /* ------------------------------------------------------------------ *
  * Profile queries
  * ------------------------------------------------------------------ */
@@ -322,6 +330,18 @@ export function buildBottle(opts: BottleBuildOptions): BottleBuild {
     envMapIntensity: 0.6,
     side: FrontSide,
   });
+  /* The map is an ALBEDO; the colour it was sampled from is a LIT RESULT.
+     The four directional lights in the scene were tuned for glass and a
+     moulded cap, both of which live on their speculars — pointed at a broad
+     diffuse surface they total well over unity, and ACES answers that by
+     rolling everything towards white. Measured against the photographs the
+     juice was coming back up to 2.5x too green and 18x too blue: not a tint,
+     a wash. Scaling the albedo is the same thing as dimming the lights on
+     this one surface, and dropping back under the tone curve's shoulder is
+     what returns the saturation. `setScalar` writes the working (linear)
+     space directly — `setHex` would put the number through sRGB decode first
+     and dim it roughly twice as far as intended. */
+  liquidMat.color.setScalar(JUICE_ALBEDO);
   materials.push(liquidMat);
   group.add(new Mesh(liquidGeo, liquidMat));
 
