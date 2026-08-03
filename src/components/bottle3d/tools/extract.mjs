@@ -243,9 +243,9 @@ export interface PhotoFruit {
 }
 
 export interface PhotoAssets {
-  /** Median of the lit body above the sticker. */
+  /** Just below the median of the lit body above the sticker. */
   accent: string;
-  /** Median of the deep liquid either side of the sticker. */
+  /** The shadowed sixth of that same liquid. */
   accentDeep: string;
   /** The real sticker, unwrapped off the bottle's cylinder. */
   label: string;
@@ -259,14 +259,18 @@ ${manifest
     accent: "${m.accent}",
     accentDeep: "${m.accentDeep}",
     label: "${m.label}",
-    fruit: [
-${m.fruit
-  .map(
-    (f) =>
-      `      { src: "${f.src}", x: ${f.x}, y: ${f.y}, z: ${f.z}, size: ${f.size}, roll: ${f.roll}, rate: ${f.rate} },`,
-  )
-  .join("\n")}
-    ],
+    fruit: [${
+      m.fruit.length
+        ? "\n" +
+          m.fruit
+            .map(
+              (f) =>
+                `      { src: "${f.src}", x: ${f.x}, y: ${f.y}, z: ${f.z}, size: ${f.size}, roll: ${f.roll}, rate: ${f.rate} },`,
+            )
+            .join("\n") +
+          "\n    "
+        : ""
+    }],
   },`,
   )
   .join("\n")}

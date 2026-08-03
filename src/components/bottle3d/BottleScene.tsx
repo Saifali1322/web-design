@@ -44,6 +44,8 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 
 import { BOTTLE_HEIGHT } from "./bottleProfile";
 import { buildBottle } from "./buildBottle";
+import { loadImageTexture } from "./loadImageTexture";
+import type { PhotoFruit } from "./photoAssets";
 
 /** Seconds of no input before the bottle starts turning by itself. */
 const IDLE_DELAY = 2.6;
@@ -63,6 +65,17 @@ const MAX_SPEED = 7;
 const REST = 0.015;
 /** Arrow-key step. */
 const KEY_STEP = 0.18;
+/**
+ * How long the first frame will wait for the photographed sticker, ms.
+ *
+ * The label is a file and the bottle is not, so there is a window where the
+ * model exists and its artwork does not. Holding the poster cross-fade for a
+ * beat means the usual visitor never sees the drawn label at all — they get
+ * the real one, first frame. Past this the bottle appears with the drawn label
+ * and sharpens when the file lands, which is a better trade than staring at a
+ * static poster on a slow connection.
+ */
+const LABEL_GRACE = 1200;
 
 export interface BottleSceneProps {
   accent: string;
@@ -70,6 +83,14 @@ export interface BottleSceneProps {
   seed: number;
   /** Accessible name for the interactive canvas. */
   label: string;
+  /**
+   * The real sticker, cut out of the product photograph. Optional: without it
+   * the bottle keeps the drawn label, which is also what happens if the file
+   * fails to load.
+   */
+  labelSrc?: string;
+  /** Cut fruit to drift around the bottle. Empty is fine. */
+  fruit?: readonly PhotoFruit[];
   /** Fired after the first painted frame, so the poster can cross-fade out. */
   onReady?: () => void;
   /** No WebGL2, or setup blew up. Caller should stay on the SVG. */

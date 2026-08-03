@@ -217,6 +217,16 @@ export interface BottleBuildOptions {
 export interface BottleBuild {
   /** Spin this on Y. Already centred on the origin. */
   group: Group;
+  /**
+   * Swaps the drawn label for the photographed one, once it has decoded.
+   *
+   * The bottle is built synchronously so the first frame is never waiting on
+   * the network, which means the real sticker — a file, and therefore a
+   * promise — can only arrive afterwards. Ownership of `tex` transfers here:
+   * it goes on the build's disposal list and the texture it replaces is freed
+   * immediately.
+   */
+  useLabelTexture(tex: Texture): void;
   dispose(): void;
 }
 
@@ -468,6 +478,20 @@ export function buildBottle(opts: BottleBuildOptions): BottleBuild {
 
   return {
     group,
+
+    useLabelTexture(tex: Texture) {
+      const previous = labelMat.map;
+      labelMat.map = track(tex);
+      labelMat.needsUpdate = true;
+      if (previous) {
+        /* Drop it from the disposal list as well as from the GPU — leaving a
+           disposed texture there would double-free on unmount. */
+        const i = textures.indexOf(previous);
+        if (i >= 0) textures.splice(i, 1);
+        previous.dispose();
+      }
+    },
+
     dispose() {
       for (const g of geometries) g.dispose();
       for (const m of materials) m.dispose();

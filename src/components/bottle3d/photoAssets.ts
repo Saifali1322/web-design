@@ -23,9 +23,9 @@ export interface PhotoFruit {
 }
 
 export interface PhotoAssets {
-  /** Median of the lit body above the sticker. */
+  /** Just below the median of the lit body above the sticker. */
   accent: string;
-  /** Median of the deep liquid either side of the sticker. */
+  /** The shadowed sixth of that same liquid. */
   accentDeep: string;
   /** The real sticker, unwrapped off the bottle's cylinder. */
   label: string;
@@ -38,7 +38,10 @@ export const PHOTO_ASSETS: Record<string, PhotoAssets> = {
     accentDeep: "#C16802",
     label: "/bottle3d/label-classic-orange.png",
     fruit: [
-
+      { src: "/bottle3d/fruit-classic-orange-1.png", x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 },
+      { src: "/bottle3d/fruit-classic-orange-2.png", x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 },
+      { src: "/bottle3d/fruit-classic-orange-3.png", x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 },
+      { src: "/bottle3d/fruit-classic-orange-4.png", x: 0.72, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 },
     ],
   },
   "apple": {
@@ -46,7 +49,10 @@ export const PHOTO_ASSETS: Record<string, PhotoAssets> = {
     accentDeep: "#7A8502",
     label: "/bottle3d/label-apple.png",
     fruit: [
-
+      { src: "/bottle3d/fruit-apple-1.png", x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 },
+      { src: "/bottle3d/fruit-apple-2.png", x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 },
+      { src: "/bottle3d/fruit-apple-3.png", x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 },
+      { src: "/bottle3d/fruit-apple-4.png", x: 0.72, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 },
     ],
   },
   "pineapple": {
@@ -54,7 +60,10 @@ export const PHOTO_ASSETS: Record<string, PhotoAssets> = {
     accentDeep: "#A05205",
     label: "/bottle3d/label-pineapple.png",
     fruit: [
-
+      { src: "/bottle3d/fruit-pineapple-1.png", x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 },
+      { src: "/bottle3d/fruit-pineapple-2.png", x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 },
+      { src: "/bottle3d/fruit-pineapple-3.png", x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 },
+      { src: "/bottle3d/fruit-pineapple-4.png", x: 0.72, y: -0.56, z: 0.4, size: 0.5, roll: 0.62, rate: 0.9 },
     ],
   },
   "orange-carrot": {
@@ -62,7 +71,10 @@ export const PHOTO_ASSETS: Record<string, PhotoAssets> = {
     accentDeep: "#C34402",
     label: "/bottle3d/label-orange-carrot.png",
     fruit: [
-
+      { src: "/bottle3d/fruit-orange-carrot-1.png", x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 },
+      { src: "/bottle3d/fruit-orange-carrot-2.png", x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 },
+      { src: "/bottle3d/fruit-orange-carrot-3.png", x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 },
+      { src: "/bottle3d/fruit-orange-carrot-4.png", x: 0.72, y: -0.56, z: 0.4, size: 0.72, roll: 0.62, rate: 0.9 },
     ],
   },
   "watermelon": {
@@ -70,7 +82,10 @@ export const PHOTO_ASSETS: Record<string, PhotoAssets> = {
     accentDeep: "#AC1421",
     label: "/bottle3d/label-watermelon.png",
     fruit: [
-
+      { src: "/bottle3d/fruit-watermelon-1.png", x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 },
+      { src: "/bottle3d/fruit-watermelon-2.png", x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 },
+      { src: "/bottle3d/fruit-watermelon-3.png", x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 },
+      { src: "/bottle3d/fruit-watermelon-4.png", x: 0.72, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 },
     ],
   },
   "pomegranate": {
@@ -78,7 +93,10 @@ export const PHOTO_ASSETS: Record<string, PhotoAssets> = {
     accentDeep: "#5C080E",
     label: "/bottle3d/label-pomegranate.png",
     fruit: [
-
+      { src: "/bottle3d/fruit-pomegranate-1.png", x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 },
+      { src: "/bottle3d/fruit-pomegranate-2.png", x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 },
+      { src: "/bottle3d/fruit-pomegranate-3.png", x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 },
+      { src: "/bottle3d/fruit-pomegranate-4.png", x: 0.72, y: -0.56, z: 0.4, size: 0.62, roll: 0.62, rate: 0.9 },
     ],
   },
   "mango": {
@@ -86,7 +104,10 @@ export const PHOTO_ASSETS: Record<string, PhotoAssets> = {
     accentDeep: "#C56605",
     label: "/bottle3d/label-mango.png",
     fruit: [
-
+      { src: "/bottle3d/fruit-mango-1.png", x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 },
+      { src: "/bottle3d/fruit-mango-2.png", x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 },
+      { src: "/bottle3d/fruit-mango-3.png", x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 },
+      { src: "/bottle3d/fruit-mango-4.png", x: 0.72, y: -0.56, z: 0.4, size: 0.72, roll: 0.62, rate: 0.9 },
     ],
   },
 };
