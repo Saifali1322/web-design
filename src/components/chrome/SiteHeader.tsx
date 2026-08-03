@@ -12,16 +12,21 @@ import { BASKET_TARGET_ATTR } from "@/components/ui/flyToBasket";
  * somebody reads when they are deciding whether to trust a kitchen they have
  * never been to.
  *
- * The bar opens at lg rather than md. Six items at this letter-spacing need
+ * The bar opens at lg rather than md. Five items at this letter-spacing need
  * about 880px alongside the logo and the basket; at md they were fitting only
  * by wrapping "Build a Blend" and "Weekly Drops" onto two lines each, which
  * looked like a mistake. Tablets get the same sheet as phones instead.
+ *
+ * Delivery was here too until it was cut down to five. The page still exists
+ * and is still linked from the footer and from the postcode checker on
+ * /subscribe — this only removes it from the header, because its one real
+ * job (checking a postcode) is already sitting on /subscribe and /menu.
+ * Add the line back to bring it back into the header.
  */
 const nav = [
   { href: "/menu", label: "Menu" },
   { href: "/mixer", label: "Build a Blend" },
   { href: "/subscribe", label: "Weekly Drops" },
-  { href: "/delivery", label: "Delivery" },
   { href: "/about", label: "About" },
   { href: "/faq", label: "Questions" },
 ];
