@@ -88,9 +88,6 @@ const LABEL_CX = 100;
 const LABEL_CY = 310;
 const LABEL_R = 76;
 
-/** `JC.`, printed white on the glass 0.82 label-diameters below the label. */
-const JC_BASELINE = 448;
-
 /**
  * Outer glass silhouette — the cap sits on top of this.
  *
@@ -433,7 +430,6 @@ export function BottleArt({
     showLabel &&
     labelDetail === "full" &&
     (arcs ?? (typeof width === "number" ? width >= 120 : true));
-  const showFine = labelDetail === "full";
   const bubbleList = bubbles > 0 ? bubbleSpecs(seed, bubbles) : [];
   const drops = dropletCount > 0 ? droplets(seed, dropletCount) : [];
   const foam = foamCells(seed, dropletCount > 0 ? 54 : 24);
@@ -883,24 +879,6 @@ export function BottleArt({
         />
       ) : null}
 
-      {/* ---- JC. ----
-           Printed white on the glass below the label. Drawn after the label so
-           it is never covered by the sweep's clip group. */}
-      {showFine ? (
-        <text
-          x={LABEL_CX}
-          y={JC_BASELINE}
-          textAnchor="middle"
-          fill="#ffffff"
-          fillOpacity="0.93"
-          fontSize="33"
-          fontWeight="700"
-          letterSpacing="0.5"
-          fontFamily="var(--font-jost), system-ui, sans-serif"
-        >
-          JC.
-        </text>
-      ) : null}
     </svg>
   );
 }
