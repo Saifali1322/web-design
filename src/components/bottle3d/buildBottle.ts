@@ -30,9 +30,6 @@ import {
   CAP_RIB_BAND,
   CAP_RIB_COUNT,
   FOAM_BOTTOM_Y,
-  JC_BASELINE_Y,
-  JC_PATCH_H,
-  JC_PATCH_W,
   LABEL_CY,
   LABEL_HALF_ARC,
   LABEL_R,
@@ -51,7 +48,6 @@ import {
   dropletLayout,
   makeCondensationNormal,
   makeCondensationRoughness,
-  makeJCTexture,
   makeJuiceTexture,
   makeLabelTexture,
   makeSurfaceTexture,
@@ -404,42 +400,6 @@ export function buildBottle(opts: BottleBuildOptions): BottleBuild {
   const label = new Mesh(labelGeo, labelMat);
   label.renderOrder = 6;
   group.add(label);
-
-  /* ---- JC. ----
-     Its own patch, same trick as the label: a curved quad carrying flat
-     artwork. Additive rather than alpha-blended would bloom over the juice, so
-     it is a plain transparent map sitting a hair off the glass. */
-
-  const jcMidR = radiusAtY(outer, JC_BASELINE_Y - JC_PATCH_H / 2) - 100;
-  const jcHalfArc = JC_PATCH_W / 2;
-  const jcGeo = curvedPatch(
-    outer,
-    JC_BASELINE_Y - JC_PATCH_H,
-    JC_BASELINE_Y,
-    jcHalfArc,
-    jcMidR,
-    standoff,
-    lowPower ? 20 : 32,
-    2,
-  );
-  geometries.push(jcGeo);
-
-  const jcTex = track(makeJCTexture(lowPower ? 192 : 256));
-  const jcMat = new MeshPhysicalMaterial({
-    map: jcTex,
-    transparent: true,
-    depthWrite: false,
-    metalness: 0,
-    roughness: 0.5,
-    clearcoat: 0.6,
-    clearcoatRoughness: 0.2,
-    envMapIntensity: 0.9,
-    side: FrontSide,
-  });
-  materials.push(jcMat);
-  const jc = new Mesh(jcGeo, jcMat);
-  jc.renderOrder = 6;
-  group.add(jc);
 
   /* ---- cap ---- */
 

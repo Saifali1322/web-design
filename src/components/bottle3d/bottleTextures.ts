@@ -23,7 +23,7 @@ import {
   type Texture,
 } from "three";
 
-import { JC_PATCH_H, JC_PATCH_W, LABEL_CY, LABEL_R } from "./bottleProfile";
+import { LABEL_CY, LABEL_R } from "./bottleProfile";
 
 const GOLD = "#d4a63c";
 const GOLD_PALE = "#f7e6ae";
@@ -351,29 +351,6 @@ export function makeLabelTexture(size = 1024): Texture {
   ctx.fillStyle = GOLD_PALE;
   ctx.font = `400 9px ${display}`;
   tracked(ctx, "330ml", cx, cy + 50, 0.8);
-
-  const tex = new CanvasTexture(c);
-  tex.colorSpace = SRGBColorSpace;
-  tex.minFilter = LinearMipmapLinearFilter;
-  tex.magFilter = LinearFilter;
-  return tex;
-}
-
-/**
- * `JC.` as it is printed on the glass: white, opaque, transparent everywhere
- * else. Rides its own curved patch below the label for the same reason the
- * label does — a flat texture beats projecting type onto a lathe.
- */
-export function makeJCTexture(size = 256): Texture {
-  const [c, ctx] = canvas(size, Math.round(size * (JC_PATCH_H / JC_PATCH_W)));
-  const sans = fontStack("--font-jost", "system-ui, sans-serif");
-  const s = size / JC_PATCH_W;
-  ctx.setTransform(s, 0, 0, s, 0, 0);
-  ctx.fillStyle = "rgba(255,255,255,0.93)";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "alphabetic";
-  ctx.font = `700 33px ${sans}`;
-  tracked(ctx, "JC.", JC_PATCH_W / 2, 36, 0.5);
 
   const tex = new CanvasTexture(c);
   tex.colorSpace = SRGBColorSpace;

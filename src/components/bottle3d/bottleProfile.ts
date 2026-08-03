@@ -38,11 +38,6 @@ export const FOAM_BOTTOM_Y = 184;
 export const LABEL_CY = 310;
 export const LABEL_R = 76;
 
-/** `JC.` printed on the glass below the label — BottleArt's baseline. */
-export const JC_BASELINE_Y = 448;
-export const JC_PATCH_H = 46;
-export const JC_PATCH_W = 78;
-
 /**
  * How far round the bottle the label physically wraps, as an arc half-length
  * in SVG units.
