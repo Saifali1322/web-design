@@ -3,23 +3,30 @@
 /**
  * The WebGL half of the bottle viewer.
  *
- * This module is the ONLY place three.js is imported, and it is never imported
- * statically — `Bottle3DViewer` reaches it through `next/dynamic`, so the whole
- * renderer lands in its own chunk that the /menu route never downloads until
- * somebody actually asks to spin a bottle. Anything added here is added to that
- * chunk; keep the light stuff in `Bottle3DViewer`.
+ * This module is the only ENTRY POINT into three.js — `buildBottle`,
+ * `fruitField` and the rest import it too, but nothing reaches them except
+ * through here, and here is never imported statically. `Bottle3DViewer` gets
+ * at it through `next/dynamic`, so the whole renderer lands in its own chunk
+ * that the /menu route never downloads until somebody actually asks to spin a
+ * bottle. Anything added below this line is added to that chunk; keep the
+ * light stuff in `Bottle3DViewer`.
  *
  * Three rules this file exists to keep:
  *
  *  1. It never crashes the page. Anything that can fail — context creation,
- *     PMREM, canvas 2D — fails into `onUnsupported()` and the caller quietly
- *     keeps showing the SVG poster.
+ *     PMREM, canvas 2D, a photograph that will not load — fails into
+ *     `onUnsupported()` or into a shrug, and the caller quietly keeps showing
+ *     the SVG poster.
  *  2. It gives the context back. Browsers cap live WebGL contexts at around 16
  *     and mobile Safari is stricter still, so opening the viewer twenty times
  *     has to leave zero contexts behind. See the teardown at the bottom.
  *  3. It only draws when the picture would differ from the last one. The
  *     transmission pass renders the scene twice per frame; painting a bottle
  *     that has not moved is the single most expensive thing this could do.
+ *     Drifting fruit does mean the picture differs on most frames — but so
+ *     did the idle auto-spin that has always run after 2.6 seconds, so the
+ *     steady state has not changed. Under reduced motion both stop and the
+ *     loop goes back to idling on a still frame.
  */
 
 import { useEffect, useRef } from "react";

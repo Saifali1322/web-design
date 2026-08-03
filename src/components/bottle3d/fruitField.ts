@@ -95,10 +95,13 @@ export function buildFruitField(
     const mesh = new Mesh(geometry, material);
     mesh.scale.setScalar(entry.size);
     mesh.rotation.z = entry.roll;
-    /* Behind the label and the JC. patch in the transparent queue, so a piece
-       drifting past the front of the bottle can never sit on top of the
-       artwork it is meant to be framing. */
-    mesh.renderOrder = 3;
+    /* After the label and the JC. patch (6) in the transparent queue.
+       Ordering there is by renderOrder first, and the label writes no depth,
+       so drawing the fruit earlier would let the label paint straight over a
+       piece that is physically in front of it. Going last is right in both
+       directions: a piece BEHIND the bottle is already rejected by the
+       glass's depth, whatever order it is drawn in. */
+    mesh.renderOrder = 7;
     group.add(mesh);
 
     pieces.push({

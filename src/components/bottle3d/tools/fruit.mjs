@@ -39,46 +39,46 @@
  */
 export const FRUIT_CUTS = {
   "classic-orange": [
-    { x: 658, y: 858, r: 100, place: { x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
-    { x: 148, y: 686, r: 56, place: { x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
-    { x: 858, y: 546, r: 68, place: { x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
-    { x: 450, y: 912, r: 68, place: { x: 0.72, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 } },
+    { x: 658, y: 858, r: 100, place: { x: -0.62, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
+    { x: 148, y: 686, r: 56, place: { x: 0.72, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
+    { x: 858, y: 546, r: 68, place: { x: -0.7, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
+    { x: 450, y: 912, r: 68, place: { x: 0.66, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 } },
   ],
   apple: [
-    { x: 654, y: 866, r: 108, place: { x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
-    { x: 156, y: 686, r: 62, place: { x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
-    { x: 858, y: 556, r: 70, place: { x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
-    { x: 444, y: 906, r: 80, place: { x: 0.72, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 } },
+    { x: 654, y: 866, r: 108, place: { x: -0.62, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
+    { x: 156, y: 686, r: 62, place: { x: 0.72, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
+    { x: 858, y: 556, r: 70, place: { x: -0.7, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
+    { x: 444, y: 906, r: 80, place: { x: 0.66, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 } },
   ],
   pineapple: [
-    { x: 660, y: 858, r: 106, place: { x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
-    { x: 160, y: 680, r: 72, place: { x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
-    { x: 858, y: 562, r: 70, place: { x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
-    { x: 448, y: 892, r: 68, place: { x: 0.72, y: -0.56, z: 0.4, size: 0.5, roll: 0.62, rate: 0.9 } },
+    { x: 660, y: 858, r: 106, place: { x: -0.62, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
+    { x: 160, y: 680, r: 72, place: { x: 0.72, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
+    { x: 858, y: 562, r: 70, place: { x: -0.7, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
+    { x: 448, y: 892, r: 68, place: { x: 0.66, y: -0.56, z: 0.4, size: 0.5, roll: 0.62, rate: 0.9 } },
   ],
   "orange-carrot": [
-    { x: 670, y: 866, r: 92, place: { x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
-    { x: 158, y: 700, r: 62, place: { x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
-    { x: 870, y: 572, r: 58, place: { x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
-    { x: 360, y: 866, r: 88, place: { x: 0.72, y: -0.56, z: 0.4, size: 0.72, roll: 0.62, rate: 0.9 } },
+    { x: 670, y: 866, r: 92, place: { x: -0.62, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
+    { x: 158, y: 700, r: 62, place: { x: 0.72, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
+    { x: 870, y: 572, r: 58, place: { x: -0.7, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
+    { x: 360, y: 866, r: 88, place: { x: 0.66, y: -0.56, z: 0.4, size: 0.72, roll: 0.62, rate: 0.9 } },
   ],
   watermelon: [
-    { x: 676, y: 848, r: 106, place: { x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
-    { x: 158, y: 686, r: 70, place: { x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
-    { x: 862, y: 548, r: 70, place: { x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
-    { x: 340, y: 862, r: 96, place: { x: 0.72, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 } },
+    { x: 676, y: 848, r: 106, place: { x: -0.62, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
+    { x: 158, y: 686, r: 70, place: { x: 0.72, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
+    { x: 862, y: 548, r: 70, place: { x: -0.7, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
+    { x: 340, y: 862, r: 96, place: { x: 0.66, y: -0.56, z: 0.4, size: 0.66, roll: 0.62, rate: 0.9 } },
   ],
   pomegranate: [
-    { x: 660, y: 862, r: 104, place: { x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
-    { x: 156, y: 694, r: 64, place: { x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
-    { x: 862, y: 548, r: 70, place: { x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
-    { x: 446, y: 898, r: 76, place: { x: 0.72, y: -0.56, z: 0.4, size: 0.62, roll: 0.62, rate: 0.9 } },
+    { x: 660, y: 862, r: 104, place: { x: -0.62, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
+    { x: 156, y: 694, r: 64, place: { x: 0.72, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
+    { x: 862, y: 548, r: 70, place: { x: -0.7, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
+    { x: 446, y: 898, r: 76, place: { x: 0.66, y: -0.56, z: 0.4, size: 0.62, roll: 0.62, rate: 0.9 } },
   ],
   mango: [
-    { x: 668, y: 862, r: 106, place: { x: -0.74, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
-    { x: 156, y: 682, r: 62, place: { x: 0.78, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
-    { x: 872, y: 566, r: 66, place: { x: -0.8, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
-    { x: 372, y: 878, r: 100, place: { x: 0.72, y: -0.56, z: 0.4, size: 0.72, roll: 0.62, rate: 0.9 } },
+    { x: 668, y: 862, r: 106, place: { x: -0.62, y: -0.52, z: 0.9, size: 0.86, roll: -0.18, rate: 1 } },
+    { x: 156, y: 682, r: 62, place: { x: 0.72, y: -0.14, z: -0.7, size: 0.62, roll: 0.34, rate: 0.72 } },
+    { x: 872, y: 566, r: 66, place: { x: -0.7, y: 0.34, z: -1.3, size: 0.5, roll: -0.5, rate: 1.31 } },
+    { x: 372, y: 878, r: 100, place: { x: 0.66, y: -0.56, z: 0.4, size: 0.72, roll: 0.62, rate: 0.9 } },
   ],
 };
 
@@ -120,11 +120,16 @@ function otsu(hist, total) {
  *     strongly bimodal — lit fruit against black slate — which is the case
  *     Otsu was designed for. Taking less than it suggests keeps the fruit's
  *     own shadowed side attached instead of shaving it off.
- *  3. One connected component, grown from the middle. Splash that clears the
- *     fruit by even a pixel is dropped here; splash that touches it is not,
- *     which is why the crops were chosen where they were.
+ *  3. Erode, take the component covering the crop's middle, then grow it back
+ *     inside the un-eroded mask. This is the step that parts fruit from
+ *     splash: the two are equally bright and they touch, but they touch across
+ *     a few pixels of liquid film, and four pixels of erosion cuts that neck
+ *     while barely troubling a fruit ninety pixels wide.
  *  4. Hole fill, so a dark seed or a shadowed crease does not punch through.
- *  5. Feather, then bleed the colour outward under the transparent pixels.
+ *  5. Largest component again, which drops the loose berries and seeds the
+ *     stylist scattered over the plinth. They are genuinely bright and
+ *     genuinely coloured — the one thing they are not is attached.
+ *  6. Feather, then bleed the colour outward under the transparent pixels.
  *     Straight-alpha textures mip down towards whatever sits in the RGB of
  *     their transparent texels; leave that black and every piece grows a dark
  *     halo the moment it is minified, which is exactly how a cutout announces
