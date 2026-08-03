@@ -84,6 +84,49 @@ const TRAVEL_SEAL = 22; // closest thing in the frame, so it moves furthest
 const LIGHT_PERIOD = 11.5;
 const LIGHT_SPAN = 2.6;
 
+/**
+ * The rake itself.
+ *
+ * This was `screen` to begin with, and `screen` is wrong for it. Screen lifts
+ * every pixel it crosses by the same amount, so over the flat black around
+ * the bottles the band stopped being light on glass and became a pale smear
+ * with two visible vertical edges travelling across the page — the exact
+ * "sheen preset" tell the rest of this site avoids.
+ *
+ * `overlay` is luminance-dependent: on a black backdrop the result is 2·0·s,
+ * which is still black, and on the lit shoulder of a bottle it brightens
+ * hard. Same element, same transform, but now the light only lands where
+ * there is something for it to land on. It can be run much stronger as a
+ * result, because the places it would have given itself away are the places
+ * it now leaves alone.
+ *
+ * The stops are deliberately many and shallow. Four stops on a 30%-wide band
+ * put a discernible edge on each side of it; a rake of light does not have
+ * edges, it has a falloff.
+ */
+const LIGHT_GRADIENT =
+  "linear-gradient(100deg," +
+  " rgba(255,240,205,0) 0%," +
+  " rgba(255,242,210,0.05) 18%," +
+  " rgba(255,245,218,0.17) 34%," +
+  " rgba(255,250,232,0.42) 50%," +
+  " rgba(255,245,218,0.17) 66%," +
+  " rgba(255,242,210,0.05) 82%," +
+  " rgba(255,240,205,0) 100%)";
+
+/**
+ * Fades the ends of the band.
+ *
+ * The rake runs taller than the plate so it never shows a top or bottom edge
+ * while it crosses. That is fine over the photograph, but where a square shot
+ * is letterboxed there are a few percent of genuinely transparent plate top
+ * and bottom, and `overlay` against nothing composites as plain source — the
+ * one place the band could still show itself. Feathering its ends keeps it
+ * inside the picture.
+ */
+const LIGHT_MASK =
+  "linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%)";
+
 /** How long the crossfade between two photographs takes. */
 const FADE_MS = 900;
 
@@ -694,10 +737,11 @@ export function CinematicHero({
                     ref={lightRef}
                     aria-hidden="true"
                     data-hero-light=""
-                    className="pointer-events-none absolute -inset-y-[14%] left-0 w-[30%] mix-blend-screen"
+                    className="pointer-events-none absolute -inset-y-[12%] left-0 w-[34%] mix-blend-overlay"
                     style={{
-                      background:
-                        "linear-gradient(100deg, transparent 0%, rgba(255,240,205,0.10) 34%, rgba(255,248,228,0.28) 50%, rgba(255,240,205,0.10) 66%, transparent 100%)",
+                      background: LIGHT_GRADIENT,
+                      maskImage: LIGHT_MASK,
+                      WebkitMaskImage: LIGHT_MASK,
                       transform: "translate3d(-30%, 0, 0) rotate(9deg)",
                       opacity: 0,
                       willChange: "transform, opacity",
