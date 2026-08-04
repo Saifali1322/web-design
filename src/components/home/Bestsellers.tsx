@@ -43,7 +43,7 @@ export function Bestsellers() {
   return (
     <section
       aria-labelledby="bestsellers-heading"
-      className="relative border-t border-ink-line py-24 sm:py-32"
+      className="relative border-t border-ink-line py-16 sm:py-20"
     >
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
         {/* Heading and the sentence that defines the claim sit on one baseline

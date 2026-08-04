@@ -92,11 +92,15 @@ const commitments = [
   },
 ];
 
+/**
+ * Only the two questions that actually stop somebody signing up for a
+ * recurring charge: can I get out of a week, and can I get out altogether.
+ * Everything else this page could ask is already answered, in the same
+ * words, in the subscription section of /faq — repeating five more
+ * near-identical questions here was the single biggest thing making this
+ * page long for no reason. The link at the bottom covers the rest.
+ */
 const faqs = [
-  {
-    q: "Can I swap flavours?",
-    a: `Yes, any week. Message us on Instagram before ${DELIVERY.dropDay}'s drop with what you'd rather have and we'll swap it in. No extra charge, no admin.`,
-  },
   {
     q: "How do I skip a week if I'm away?",
     /* This says the payment is paused, not just the delivery, because a
@@ -109,18 +113,6 @@ const faqs = [
   {
     q: "How do I cancel?",
     a: "Whenever you like, no minimum term and no cancellation fee. Message us on Instagram, or use the link in your confirmation email, and it's off before your next payment.",
-  },
-  {
-    q: "When is payment taken?",
-    a: `Automatically, once a week, using the card you subscribe with, ahead of the ${DELIVERY.dropDay} drop. You'll get a receipt every time.`,
-  },
-  {
-    q: "What if I'm not in when you come?",
-    a: "We message you before we set off, so reply there and tell us where to leave it or when you'll be back. One van, one driver. It is easy to sort.",
-  },
-  {
-    q: "Do I have to subscribe to order?",
-    a: "Not at all. Everything on the menu can be bought one-off, with the usual minimum order and delivery charge. The subscription is only cheaper if you'd be ordering anyway.",
   },
 ];
 
@@ -160,7 +152,7 @@ export default function SubscribePage() {
       {/* ---------- How it works ---------- */}
       <section
         aria-labelledby="how-it-works"
-        className="mx-auto max-w-5xl px-5 py-10 sm:px-8"
+        className="mx-auto max-w-5xl px-5 py-7 sm:px-8"
       >
         <h2 id="how-it-works" className="sr-only">
           How the subscription works
@@ -187,7 +179,7 @@ export default function SubscribePage() {
       {/* ---------- Postcode first ---------- */}
       <section
         aria-labelledby="check-postcode"
-        className="mx-auto max-w-5xl px-5 py-10 sm:px-8"
+        className="mx-auto max-w-5xl px-5 py-7 sm:px-8"
       >
         <h2 id="check-postcode" className="mb-2 font-display text-xl text-cream">
           First, can we reach you?
@@ -207,7 +199,7 @@ export default function SubscribePage() {
           like. */}
       <section
         aria-labelledby="tiers"
-        className="mx-auto max-w-5xl px-5 py-10 sm:px-8"
+        className="mx-auto max-w-5xl px-5 py-7 sm:px-8"
       >
         <h2
           id="tiers"
@@ -239,7 +231,7 @@ export default function SubscribePage() {
       {/* ---------- What arrives ---------- */}
       <section
         aria-labelledby="arrives"
-        className="mx-auto max-w-5xl px-5 py-14 sm:px-8"
+        className="mx-auto max-w-5xl px-5 py-9 sm:px-8"
       >
         <h2
           id="arrives"
@@ -269,7 +261,7 @@ export default function SubscribePage() {
       {/* ---------- Why it's cheaper ---------- */}
       <section
         aria-labelledby="savings"
-        className="mx-auto max-w-5xl px-5 py-10 sm:px-8"
+        className="mx-auto max-w-5xl px-5 py-7 sm:px-8"
       >
         <h2
           id="savings"
@@ -356,7 +348,7 @@ export default function SubscribePage() {
       {/* ---------- Reducing the risk ---------- */}
       <section
         aria-labelledby="commitment"
-        className="mx-auto max-w-5xl px-5 py-14 sm:px-8"
+        className="mx-auto max-w-5xl px-5 py-9 sm:px-8"
       >
         <h2
           id="commitment"
@@ -386,13 +378,13 @@ export default function SubscribePage() {
           body copy is a chore to read. */}
       <section
         aria-labelledby="faq"
-        className="mx-auto max-w-5xl px-5 pb-24 pt-10 sm:px-8"
+        className="mx-auto max-w-5xl px-5 pb-16 pt-9 sm:px-8"
       >
         <h2
           id="faq"
           className="mb-6 font-display text-2xl text-foil sm:text-3xl"
         >
-          Questions, answered honestly
+          Before you commit
         </h2>
         <div className="flex max-w-3xl flex-col divide-y divide-ink-line border-y border-ink-line">
           {faqs.map((item) => (
@@ -413,7 +405,11 @@ export default function SubscribePage() {
           ))}
         </div>
         <p className="mt-6 max-w-3xl text-sm text-cream-dim">
-          Anything else, message{" "}
+          Everything else about swaps, payment days and delivery is on the{" "}
+          <Link href="/faq#subscription" className="text-gold underline underline-offset-2">
+            full FAQ
+          </Link>
+          . Anything not there, message{" "}
           <a
             href={SOCIALS.instagram}
             target="_blank"
@@ -422,13 +418,13 @@ export default function SubscribePage() {
           >
             {SOCIALS.handle}
           </a>{" "}
-          on Instagram or call{" "}
+          or call{" "}
           <a
             href={`tel:${SOCIALS.phone}`}
             className="numeric text-gold underline underline-offset-2"
           >
             {SOCIALS.phone}
-          </a>{" "}
+          </a>
           . A real person answers.
         </p>
       </section>

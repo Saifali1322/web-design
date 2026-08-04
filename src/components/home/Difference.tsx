@@ -1,4 +1,3 @@
-import Link from "next/link";
 import CountUp from "@/components/ui/CountUp";
 import Reveal from "@/components/ui/Reveal";
 import { juices } from "@/lib/catalogue";
@@ -83,7 +82,7 @@ export function Difference() {
   return (
     <section
       aria-labelledby="difference-heading"
-      className="relative isolate overflow-hidden border-t border-ink-line py-20 sm:py-28 lg:py-32"
+      className="relative isolate overflow-hidden border-t border-ink-line py-16 sm:py-20 lg:py-24"
     >
       <div
         aria-hidden="true"
@@ -198,20 +197,6 @@ export function Difference() {
               </div>
             ))}
           </dl>
-        </Reveal>
-
-        <Reveal delay={0.08}>
-          <p className="mt-7 max-w-lg text-sm leading-relaxed font-light text-cream-faint lg:ml-auto lg:text-right">
-            If it separates in the fridge that is the pulp settling out, not the
-            juice turning. Give it a shake.{" "}
-            <Link
-              href="/faq#juice"
-              className="text-gold underline underline-offset-4 transition-colors hover:text-gold-bright"
-            >
-              More on how it behaves
-            </Link>
-            .
-          </p>
         </Reveal>
       </div>
     </section>

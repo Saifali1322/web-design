@@ -43,7 +43,7 @@ export default function MenuPage() {
           the left of everything under it. Below 1280px the two containers
           resolve to the same width and the hang closes itself, which is why
           this cannot push the page sideways. */}
-      <div className="mx-auto w-full max-w-7xl px-5 pt-14 sm:px-8 sm:pt-20">
+      <div className="mx-auto w-full max-w-7xl px-5 pt-10 sm:px-8 sm:pt-14">
         <p className="tracking-label text-xs uppercase text-gold">
           The full menu
         </p>
@@ -140,15 +140,15 @@ export default function MenuPage() {
         </dl>
       </div>
 
-      <section className="mx-auto max-w-6xl px-5 pt-14 sm:px-8">
+      <section className="mx-auto max-w-6xl px-5 pt-9 sm:px-8">
         <MenuSpotlight juices={products.filter((p) => p.category === "juice")} />
       </section>
 
       <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
-        <div className="rule-foil my-14" />
+        <div className="rule-foil my-9" />
       </div>
 
-      <section className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
+      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8">
         <MenuGrid products={products} />
       </section>
     </div>

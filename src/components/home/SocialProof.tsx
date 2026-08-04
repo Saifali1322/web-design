@@ -113,7 +113,7 @@ export function SocialProof() {
   return (
     <section
       aria-labelledby="proof-heading"
-      className="relative border-t border-ink-line py-16 sm:py-20 lg:py-24"
+      className="relative border-t border-ink-line py-14 sm:py-16 lg:py-20"
     >
       {/* Narrower than every other section on the page, and shorter. This is
           the beat where the site admits it has nothing to show yet, and a
@@ -183,18 +183,13 @@ export function SocialProof() {
 
                 <div className="mt-5 space-y-4 text-sm leading-relaxed font-light text-cream-dim sm:text-[0.9375rem]">
                   <p>
-                    No quotes. No stars, and no counter ticking up. Not because
-                    nobody has said anything, but because we are not going to
-                    write them ourselves.
-                  </p>
-                  <p>
-                    A testimonial from a customer who does not exist is the
-                    easiest thing on a website to make up, and it is the fastest
-                    way for a kitchen to lose the only thing it really has. So
-                    this space stays empty until somebody real fills it.
+                    No quotes, no stars, no counter ticking up — because we are
+                    not going to write them ourselves. Made one up, is the
+                    fastest way for a kitchen to lose the only thing it really
+                    has.
                   </p>
                   <p className="text-cream">
-                    If you have ordered and you would say something, message{" "}
+                    If you have ordered and would say something, message{" "}
                     <a
                       href={SOCIALS.instagram}
                       target="_blank"
@@ -203,8 +198,7 @@ export function SocialProof() {
                     >
                       {SOCIALS.handle}
                     </a>
-                    . Send it in your own words and it goes up here with your
-                    name on it.
+                    . It goes up here in your own words, with your name on it.
                   </p>
                 </div>
               </div>

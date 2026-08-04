@@ -35,7 +35,7 @@ export function DeliveryStrip() {
   return (
     <section
       aria-labelledby="delivery-heading"
-      className="relative isolate overflow-hidden border-t border-ink-line bg-ink-raised py-20 sm:py-24 lg:py-28"
+      className="relative isolate overflow-hidden border-t border-ink-line bg-ink-raised py-16 sm:py-20 lg:py-24"
     >
       <div
         aria-hidden="true"

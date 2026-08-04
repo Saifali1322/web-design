@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 import { DELIVERY, juices } from "@/lib/catalogue";
 
@@ -33,7 +32,7 @@ export function HowItWorks() {
   return (
     <section
       aria-labelledby="how-heading"
-      className="relative border-t border-ink-line bg-ink-raised py-20 sm:py-24 lg:py-28"
+      className="relative border-t border-ink-line bg-ink-raised py-16 sm:py-20 lg:py-24"
     >
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
         <Reveal>
@@ -89,31 +88,6 @@ export function HowItWorks() {
             </Reveal>
           ))}
         </ol>
-
-        {/* The deadline is the single most-questioned rule on the site, so it
-            gets explained here rather than defended in a support message. */}
-        <Reveal delay={0.05}>
-          <div className="mt-14 grid gap-6 border-t border-ink-line pt-8 sm:mt-16 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
-            <p className="max-w-2xl text-sm leading-relaxed font-light text-cream-dim">
-              <span className="text-cream">
-                The Thursday deadline is the reason the juice is any good.
-              </span>{" "}
-              If orders could land on Saturday night we would be pressing
-              against a guess. Pressing against a guess means bottles sitting in
-              a fridge hoping somebody wants them, and then going in the bin on
-              Wednesday. Knowing the number first is what keeps the waste at
-              nothing.
-            </p>
-
-            <Link
-              href="/faq#ordering"
-              className="inline-flex items-center gap-2 font-sans text-[0.6875rem] tracking-label text-gold uppercase transition-colors hover:text-gold-bright"
-            >
-              Ordering, answered
-              <span aria-hidden="true">&rarr;</span>
-            </Link>
-          </div>
-        </Reveal>
       </div>
     </section>
   );

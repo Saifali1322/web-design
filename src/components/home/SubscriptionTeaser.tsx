@@ -13,7 +13,7 @@ export function SubscriptionTeaser() {
   return (
     <section
       aria-labelledby="subscribe-heading"
-      className="relative isolate overflow-hidden border-t border-ink-line py-24 sm:py-32 lg:py-36"
+      className="relative isolate overflow-hidden border-t border-ink-line py-16 sm:py-20 lg:py-24"
     >
       <div
         aria-hidden="true"
