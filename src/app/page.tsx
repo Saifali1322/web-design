@@ -2,44 +2,28 @@ import Hero from "@/components/home/Hero";
 import TrustBar from "@/components/home/TrustBar";
 import Difference from "@/components/home/Difference";
 import Bestsellers from "@/components/home/Bestsellers";
-import SocialProof from "@/components/home/SocialProof";
 import HowItWorks from "@/components/home/HowItWorks";
 import SubscriptionTeaser from "@/components/home/SubscriptionTeaser";
 import DeliveryStrip from "@/components/home/DeliveryStrip";
 import { revealNoScriptCss } from "@/components/ui/Reveal";
 
 /**
- * The order below is an argument, not a list of modules. Each section answers
- * the question the one above it raises:
+ * One scroll, one idea each:
  *
  *   Hero           what this is
  *   TrustBar       the four facts that define it
  *   Difference     why it is not the bottle in the supermarket
  *   Bestsellers    what that actually buys you
  *   Subscription   the cheaper, standing way to keep buying it
- *   SocialProof    who says so, and what can be checked while nobody has
  *   HowItWorks     how it reaches you, and why there is a deadline
  *   DeliveryStrip  where we go, and how to start
  *
- * Reordering these breaks the argument, so any new section needs a place in
- * that sequence rather than a slot at the end.
- *
- * Subscription used to sit second-to-last, after HowItWorks. It is the
- * business's main margin and retention lever, and every comparable DTC site
- * surfaces its subscription offer in the first two or three sections rather
- * than near the footer — leaving it there meant most visitors never reached
- * it. Moving it straight after Bestsellers keeps the trust-first shape (Hero,
- * TrustBar and Difference still run before anyone is asked to commit to
- * anything), but now the standing-order pitch lands the moment someone has
- * seen what they'd actually be subscribing to, rather than after they have
- * already scrolled past reviews and the delivery mechanics.
- *
- * They are also deliberately not the same shape. Difference hangs its heading
- * into the left margin and splits 60/40; Bestsellers runs a card grid with a
- * note in the last cell; SocialProof is quieter and shorter than either; the
- * subscription block is the tallest thing on the page. A stack of eight
- * identical full-width bands is what this was, and it is the single clearest
- * sign that nobody chose anything.
+ * SocialProof is written but deliberately not rendered here. It is an
+ * empty-state section (no real reviews yet), and an empty-state section is
+ * exactly the kind of thing that makes a page feel long without giving
+ * anyone a reason to keep scrolling. Re-add it once REVIEWS in
+ * SocialProof.tsx actually has quotes in it — a section that admits it has
+ * nothing is worse than no section at all.
  */
 export default function Home() {
   return (
@@ -56,7 +40,6 @@ export default function Home() {
       <Difference />
       <Bestsellers />
       <SubscriptionTeaser />
-      <SocialProof />
       <HowItWorks />
       <DeliveryStrip />
     </>

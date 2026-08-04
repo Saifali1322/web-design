@@ -19,9 +19,6 @@ const SINGLE_INGREDIENT = juices.filter(
 
 const KEEPS = Math.min(...juices.map((juice) => juice.keepsDays));
 
-/** The juices that are not one ingredient, named rather than glossed over. */
-const BLENDED = juices.filter((juice) => juice.ingredients.length > 1);
-
 /**
  * The lead point carries the argument; the two under it are the supporting
  * evidence. They were three equal columns, which is the shape a system reaches
@@ -29,17 +26,17 @@ const BLENDED = juices.filter((juice) => juice.ingredients.length > 1);
  */
 const LEAD = {
   title: "Whole fruit, not concentrate",
-  body: "Oranges, watermelons and pomegranates go through the press on the morning your order goes out. Nothing is reconstituted from a drum. Nothing is topped up with water or cheap apple juice to make it go further.",
+  body: "Oranges, watermelons and pomegranates go through the press the morning your order goes out. Nothing reconstituted, nothing topped up with water to make it go further.",
 };
 
 const SUPPORT = [
   {
     title: "No heat, no high pressure",
-    body: "Juice that keeps for a month has been pasteurised or put under high pressure. Both are done to make it last, and both change what ends up in the bottle. We would rather do neither and accept that it has to be drunk this week.",
+    body: "Both make a juice last a month, and both change what's in the bottle. We do neither, and accept it has to be drunk this week.",
   },
   {
     title: "Nothing added at all",
-    body: `${SINGLE_INGREDIENT} of the ${juices.length} juices have exactly one ingredient on the list. No sugar, no water, no preservative, no stabiliser, nothing to stop the colour going.`,
+    body: `${SINGLE_INGREDIENT} of the ${juices.length} juices have exactly one ingredient on the list. No sugar, no water, no preservative.`,
   },
 ] as const;
 
@@ -110,16 +107,10 @@ export function Difference() {
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
         <Reveal>
           <p className="mt-7 max-w-xl text-[0.9375rem] leading-relaxed font-light text-cream-dim lg:ml-auto lg:mt-8">
-            Most chilled juice with a date three weeks out has been heated, or
-            put under enough pressure to kill everything living in it, so it can
-            survive a warehouse. That is a perfectly sensible way to run a drink
-            company.{" "}
-            <span className="text-cream">
-              It is just a different product from this one.
-            </span>{" "}
-            Ours has {KEEPS}{" "}
-            days on it because it went through a press and then straight into a
-            bottle.
+            A three-week date means it was heated or pressurised to survive a
+            warehouse.{" "}
+            <span className="text-cream">Ours has {KEEPS} days on it</span>{" "}
+            because it went straight from the press into the bottle.
           </p>
         </Reveal>
 
@@ -134,19 +125,6 @@ export function Difference() {
             <p className="mt-5 max-w-xl text-base leading-relaxed font-light text-cream-dim">
               {LEAD.body}
             </p>
-
-            {/* A margin note, set where a margin note goes: hard against the
-                left edge of the column, small, and too specific to have been
-                generated. It is the footnote to the 6/7 in the strip below. */}
-            {BLENDED.length > 0 && (
-              <p className="mt-8 max-w-xs border-l border-gold-deep pl-4 text-sm leading-relaxed font-light text-cream-faint">
-                {BLENDED.length === 1 ? "The odd one out is" : "The odd ones out are"}{" "}
-                {BLENDED.map((j) => j.name).join(" and ")}. The second
-                ingredient is{" "}
-                {BLENDED[0].ingredients.slice(1).join(" and ").toLowerCase()},
-                and that is the whole list.
-              </p>
-            )}
           </Reveal>
 
           <ul className="divide-y divide-ink-line border-t border-ink-line lg:mt-2">

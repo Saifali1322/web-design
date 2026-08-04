@@ -45,20 +45,9 @@ export function SubscriptionTeaser() {
             <p className="mt-6 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
               Pick a size, pick your flavours, and the same box turns up every{" "}
               {DELIVERY.dropDay} for up to {formatPrice(BEST_SAVING)} a week
-              less than buying it bottle by bottle.
-            </p>
-
-            {/* The discount is the obvious question, and the honest answer is
-                an operational one rather than a marketing one. Saying where the
-                money comes from is more persuasive than the number itself. */}
-            <p className="mt-4 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
-              <span className="text-cream">
-                That saving is not a discount we swallow.
-              </span>{" "}
-              Knowing exactly how many bottles are going out before the fruit
-              gets bought means nothing is pressed on spec and nothing goes in
-              the bin. The box costs less to make. That is the entire reason it
-              costs less to buy.
+              less than buying it bottle by bottle — because knowing the
+              count before the fruit gets bought means nothing is pressed on
+              spec.
             </p>
 
             <ul className="mt-7 space-y-3">
@@ -150,10 +139,8 @@ export function SubscriptionTeaser() {
 
             <Reveal delay={0.12}>
               <p className="mt-6 text-sm leading-relaxed font-light text-cream-faint">
-                Struck-through prices are the same items bought one at a time
-                off the menu, not an invented list price. Payment is taken
-                weekly by card ahead of the {DELIVERY.dropDay}{" "}
-                run, and you can stop it at any point before the next one.{" "}
+                Struck-through prices are the same items off the menu, not an
+                invented list price.{" "}
                 <Link
                   href="/faq#subscription"
                   className="text-gold underline underline-offset-4 transition-colors hover:text-gold-bright"

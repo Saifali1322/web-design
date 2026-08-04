@@ -12,19 +12,19 @@ const KEEPS = Math.min(...juices.map((juice) => juice.keepsDays));
 const STEPS = [
   {
     title: "Order by Thursday",
-    body: "Build a box any time before Thursday night, and swap flavours as often as you like until then. Nothing is fixed until the press list closes and the fruit gets bought against it.",
+    body: "Build a box any time before Thursday night; nothing is fixed until the list closes.",
   },
   {
     title: `Pressed ${DELIVERY.dropDay} morning`,
-    body: "Fruit in early. Bottles filled from the jug, capped and labelled by hand, straight into the cold box. Everything on the list is made that morning and nothing is pressed ahead.",
+    body: "Fruit in early, bottled and labelled by hand, straight into the cold box.",
   },
   {
     title: "Delivered the same day",
-    body: `One route, one afternoon, across ${DELIVERY.city}. It travels in a cool bag with ice packs, and we message before setting off so you know roughly when to expect it.`,
+    body: `One route, one afternoon, across ${DELIVERY.city} in a cool bag with ice packs.`,
   },
   {
     title: `Drunk inside ${KEEPS} days`,
-    body: `Keep it in the fridge and finish it within ${KEEPS} days. That is not caution. It is what raw juice with nothing added to it actually does.`,
+    body: "Keep it in the fridge. That's what raw juice with nothing added actually does.",
   },
 ] as const;
 
@@ -52,9 +52,8 @@ export function HowItWorks() {
               <span className="font-script text-2xl text-gold/90">
                 It all happens in a day.
               </span>{" "}
-              Nothing is pressed before the list closes and nothing is held back
-              for the week after, which is why there is a deadline in the middle
-              of it.
+              Nothing is pressed until the list closes, which is why there's a
+              deadline.
             </p>
           </div>
         </Reveal>

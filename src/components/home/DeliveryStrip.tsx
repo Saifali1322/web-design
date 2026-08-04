@@ -58,24 +58,16 @@ export function DeliveryStrip() {
             </h2>
 
             <p className="mt-5 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
-              {DELIVERY.city}{" "}
-              only, for now. If your outward code is on this list, we are
-              already on your street every {DELIVERY.dropDay}{" "}
-              afternoon. If it is not, we will tell you so rather than take the
-              order. A box that arrives warm is worse than one that never went
-              out.
-            </p>
-
-            <p className="mt-4 max-w-md text-[0.9375rem] leading-relaxed font-light text-cream-dim">
-              Everything travels in a cool bag with ice packs and goes straight
-              from the cold box to your door. Outside the route,{" "}
+              {DELIVERY.city} only, for now, straight from the cold box to
+              your door every {DELIVERY.dropDay} afternoon. Outside the
+              route,{" "}
               <Link
                 href="/delivery"
                 className="text-gold underline underline-offset-4 transition-colors hover:text-gold-bright"
               >
                 collection can be arranged
-              </Link>{" "}
-              with no minimum order.
+              </Link>
+              .
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">

@@ -65,11 +65,8 @@ export function Bestsellers() {
             </div>
 
             <p className="max-w-2xl text-[0.9375rem] leading-relaxed font-light text-cream-dim lg:pb-1">
-              Not a badge handed out at random. These are the{" "}
-              {bestsellers.length}{" "}
-              that go first every week, and the press list gets built around
-              them before anything else is added to it. They run across{" "}
-              {listSentence(categories)}.
+              Not a badge handed out at random — the {bestsellers.length}{" "}
+              that go first every week, across {listSentence(categories)}.
             </p>
           </div>
         </Reveal>
