@@ -2,6 +2,7 @@ import Hero from "@/components/home/Hero";
 import TrustBar from "@/components/home/TrustBar";
 import Difference from "@/components/home/Difference";
 import Bestsellers from "@/components/home/Bestsellers";
+import BuildABlend from "@/components/home/BuildABlend";
 import HowItWorks from "@/components/home/HowItWorks";
 import SubscriptionTeaser from "@/components/home/SubscriptionTeaser";
 import DeliveryStrip from "@/components/home/DeliveryStrip";
@@ -13,10 +14,16 @@ import { revealNoScriptCss } from "@/components/ui/Reveal";
  *   Hero           what this is
  *   TrustBar       the four facts that define it
  *   Difference     why it is not the bottle in the supermarket
- *   Bestsellers    what that actually buys you
+ *   Bestsellers    what that actually buys you, off the shelf
+ *   BuildABlend    what that actually buys you, mixed to order
  *   Subscription   the cheaper, standing way to keep buying it
  *   HowItWorks     how it reaches you, and why there is a deadline
  *   DeliveryStrip  where we go, and how to start
+ *
+ * BuildABlend sits right after Bestsellers because both answer "what can I
+ * buy": one off the menu, one mixed. Keeping them adjacent means the mixer
+ * never has to compete with the subscription pitch or the delivery mechanics
+ * for attention.
  *
  * SocialProof is written but deliberately not rendered here. It is an
  * empty-state section (no real reviews yet), and an empty-state section is
@@ -39,6 +46,7 @@ export default function Home() {
       <TrustBar />
       <Difference />
       <Bestsellers />
+      <BuildABlend />
       <SubscriptionTeaser />
       <HowItWorks />
       <DeliveryStrip />
